@@ -25,6 +25,7 @@ dependencies:
   flutter:
     sdk: flutter
   firebase_core : ^1.0.3
+  onesignal_flutter: ^2.2.0
 
 
   # The following adds the Cupertino Icons font to your application.
