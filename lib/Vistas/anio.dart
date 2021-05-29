@@ -40,6 +40,8 @@ class _AnioView extends State<Anio> {
   Color c = const Color(0xFF42A5F5);
   String url;
   final formkey = GlobalKey<FormState>();
+  bool prodimdf;
+  bool gi;
 
   List<Widget> send = [];
 
@@ -260,7 +262,7 @@ class _AnioView extends State<Anio> {
         ],
       ),
     );
-    if (prodim != null) {
+    if (prodimdf) {
       send.add(
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -283,7 +285,62 @@ class _AnioView extends State<Anio> {
                       Container(
                           margin: const EdgeInsets.only(left: 10.0),
                           child: Text(
-                            prodim,
+                            'PRODIM',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          )),
+                    ],
+                  ),
+                  onPressed: () {
+                    /*Navigator.pushNamed(context, '/obras',
+                      arguments: Obras(
+                        anio: anio,
+                        id_cliente: id_cliente,
+                      ));*/
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: const Color.fromRGBO(9, 46, 116, 1.0),
+                    shape: RoundedRectangleBorder(
+                      //borde del boton
+                      borderRadius: BorderRadius.circular(10.0),
+                      side: BorderSide(color: Colors.white),
+                    ),
+                    elevation: 8.0,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    if (gi) {
+      send.add(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(20.0),
+              child: SizedBox(
+                height: 80,
+                width: 260,
+                child: ElevatedButton(
+                  child: Row(
+                    children: [
+                      Align(
+                          alignment: Alignment.centerLeft,
+                          child: Icon(
+                            Icons.check,
+                            color: Colors.white,
+                            size: 30,
+                          )),
+                      Container(
+                          margin: const EdgeInsets.only(left: 10.0),
+                          child: Text(
+                            'Gastos Indirectos',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
@@ -350,7 +407,7 @@ class _AnioView extends State<Anio> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://192.168.10.160/api/getProdim/$id_cliente,$anio";
+    url = "http://192.168.10.141/api/getProdim/$id_cliente,$anio";
 
     try {
       final respuesta = await http.get(Uri.parse(url));
@@ -359,15 +416,11 @@ class _AnioView extends State<Anio> {
           final data = json.decode(respuesta.body);
           data.forEach((e) {
             if (e['prodim'] == 1) {
-              prodim = 'PRODIM';
+              prodimdf = true;
             }
 
             if (e['gastos_indirectos'] == 1) {
-              print(e['prodim']);
-              if (prodim != '') {
-                prodim = prodim + '\n';
-              }
-              prodim = prodim + 'Gastos Indirectos';
+              gi = true;
             }
           });
           _onRefresh();

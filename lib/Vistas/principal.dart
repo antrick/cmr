@@ -349,11 +349,12 @@ class _WelcomeView extends State<Welcome> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://192.168.10.160/api/getCliente/$id_cliente";
+    url = "http://192.168.10.141/api/getCliente/$id_cliente";
     try {
       final respuesta = await http.get(Uri.parse(url));
       if (respuesta.statusCode == 200) {
         if (respuesta.body != "") {
+          print(respuesta.body);
           final data = json.decode(respuesta.body);
           data.forEach((e) {
             id_cliente = e['id_cliente'];

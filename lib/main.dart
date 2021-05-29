@@ -1,7 +1,8 @@
-/*import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app/Vistas/anio.dart';
 import 'package:flutter_app/Vistas/counter.dart';
+import 'package:flutter_app/Vistas/notify.dart';
 import 'package:flutter_app/Vistas/obra_admin.dart';
 import 'package:flutter_app/Vistas/obra_contrato.dart';
 import 'package:flutter_app/Vistas/observer.dart';
@@ -15,8 +16,6 @@ import 'Vistas/fondos.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
   runApp(MyApp());
   const SystemUiOverlayStyle light = SystemUiOverlayStyle(
     systemNavigationBarColor: Color(0xFF000000),
@@ -39,22 +38,22 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/counter',
+      initialRoute: '/',
       routes: {
-        /*'/': (context) => LoginForm(),
+        '/': (context) => LoginForm(),
         '/inicio': (context) => Welcome(),
         '/obras': (context) => Obras(),
         '/fondos': (context) => Fondos(),
         '/anio': (context) => Anio(),
         '/admin': (context) => Obras_admin(),
-        '/contrato': (context) => Obras_contrato(),*/
-        '/counter': (context) => MessagingExampleApp(),
+        '/contrato': (context) => Obras_contrato(),
+        '/counter': (context) => Notify(),
       },
       builder: EasyLoading.init(),
     );
   }
-}*/
-import 'package:flutter/material.dart';
+}
+/*import 'package:flutter/material.dart';
 import 'dart:async';
 
 //import OneSignal
@@ -446,7 +445,7 @@ class _MyAppState extends State<MyApp> {
                             color: Color.fromARGB(255, 212, 86, 83),
                           )),
                       onChanged: (text) {
-                        this.setState(() {
+                        this. (() {
                           _externalUserId = text == "" ? null : text;
                         });
                       },
@@ -516,4 +515,4 @@ class OneSignalButtonState extends State<OneSignalButton> {
       ],
     );
   }
-}
+}*/

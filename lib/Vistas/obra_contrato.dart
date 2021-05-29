@@ -1179,7 +1179,7 @@ class _ObrasContrato extends State<Obras_contrato> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://192.168.10.160/api/getObraExpediente/$id_obra";
+    url = "http://192.168.10.141/api/getObraExpediente/$id_obra";
     try {
       final respuesta = await http.get(Uri.parse(url));
       if (respuesta.statusCode == 200) {
