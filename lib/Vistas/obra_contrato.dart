@@ -235,7 +235,9 @@ class _ObrasContrato extends State<Obras_contrato> {
 
   void _options() {
     String n_moda = 'Licitación pública';
+    print(modalidad);
     if (modalidad == 3) {
+      print('hola');
       n_moda = 'Invitación a cuando menos tres contratistas';
     }
     if (modalidad == 4) {
@@ -371,7 +373,7 @@ class _ObrasContrato extends State<Obras_contrato> {
       String montoT = fondo[i];
       send.add(
         Container(
-          margin: EdgeInsets.only(left: 15, right: 15, bottom: 20),
+          margin: EdgeInsets.only(left: 15, right: 15, bottom: 20, top: 0),
           child: Row(
             mainAxisSize: MainAxisSize.max,
             children: [
@@ -1179,7 +1181,7 @@ class _ObrasContrato extends State<Obras_contrato> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://192.168.10.141/api/getObraExpediente/$id_obra";
+    url = "http://192.168.10.141:8000/api/getObraExpediente/$id_obra";
     try {
       final respuesta = await http.get(Uri.parse(url));
       if (respuesta.statusCode == 200) {
@@ -1329,6 +1331,7 @@ class _ObrasContrato extends State<Obras_contrato> {
                 exp.add(i['acta_entrega_municipio']);
                 exp.add(i['saba_finiquito']);
                 exp.add(i['notas_botacoras']);
+                modalidad = i['modalidad_asignacion'];
                 fact_anticipo = anticipo;
                 f_ant = anticipo;
                 if (anticipo == 1 && i['factura_anticipo'] == '') {

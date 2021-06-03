@@ -10,18 +10,18 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Obras extends StatefulWidget {
+class Gastos extends StatefulWidget {
   @override
-  _ObrasView createState() => _ObrasView();
+  _GastosView createState() => _GastosView();
   int id_cliente;
   int anio;
-  Obras({
+  Gastos({
     this.id_cliente,
     this.anio,
   });
 }
 
-class _ObrasView extends State<Obras> {
+class _GastosView extends State<Gastos> {
   String fecha_integracion = '';
   String fecha_priorizacion = '';
   String fecha_adendum = '';
@@ -52,9 +52,10 @@ class _ObrasView extends State<Obras> {
 
   @override
   Widget build(BuildContext context) {
-    final Obras args = ModalRoute.of(context).settings.arguments;
+    final Gastos args = ModalRoute.of(context).settings.arguments;
     id_cliente = args.id_cliente;
     anio = args.anio;
+
     if (!lista_obras.isEmpty && inicio) {
       _options();
     }
@@ -67,7 +68,7 @@ class _ObrasView extends State<Obras> {
           appBar: AppBar(
             backgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
             centerTitle: true,
-            title: Text("OBRA PÚBLICA"),
+            title: Text("GASTOS INDIRECTOS"),
           ),
           bottomNavigationBar: _menuInferior(context),
           body: Container(
@@ -113,59 +114,7 @@ class _ObrasView extends State<Obras> {
     send.add(SizedBox(
       height: 20,
     ));
-    send.add(Center(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(
-          "ACTAS PRELIMINARES",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w500,
-            fontSize: 18,
-          ),
-        ),
-      ),
-    ));
-    send.add(SizedBox(
-      height: 10,
-    ));
-    send.add(Container(
-      child: Column(
-        children: [
-          cards(
-              context,
-              "Acta de Integración del Consejo de Desarrollo Municipal",
-              fecha_integracion),
-          cards(context, "Acta de Priorización de Obras", fecha_priorizacion),
-          cards(context, "Acta de Adendum a la Priorización de Obras",
-              fecha_adendum),
-        ],
-      ),
-    ));
-    send.add(Container(
-      child: Column(
-        children: [
-          SizedBox(
-            height: 30,
-          ),
-          SizedBox(
-            child: Center(
-                child: Text(
-              "LISTADO DE OBRAS",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-                fontSize: 18,
-              ),
-            )),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-        ],
-      ),
-    ));
+
     send.add(Container(
         margin: EdgeInsets.only(left: 10, right: 10),
         child: Row(
@@ -173,7 +122,7 @@ class _ObrasView extends State<Obras> {
             Expanded(
               flex: 3,
               child: Text(
-                "PROYECTO",
+                "SUBCLASIFICACIÓN",
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w500,
@@ -194,18 +143,6 @@ class _ObrasView extends State<Obras> {
                 textAlign: TextAlign.center,
               ),
             ),
-            Expanded(
-              flex: 1,
-              child: Text(
-                "AVANCE",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 15,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            )
           ],
         )));
     send.add(SizedBox(
@@ -240,13 +177,6 @@ class _ObrasView extends State<Obras> {
               ));
         }
         if (index == 2) {
-          Navigator.pushNamed(context, '/obras',
-              arguments: Obras(
-                anio: anio,
-                id_cliente: id_cliente,
-              ));
-        }
-        if (index == 3) {
           Navigator.of(context).pushNamedAndRemoveUntil(
             '/',
             (Route<dynamic> route) => false,
@@ -262,10 +192,6 @@ class _ObrasView extends State<Obras> {
         BottomNavigationBarItem(
           icon: new Icon(Icons.calendar_today),
           label: 'Año $anio',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.construction),
-          label: 'Obra Publica',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.logout),
@@ -330,85 +256,52 @@ class _ObrasView extends State<Obras> {
   }
 // ------------- Cards Listado de obras -------------------
 
-  Widget cards_listado(
-      BuildContext context, nombre, monto, avance, id_obra, modalidad) {
+  Widget cards_listado(BuildContext context, nombre, monto) {
     return Container(
-        height: 70,
         child: InkWell(
-          onTap: () {
-            if (modalidad == 1) {
-              Navigator.pushNamed(context, '/admin',
-                  arguments: Obras_admin(
-                    id_obra: id_obra,
-                    id_cliente: id_cliente,
-                    anio: anio,
-                  ));
-            }
-            if (modalidad == 2) {
-              Navigator.pushNamed(context, '/contrato',
-                  arguments: Obras_contrato(
-                    id_obra: id_obra,
-                    id_cliente: id_cliente,
-                    anio: anio,
-                  ));
-            }
-          },
-          child: Card(
-            // RoundedRectangleBorder para proporcionarle esquinas circulares al Card
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6),
-              side: BorderSide(color: Colors.white),
+      child: Card(
+        // RoundedRectangleBorder para proporcionarle esquinas circulares al Card
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(6),
+          side: BorderSide(color: Colors.white),
+        ),
+        // margen para el Card
+        margin: EdgeInsets.only(
+          left: 10,
+          right: 10,
+          bottom: 8,
+        ),
+        // La sombra que tiene el Card aumentará
+        elevation: 10,
+        //Colocamos una fila en dentro del card
+        color: const Color.fromRGBO(9, 46, 116, 1.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+                flex: 3,
+                child: Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: Text(nombre,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w300,
+                          fontSize: 15,
+                        )))),
+            Expanded(
+              //columna fecha
+              flex: 1,
+              child: Text("\u0024 $monto",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w300,
+                    fontSize: 15,
+                  )),
             ),
-            // margen para el Card
-            margin: EdgeInsets.only(
-              left: 10,
-              right: 10,
-              bottom: 8,
-            ),
-            // La sombra que tiene el Card aumentará
-            elevation: 10,
-            //Colocamos una fila en dentro del card
-            color: const Color.fromRGBO(9, 46, 116, 1.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Expanded(
-                    flex: 3,
-                    child: Padding(
-                        padding: EdgeInsets.all(10.0),
-                        child: Text(nombre,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w300,
-                              fontSize: 15,
-                            )))),
-                Expanded(
-                  //columna fecha
-                  flex: 2,
-                  child: Text("\u0024 $monto",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w300,
-                        fontSize: 15,
-                      )),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: LinearPercentIndicator(
-                    width: 60.0,
-                    animation: true,
-                    animationDuration: 1000,
-                    lineHeight: 20.0,
-                    percent: avance * 0.01,
-                    linearStrokeCap: LinearStrokeCap.butt,
-                    center: Text("$avance%"),
-                    progressColor: Colors.green,
-                  ),
-                )
-              ],
-            ),
-          ),
-        ));
+          ],
+        ),
+      ),
+    ));
   }
 
   void _showSecondPage(BuildContext context) {
@@ -446,16 +339,41 @@ class _ObrasView extends State<Obras> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://192.168.10.141/api/getObrasCliente/$id_cliente,$anio";
+    url = "http://192.168.10.141:8000/api/getDesgloseGI/$id_cliente,$anio";
     print('$id_cliente $anio');
     try {
       final respuesta = await http.get(Uri.parse(url));
+      print(respuesta.body);
       if (respuesta.statusCode == 200) {
         bool resp = respuesta.body == "";
         if (respuesta.body != "") {
           final data = json.decode(respuesta.body);
           data.forEach((e) {
-            fecha_integracion = e['acta_integracion_consejo'];
+            print(e['catalogo']);
+            print(e['montos']);
+            final parte_social = json.encode(e['catalogo']);
+
+            dynamic data1 = json.decode(parte_social);
+
+            data1.forEach((i) {
+              final montos = json.encode(e['montos']);
+
+              dynamic data2 = json.decode(montos);
+              double monto = 0;
+              data2.forEach((a) {
+                if (a['indirectos_id'] == i['id_indirectos']) {
+                  monto = a['monto'].toDouble();
+                }
+              });
+              String nombre = i['nombre'];
+              /*if (nombre.length > 65) {
+                nombre = nombre.substring(0, 65) + '...';
+              }*/
+              lista_obras
+                  .add(cards_listado(context, nombre, numberFormat(monto)));
+            });
+
+            /*fecha_integracion = e['acta_integracion_consejo'];
             fecha_priorizacion = e['acta_priorizacion'];
             fecha_adendum = e['adendum_priorizacion'];
             double avance =
@@ -471,7 +389,7 @@ class _ObrasView extends State<Obras> {
                 numberFormat(monto_contratado),
                 avance,
                 e['id_obra'],
-                e['modalidad_ejecucion']));
+                e['modalidad_ejecucion']));*/
           });
           _onRefresh();
           _onLoading();

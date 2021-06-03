@@ -344,7 +344,7 @@ class _ObrasView extends State<Obras> {
                     anio: anio,
                   ));
             }
-            if (modalidad == 2) {
+            if (modalidad > 1) {
               Navigator.pushNamed(context, '/contrato',
                   arguments: Obras_contrato(
                     id_obra: id_obra,
@@ -446,7 +446,7 @@ class _ObrasView extends State<Obras> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://192.168.10.141/api/getObrasCliente/$id_cliente,$anio";
+    url = "http://192.168.10.141:8000/api/getObrasCliente/$id_cliente,$anio";
     print('$id_cliente $anio');
     try {
       final respuesta = await http.get(Uri.parse(url));
@@ -465,6 +465,7 @@ class _ObrasView extends State<Obras> {
             if (nombre.length > 48) {
               nombre = nombre.substring(0, 53) + '...';
             }
+            print(e['modalidad_ejecucion']);
             lista_obras.add(cards_listado(
                 context,
                 nombre,

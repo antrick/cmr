@@ -371,7 +371,7 @@ class _FondosView extends State<Fondos> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://192.168.10.141/api/getFuentesCliente/$id_cliente,$anio";
+    url = "http://192.168.10.141:8000/api/getFuentesCliente/$id_cliente,$anio";
     send.clear();
     try {
       final respuesta = await http.get(Uri.parse(url));

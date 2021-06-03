@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Vistas/fondos.dart';
+import 'package:flutter_app/Vistas/gastos_indirectos.dart';
 import 'package:flutter_app/Vistas/obra_publica.dart';
 import 'package:flutter_app/Vistas/principal.dart';
+import 'package:flutter_app/Vistas/prodim.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:flutter/material.dart';
@@ -295,11 +297,11 @@ class _AnioView extends State<Anio> {
                     ],
                   ),
                   onPressed: () {
-                    /*Navigator.pushNamed(context, '/obras',
-                      arguments: Obras(
-                        anio: anio,
-                        id_cliente: id_cliente,
-                      ));*/
+                    Navigator.pushNamed(context, '/prodim',
+                        arguments: Prodim(
+                          anio: anio,
+                          id_cliente: id_cliente,
+                        ));
                   },
                   style: ElevatedButton.styleFrom(
                     primary: const Color.fromRGBO(9, 46, 116, 1.0),
@@ -350,11 +352,11 @@ class _AnioView extends State<Anio> {
                     ],
                   ),
                   onPressed: () {
-                    /*Navigator.pushNamed(context, '/obras',
-                      arguments: Obras(
-                        anio: anio,
-                        id_cliente: id_cliente,
-                      ));*/
+                    Navigator.pushNamed(context, '/gastosIndirectos',
+                        arguments: Gastos(
+                          anio: anio,
+                          id_cliente: id_cliente,
+                        ));
                   },
                   style: ElevatedButton.styleFrom(
                     primary: const Color.fromRGBO(9, 46, 116, 1.0),
@@ -407,12 +409,13 @@ class _AnioView extends State<Anio> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://192.168.10.141/api/getProdim/$id_cliente,$anio";
+    url = "http://192.168.10.141:8000/api/getProdim/$id_cliente,$anio";
 
     try {
       final respuesta = await http.get(Uri.parse(url));
       if (respuesta.statusCode == 200) {
-        if (respuesta.body != "") {
+        print(respuesta.body);
+        if (respuesta.body != "[]") {
           final data = json.decode(respuesta.body);
           data.forEach((e) {
             if (e['prodim'] == 1) {
@@ -427,10 +430,12 @@ class _AnioView extends State<Anio> {
           _onLoading();
           return jsonDecode(respuesta.body);
         } else {
+          EasyLoading.dismiss();
           return null;
         }
       } else {
         print("Error con la respusta");
+        EasyLoading.dismiss();
       }
     } catch (e) {
       EasyLoading.instance

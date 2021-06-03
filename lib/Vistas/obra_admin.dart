@@ -209,7 +209,7 @@ class _ObrasView extends State<Obras_admin> {
                           fontSize: 15,
                         ))),
                 Expanded(
-                    flex: 1,
+                    flex: 2,
                     child: Text('MONTO',
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -369,7 +369,7 @@ class _ObrasView extends State<Obras_admin> {
     ));
     send.add(
       Container(
-        margin: EdgeInsets.only(left: 15, right: 15, bottom: 20),
+        margin: EdgeInsets.only(left: 15, right: 15, top: 20),
         child: Row(
           mainAxisSize: MainAxisSize.max,
           children: [
@@ -403,7 +403,7 @@ class _ObrasView extends State<Obras_admin> {
       String montoT = fondo[i];
       send.add(
         Container(
-          margin: EdgeInsets.only(left: 15, right: 15, bottom: 20),
+          margin: EdgeInsets.only(left: 15, right: 15),
           child: Row(
             mainAxisSize: MainAxisSize.max,
             children: [
@@ -433,7 +433,7 @@ class _ObrasView extends State<Obras_admin> {
       );
     }
     send.add(SizedBox(
-      height: 10,
+      height: 30,
     ));
     send.add(
       Container(
@@ -1031,7 +1031,7 @@ class _ObrasView extends State<Obras_admin> {
                           fontSize: 15,
                         )))),
             Expanded(
-                flex: 1,
+                flex: 2,
                 child: Padding(
                     padding: EdgeInsets.all(10.0),
                     child: Text(monto,
@@ -1209,7 +1209,7 @@ class _ObrasView extends State<Obras_admin> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://192.168.10.141/api/getObraExpediente/$id_obra";
+    url = "http://192.168.10.141:8000/api/getObraExpediente/$id_obra";
     try {
       final respuesta = await http.get(Uri.parse(url));
       if (respuesta.statusCode == 200) {

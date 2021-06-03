@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app/Vistas/anio.dart';
 import 'package:flutter_app/Vistas/counter.dart';
+import 'package:flutter_app/Vistas/gastos_indirectos.dart';
 import 'package:flutter_app/Vistas/notify.dart';
 import 'package:flutter_app/Vistas/obra_admin.dart';
 import 'package:flutter_app/Vistas/obra_contrato.dart';
 import 'package:flutter_app/Vistas/observer.dart';
+import 'package:flutter_app/Vistas/prodim.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'Vistas/login.dart';
@@ -48,6 +50,8 @@ class MyApp extends StatelessWidget {
         '/admin': (context) => Obras_admin(),
         '/contrato': (context) => Obras_contrato(),
         '/counter': (context) => Notify(),
+        '/prodim': (context) => Prodim(),
+        '/gastosIndirectos': (context) => Gastos(),
       },
       builder: EasyLoading.init(),
     );
