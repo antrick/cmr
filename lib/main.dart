@@ -104,7 +104,8 @@ class _MyAppState extends State<MyApp> {
         _debugLabelString =
             "Received notification: \n${notification.jsonRepresentation().replaceAll("\\n", "\n")}";
       });
-    });
+    }); 
+     
 
     OneSignal.shared
         .setNotificationOpenedHandler((OSNotificationOpenedResult result) {

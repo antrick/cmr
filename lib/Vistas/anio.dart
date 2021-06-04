@@ -280,7 +280,7 @@ class _AnioView extends State<Anio> {
                       Align(
                           alignment: Alignment.centerLeft,
                           child: Icon(
-                            Icons.check,
+                            Icons.auto_stories,
                             color: Colors.white,
                             size: 30,
                           )),
@@ -335,7 +335,7 @@ class _AnioView extends State<Anio> {
                       Align(
                           alignment: Alignment.centerLeft,
                           child: Icon(
-                            Icons.check,
+                            Icons.calculate,
                             color: Colors.white,
                             size: 30,
                           )),
