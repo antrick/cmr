@@ -73,7 +73,7 @@ class _FondosView extends State<Fondos> {
         appBar: AppBar(
           backgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
           centerTitle: true,
-          title: Text("FONDOS DE FINANCIAMIENTO"),
+          title: Text("FUENTES DE FINANCIAMIENTO"),
         ),
         body: Container(
           decoration: BoxDecoration(
@@ -186,7 +186,6 @@ class _FondosView extends State<Fondos> {
         int.parse(porcentaje_comprometido.toStringAsFixed(0)).toDouble();
     print('cards');*/
     return Container(
-      height: 300,
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),

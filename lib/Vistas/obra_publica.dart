@@ -278,7 +278,7 @@ class _ObrasView extends State<Obras> {
 //-----------Cards de Actas preliminares------------
   Widget cards(BuildContext context, nombre, fecha) {
     return Container(
-      height: 65,
+      height: 70,
       child: Card(
         // RoundedRectangleBorder para proporcionarle esquinas circulares al Card
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
@@ -300,6 +300,8 @@ class _ObrasView extends State<Obras> {
                 child: Padding(
                     padding: EdgeInsets.all(10.0),
                     child: Text(nombre,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w300,
@@ -332,6 +334,7 @@ class _ObrasView extends State<Obras> {
 
   Widget cards_listado(
       BuildContext context, nombre, monto, avance, id_obra, modalidad) {
+    int avance_1 = avance.toInt();
     return Container(
         height: 70,
         child: InkWell(
@@ -377,6 +380,8 @@ class _ObrasView extends State<Obras> {
                     child: Padding(
                         padding: EdgeInsets.all(10.0),
                         child: Text(nombre,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w300,
@@ -401,8 +406,16 @@ class _ObrasView extends State<Obras> {
                     lineHeight: 20.0,
                     percent: avance * 0.01,
                     linearStrokeCap: LinearStrokeCap.butt,
-                    center: Text("$avance%"),
-                    progressColor: Colors.green,
+                    center: Text(
+                      "$avance_1%",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w300,
+                        fontSize: 13,
+                      ),
+                    ),
+                    progressColor: const Color.fromRGBO(0, 153, 51, 1.0),
+                    backgroundColor: const Color.fromRGBO(133, 138, 141, 1.0),
                   ),
                 )
               ],
@@ -481,7 +494,7 @@ class _ObrasView extends State<Obras> {
           return null;
         }
       } else {
-        print("Error con la respusta");
+        print("Error con la respuesta");
       }
     } catch (e) {
       print(e);

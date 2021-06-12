@@ -163,29 +163,33 @@ class _AnioView extends State<Anio> {
           Padding(
             padding: EdgeInsets.all(20.0),
             child: SizedBox(
-              height: 80,
               width: 260,
               child: ElevatedButton(
-                child: Row(
-                  children: [
-                    Align(
-                        alignment: Alignment.centerLeft,
-                        child: Icon(
+                child: Center(
+                  child: Container(
+                    margin: const EdgeInsets.only(
+                        top: 15, bottom: 15, left: 10, right: 10),
+                    child: Column(
+                      children: [
+                        Icon(
                           Icons.monetization_on_rounded,
                           color: Colors.white,
                           size: 30,
-                        )),
-                    Container(
-                        margin: const EdgeInsets.only(left: 10.0),
-                        child: Text(
-                          "Fondo de \nFinanciamiento",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w300,
+                        ),
+                        Container(
+                          child: Text(
+                            "Fuentes de Financiamiento",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w300,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                        )),
-                  ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
                 onPressed: () {
                   /*Navigator.pushNamed(context, '/fondos');*/
@@ -218,29 +222,32 @@ class _AnioView extends State<Anio> {
           Padding(
             padding: EdgeInsets.all(20.0),
             child: SizedBox(
-              height: 80,
               width: 260,
               child: ElevatedButton(
-                child: Row(
-                  children: [
-                    Align(
-                        alignment: Alignment.centerLeft,
-                        child: Icon(
+                child: Center(
+                  child: Container(
+                    margin: const EdgeInsets.only(
+                        top: 15, bottom: 15, left: 10, right: 10),
+                    child: Column(
+                      children: [
+                        Icon(
                           Icons.construction,
                           color: Colors.white,
                           size: 30,
-                        )),
-                    Container(
-                        margin: const EdgeInsets.only(left: 10.0),
-                        child: Text(
-                          "Obra Pública",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w300,
+                        ),
+                        Container(
+                          child: Text(
+                            "Obra Pública",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w300,
+                            ),
                           ),
-                        )),
-                  ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
                 onPressed: () {
                   Navigator.pushNamed(context, '/obras',
@@ -272,31 +279,36 @@ class _AnioView extends State<Anio> {
             Padding(
               padding: EdgeInsets.all(20.0),
               child: SizedBox(
-                height: 80,
                 width: 260,
                 child: ElevatedButton(
-                  child: Row(
-                    children: [
-                      Align(
-                          alignment: Alignment.centerLeft,
-                          child: Icon(
+                  child: Center(
+                    child: Container(
+                      margin: const EdgeInsets.only(
+                          top: 15, bottom: 15, left: 10, right: 10),
+                      child: Column(
+                        children: [
+                          Icon(
                             Icons.auto_stories,
                             color: Colors.white,
                             size: 30,
-                          )),
-                      Container(
-                          margin: const EdgeInsets.only(left: 10.0),
-                          child: Text(
-                            'PRODIM',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w300,
+                          ),
+                          Container(
+                            child: Text(
+                              "PRODIM",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w300,
+                              ),
                             ),
-                          )),
-                    ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   onPressed: () {
+                    /*Navigator.pushNamed(context, '/fondos');*/
+
                     Navigator.pushNamed(context, '/prodim',
                         arguments: Prodim(
                           anio: anio,
@@ -327,31 +339,37 @@ class _AnioView extends State<Anio> {
             Padding(
               padding: EdgeInsets.all(20.0),
               child: SizedBox(
-                height: 80,
                 width: 260,
                 child: ElevatedButton(
-                  child: Row(
-                    children: [
-                      Align(
-                          alignment: Alignment.centerLeft,
-                          child: Icon(
+                  child: Center(
+                    child: Container(
+                      margin: const EdgeInsets.only(
+                          top: 15, bottom: 15, left: 10, right: 10),
+                      child: Column(
+                        children: [
+                          Icon(
                             Icons.calculate,
                             color: Colors.white,
                             size: 30,
-                          )),
-                      Container(
-                          margin: const EdgeInsets.only(left: 10.0),
-                          child: Text(
-                            'Gastos Indirectos',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w300,
+                          ),
+                          Container(
+                            child: Text(
+                              'Gastos Indirectos',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w300,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                          )),
-                    ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   onPressed: () {
+                    /*Navigator.pushNamed(context, '/fondos');*/
+
                     Navigator.pushNamed(context, '/gastosIndirectos',
                         arguments: Gastos(
                           anio: anio,
@@ -409,7 +427,7 @@ class _AnioView extends State<Anio> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://192.168.10.141:8000/api/getProdim/$id_cliente,$anio";
+    url = "http://sistema.mrcorporativo.com/api/getProdim/$id_cliente,$anio";
 
     try {
       final respuesta = await http.get(Uri.parse(url));

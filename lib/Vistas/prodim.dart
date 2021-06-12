@@ -74,7 +74,7 @@ class _ProdimView extends State<Prodim> {
           body: Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("images/fondo.jpg.png"),
+                image: AssetImage("images/Fondo05.png"),
                 fit: BoxFit.cover,
               ),
             ),
@@ -114,54 +114,210 @@ class _ProdimView extends State<Prodim> {
     send.add(SizedBox(
       height: 20,
     ));
-    send.add(Center(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(
-          "PROGRAMA DE DESARROLLO INSTITUCIONAL MUNICIPAL Y DE LAS  DEMARCACIONES TERRITORIALES DEL DISTRITO FEDERAL",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w500,
-            fontSize: 18,
+    send.add(
+      Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            "PROGRAMA DE DESARROLLO INSTITUCIONAL MUNICIPAL Y DE LAS  DEMARCACIONES TERRITORIALES DEL DISTRITO FEDERAL",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+              fontSize: 18,
+            ),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
         ),
       ),
-    ));
-    send.add(SizedBox(
-      height: 20,
-    ));
+    );
+    send.add(
+      SizedBox(
+        height: 20,
+      ),
+    );
 
-    send.add(Container(
-        margin: EdgeInsets.only(left: 10, right: 10),
-        child: Row(
-          children: [
-            Expanded(
-              flex: 3,
-              child: Text(
-                "SUBCLASIFICACIÓN",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 15,
+    send.add(
+      Container(
+        height: 65,
+        child: Card(
+          // RoundedRectangleBorder para proporcionarle esquinas circulares al Card
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          // margen para el Card
+          margin: EdgeInsets.only(
+            left: 10,
+            right: 10,
+            bottom: 8,
+          ),
+          // La sombra que tiene el Card aumentará
+          elevation: 10,
+          //Colocamos una fila en dentro del card
+          color: const Color.fromRGBO(9, 46, 116, 1.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Expanded(
+                  flex: 3,
+                  child: Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: Text('Firma Electrónica',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w300,
+                            fontSize: 18,
+                          )))),
+              Expanded(
+                flex: 1,
+                child: Icon(
+                  Icons.check_circle_rounded,
+                  color: Colors.green,
                 ),
-                textAlign: TextAlign.center,
               ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Text(
-                "INVERSIÓN",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 15,
+            ],
+          ),
+        ),
+      ),
+    );
+
+    send.add(
+      Container(
+        height: 65,
+        child: Card(
+          // RoundedRectangleBorder para proporcionarle esquinas circulares al Card
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          // margen para el Card
+          margin: EdgeInsets.only(
+            left: 10,
+            right: 10,
+            bottom: 8,
+          ),
+          // La sombra que tiene el Card aumentará
+          elevation: 10,
+          //Colocamos una fila en dentro del card
+          color: const Color.fromRGBO(9, 46, 116, 1.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Expanded(
+                  flex: 3,
+                  child: Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: Text('Revisado',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w300,
+                            fontSize: 18,
+                          )))),
+              Expanded(
+                flex: 1,
+                child: Icon(
+                  Icons.check_circle_rounded,
+                  color: Colors.green,
                 ),
-                textAlign: TextAlign.center,
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    send.add(
+      Container(
+        height: 65,
+        child: Card(
+          // RoundedRectangleBorder para proporcionarle esquinas circulares al Card
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          // margen para el Card
+          margin: EdgeInsets.only(
+            left: 10,
+            right: 10,
+            bottom: 8,
+          ),
+          // La sombra que tiene el Card aumentará
+          elevation: 10,
+          //Colocamos una fila en dentro del card
+          color: const Color.fromRGBO(9, 46, 116, 1.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Expanded(
+                  flex: 3,
+                  child: Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: Text('Validado',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w300,
+                            fontSize: 18,
+                          )))),
+              Expanded(
+                flex: 1,
+                child: Icon(
+                  Icons.check_circle_rounded,
+                  color: Colors.green,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    send.add(
+      Container(
+        height: 65,
+        child: Card(
+          // RoundedRectangleBorder para proporcionarle esquinas circulares al Card
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          // margen para el Card
+          margin: EdgeInsets.only(
+            left: 10,
+            right: 10,
+            bottom: 8,
+          ),
+          // La sombra que tiene el Card aumentará
+          elevation: 10,
+          //Colocamos una fila en dentro del card
+          color: const Color.fromRGBO(9, 46, 116, 1.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Expanded(
+                  flex: 3,
+                  child: Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: Text('Firma de Convenio',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w300,
+                            fontSize: 18,
+                          )))),
+              Expanded(
+                flex: 1,
+                child: Icon(
+                  Icons.check_circle_rounded,
+                  color: Colors.green,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    send.add(
+      Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            "Comprometido",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+              fontSize: 18,
             ),
-          ],
-        )));
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    );
     send.add(SizedBox(
       height: 10,
     ));
@@ -367,7 +523,8 @@ class _ProdimView extends State<Prodim> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://192.168.10.141:8000/api/getDesgloseProdim/$id_cliente,$anio";
+    url =
+        "http://sistema.mrcorporativo.com/api/getDesgloseProdim/$id_cliente,$anio";
     print('$id_cliente $anio');
     try {
       final respuesta = await http.get(Uri.parse(url));

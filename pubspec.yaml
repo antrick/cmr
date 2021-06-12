@@ -39,6 +39,7 @@ dependencies:
   flutter_mobx: ^2.0.0
   firebase_messaging: ^9.1.1
   flutter_local_notifications: ^5.0.0+1
+  responsive_framework: ^0.1.1
   http:
 
 dev_dependencies:

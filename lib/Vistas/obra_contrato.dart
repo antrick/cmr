@@ -198,7 +198,7 @@ class _ObrasContrato extends State<Obras_contrato> {
           body: Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("images/fondo.jpg.png"),
+                image: AssetImage("images/Fondo05.png"),
                 fit: BoxFit.cover,
               ),
             ),
@@ -235,6 +235,9 @@ class _ObrasContrato extends State<Obras_contrato> {
 
   void _options() {
     String n_moda = 'Licitación pública';
+    int avance_fisico_1 = avance_fisico.toInt();
+    int avance_economico_1 = avance_economico.toInt();
+    int avance_tecnico_1 = avance_tecnico.toInt();
     print(modalidad);
     if (modalidad == 3) {
       print('hola');
@@ -405,6 +408,7 @@ class _ObrasContrato extends State<Obras_contrato> {
     send.add(SizedBox(
       height: 10,
     ));
+
     send.add(
       Container(
         margin: EdgeInsets.only(left: 15, right: 15),
@@ -426,10 +430,18 @@ class _ObrasContrato extends State<Obras_contrato> {
                 animation: true,
                 animationDuration: 1000,
                 lineHeight: 20.0,
-                percent: avance_fisico * 0.01,
+                percent: 0,
+                center: Text(
+                  "$avance_fisico_1%",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                  ),
+                ),
                 linearStrokeCap: LinearStrokeCap.roundAll,
-                center: Text("$avance_fisico%"),
                 progressColor: const Color.fromRGBO(0, 153, 51, 1.0),
+                backgroundColor: const Color.fromRGBO(133, 138, 141, 1.0),
               ),
             ),
           ],
@@ -459,8 +471,16 @@ class _ObrasContrato extends State<Obras_contrato> {
                 lineHeight: 20.0,
                 percent: avance_economico * 0.01,
                 linearStrokeCap: LinearStrokeCap.roundAll,
-                center: Text("$avance_economico%"),
+                center: Text(
+                  "$avance_economico_1%",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                  ),
+                ),
                 progressColor: const Color.fromRGBO(0, 153, 51, 1.0),
+                backgroundColor: const Color.fromRGBO(133, 138, 141, 1.0),
               ),
             ),
           ],
@@ -474,13 +494,16 @@ class _ObrasContrato extends State<Obras_contrato> {
           mainAxisSize: MainAxisSize.max,
           children: [
             Expanded(
-                flex: 3,
-                child: Text('Avance Técnico',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w300,
-                      fontSize: 18,
-                    ))),
+              flex: 3,
+              child: Text(
+                'Avance Técnico',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w300,
+                  fontSize: 18,
+                ),
+              ),
+            ),
             Expanded(
               //columna fecha
               flex: 5,
@@ -488,10 +511,18 @@ class _ObrasContrato extends State<Obras_contrato> {
                 animation: true,
                 animationDuration: 1000,
                 lineHeight: 20.0,
-                percent: avance_tecnico * 0.01,
+                percent: .8,
                 linearStrokeCap: LinearStrokeCap.roundAll,
-                center: Text("$avance_tecnico%"),
+                center: Text(
+                  '$avance_tecnico_1%',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                  ),
+                ),
                 progressColor: const Color.fromRGBO(0, 153, 51, 1.0),
+                backgroundColor: const Color.fromRGBO(133, 138, 141, 1.0),
               ),
             ),
           ],

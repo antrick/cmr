@@ -9,86 +9,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
-/*class HomePage extends StatefulWidget {
-  @override
-  HomePageState createState() => new HomePageState();
-}
-
-class HomePageState extends State<HomePage> {
-  bool visibilityObs = true;
-
-  void _changed(bool visibility, String field) {
-    setState(() {
-      if (field == "obs") {
-        visibilityObs = !visibilityObs;
-        print(visibilityObs);
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.black,
-        body: new InkWell(
-          onTap: () {
-            print('hola');
-            _changed(true, 'obs');
-          },
-          child: new Stack(fit: StackFit.expand, children: <Widget>[
-            /// Paint the area where the inner widgets are loaded with the
-            /// background to keep consistency with the screen background
-            new Container(
-              decoration: BoxDecoration(color: Colors.black),
-            ),
-
-            /// Render the background image
-            new Container(
-              child: Image.asset('images/fondo.jpg.png', fit: BoxFit.cover),
-            ),
-
-            /// Render the Title widget, loader and messages below each other
-            visibilityObs
-                ? new Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      new Expanded(
-                        flex: 3,
-                        child: new Container(
-                            child: new Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            new Padding(
-                              padding: const EdgeInsets.only(top: 30.0),
-                            ),
-                            Text('Application Title'),
-                          ],
-                        )),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            /// Loader Animation Widget
-                            CircularProgressIndicator(
-                              valueColor: new AlwaysStoppedAnimation<Color>(
-                                  Colors.green),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 20.0),
-                            ),
-                            Text('getMessage'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  )
-                : new Container(),
-          ]),
-        ));
-  }
-}*/
 void configLoading() {
   EasyLoading.instance
     ..displayDuration = const Duration(milliseconds: 2000)
@@ -314,6 +234,16 @@ class _LoginFormState extends State<LoginForm> {
 
   //metodo para cambiar pantalla
   void _showSecondPage(BuildContext context) {
+    MediaQueryData _mediaQueryData;
+    double screenWidth;
+    _mediaQueryData = MediaQuery.of(context);
+    screenWidth = _mediaQueryData.size.width;
+    (MediaQuery.of(context).size.width / MediaQuery.of(context).size.height) *
+        20;
+    print(screenWidth);
+    print((MediaQuery.of(context).size.width /
+            MediaQuery.of(context).size.height) *
+        20);
     EasyLoading.instance
       ..displayDuration = const Duration(milliseconds: 2000)
       ..indicatorType = EasyLoadingIndicatorType.fadingCircle
@@ -331,7 +261,7 @@ class _LoginFormState extends State<LoginForm> {
     if (formkey.currentState.validate()) {
       formkey.currentState.save();
       url =
-          "http://192.168.10.141:8000/api/getUsuario/$_usuario,$_password,$_idOneSignal";
+          "http://sistema.mrcorporativo.com/api/getUsuario/$_usuario,$_password,$_idOneSignal";
       EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
       EasyLoading.show(
         status: 'CARGANDO',
@@ -359,7 +289,7 @@ class _LoginFormState extends State<LoginForm> {
       ..maskColor = Colors.black.withOpacity(0.88)
       ..userInteractions = false
       ..dismissOnTap = true;
-    url = "http://192.168.10.141:8000/api/getUsuarioToken/$token";
+    url = "http://sistema.mrcorporativo.com/api/getUsuarioToken/$token";
     EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
     EasyLoading.show(
       status: 'CARGANDO',
@@ -437,7 +367,7 @@ class _LoginFormState extends State<LoginForm> {
       EasyLoading.dismiss();
       EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
       EasyLoading.showError(
-        'ERROR DE CONEXIÓN ',
+        'ERROR DE CONEXIÓN 1',
         maskType: EasyLoadingMaskType.custom,
       );
     }
