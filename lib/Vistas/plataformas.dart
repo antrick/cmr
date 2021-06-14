@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/Vistas/anio.dart';
 import 'package:flutter_app/Vistas/obra_admin.dart';
 import 'package:flutter_app/Vistas/obra_contrato.dart';
+import 'package:flutter_app/Vistas/obra_publica.dart';
 import 'package:flutter_app/Vistas/principal.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -10,22 +11,19 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Prodim extends StatefulWidget {
+class Plataformas extends StatefulWidget {
   @override
-  _ProdimView createState() => _ProdimView();
+  _PlataformasView createState() => _PlataformasView();
   int id_cliente;
   int anio;
-  bool prodimb;
-  bool gib;
-  Prodim({
+
+  Plataformas({
     this.id_cliente,
     this.anio,
-    this.prodimb,
-    this.gib,
   });
 }
 
-class _ProdimView extends State<Prodim> {
+class _PlataformasView extends State<Plataformas> {
   String fecha_integracion = '';
   String fecha_priorizacion = '';
   String fecha_adendum = '';
@@ -41,7 +39,9 @@ class _ProdimView extends State<Prodim> {
   int revisado;
   bool prodim;
   bool gi;
-  List<Widget> gastos = [];
+  List<Widget> mids = [];
+  List<Widget> sisplade = [];
+  List<Widget> rft = [];
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
@@ -63,13 +63,11 @@ class _ProdimView extends State<Prodim> {
 
   @override
   Widget build(BuildContext context) {
-    final Prodim args = ModalRoute.of(context).settings.arguments;
+    final Plataformas args = ModalRoute.of(context).settings.arguments;
     id_cliente = args.id_cliente;
     anio = args.anio;
-    prodim = args.prodimb;
-    gi = args.gib;
 
-    if (!lista_obras.isEmpty && inicio) {
+    if (!mids.isEmpty && inicio) {
       _options();
     }
     if (send.isEmpty && !inicio) {
@@ -81,7 +79,7 @@ class _ProdimView extends State<Prodim> {
           appBar: AppBar(
             backgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
             centerTitle: true,
-            title: Text("PRODIMDF"),
+            title: Text("PLATAFORMAS DIGITALES"),
           ),
           bottomNavigationBar: _menuInferior(context),
           body: Container(
@@ -127,96 +125,86 @@ class _ProdimView extends State<Prodim> {
     send.add(SizedBox(
       height: 20,
     ));
-    if (gi) {
-      send.add(
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              "GASTOS INDIRECTOS",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-                fontSize: 18,
-              ),
-              textAlign: TextAlign.center,
+    send.add(
+      Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            "Matriz de Inversión para el Desarrollo Social (MIDS)",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+              fontSize: 18,
             ),
+            textAlign: TextAlign.center,
           ),
         ),
-      );
-      send.add(SizedBox(
-        height: 10,
-      ));
-      send.add(Container(
+      ),
+    );
+    send.add(SizedBox(
+      height: 10,
+    ));
+    send.add(Container(
+      child: Column(
+        children: mids,
+      ),
+    ));
+    send.add(SizedBox(
+      height: 30,
+    ));
+    send.add(
+      Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            "Sistema de Información para la Planeación del Desarrollo de Oaxaca (SISPLADE)",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+              fontSize: 18,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    );
+    send.add(SizedBox(
+      height: 10,
+    ));
+    send.add(Container(
+      child: Column(
+        children: sisplade,
+      ),
+    ));
+    send.add(SizedBox(
+      height: 30,
+    ));
+    send.add(
+      Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            "Informe de Recursos Federales Transferidos (RFT)",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+              fontSize: 18,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    );
+    send.add(SizedBox(
+      height: 10,
+    ));
+    send.add(
+      Container(
         child: Column(
-          children: gastos,
+          children: rft,
         ),
-      ));
-      Divider(
-        height: 20,
-        thickness: 5,
-        indent: 20,
-        endIndent: 20,
-      );
-      send.add(SizedBox(
-        height: 30,
-      ));
-    }
-    if (prodim) {
-      send.add(
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              "PROGRAMA DE DESARROLLO INSTITUCIONAL MUNICIPAL Y DE LAS  DEMARCACIONES TERRITORIALES DEL DISTRITO FEDERAL (PRODIMDF)",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-                fontSize: 18,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-      );
-      send.add(
-        SizedBox(
-          height: 20,
-        ),
-      );
-      send.add(cards(context, 'Firma Electrónica', firma_electronica));
-
-      send.add(cards(context, 'Revisado', revisado));
-
-      send.add(cards(context, 'Validado', validado));
-
-      send.add(cards(context, 'Firma de convenio', convenio));
-
-      send.add(
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              "Comprometido",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-                fontSize: 18,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-      );
-      send.add(SizedBox(
-        height: 10,
-      ));
-      send.add(Container(
-        child: Column(
-          children: lista_obras,
-        ),
-      ));
-    }
+      ),
+    );
   }
 
 //menu inferior
@@ -242,7 +230,7 @@ class _ProdimView extends State<Prodim> {
         }
         if (index == 2) {
           Navigator.pushNamed(context, '/obras',
-              arguments: Prodim(
+              arguments: Obras(
                 anio: anio,
                 id_cliente: id_cliente,
               ));
@@ -276,51 +264,204 @@ class _ProdimView extends State<Prodim> {
     );
   }
 
-  Widget cards_listado(BuildContext context, nombre, monto) {
+  Widget cards_listado(
+      BuildContext context, nombre, primero, segundo, tercero, cuarto) {
     return Container(
-        height: 65,
+        height: 130,
         child: InkWell(
           child: Card(
-            // RoundedRectangleBorder para proporcionarle esquinas circulares al Card
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6),
-            ),
-            // margen para el Card
-            margin: EdgeInsets.only(
-              left: 10,
-              right: 10,
-              bottom: 8,
-            ),
-            // La sombra que tiene el Card aumentará
-            elevation: 10,
-            //Colocamos una fila en dentro del card
-            color: const Color.fromRGBO(9, 46, 116, 1.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Expanded(
-                    flex: 3,
-                    child: Padding(
-                        padding: EdgeInsets.all(10.0),
-                        child: Text(nombre,
+              // RoundedRectangleBorder para proporcionarle esquinas circulares al Card
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6),
+              ),
+              // margen para el Card
+              margin: EdgeInsets.only(
+                left: 10,
+                right: 10,
+                bottom: 8,
+              ),
+              // La sombra que tiene el Card aumentará
+              elevation: 10,
+              //Colocamos una fila en dentro del card
+              color: const Color.fromRGBO(9, 46, 116, 1.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    nombre,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 15,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    'Trimestre',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15,
+                    ),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          "1ro",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w300,
+                            fontSize: 15,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Expanded(
+                        //columna fecha
+                        flex: 2,
+                        child: Text(
+                          "2do",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w300,
+                            fontSize: 15,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Expanded(
+                        //columna fecha
+                        flex: 2,
+                        child: Text(
+                          "3ro",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w300,
+                            fontSize: 15,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Expanded(
+                        //columna fecha
+                        flex: 2,
+                        child: Text(
+                          "4to",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w300,
+                            fontSize: 15,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: LinearPercentIndicator(
+                          animation: true,
+                          animationDuration: 1000,
+                          lineHeight: 20.0,
+                          percent: primero * 0.01,
+                          linearStrokeCap: LinearStrokeCap.butt,
+                          center: Text(
+                            "$primero%",
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w300,
-                              fontSize: 15,
-                            )))),
-                Expanded(
-                  //columna fecha
-                  flex: 1,
-                  child: Text("\u0024 $monto",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w300,
-                        fontSize: 15,
-                      )),
-                ),
-              ],
-            ),
-          ),
+                              fontSize: 13,
+                            ),
+                          ),
+                          progressColor: const Color.fromRGBO(0, 153, 51, 1.0),
+                          backgroundColor:
+                              const Color.fromRGBO(133, 138, 141, 1.0),
+                        ),
+                      ),
+                      Expanded(
+                        //columna fecha
+                        flex: 2,
+                        child: LinearPercentIndicator(
+                          animation: true,
+                          animationDuration: 1000,
+                          lineHeight: 20.0,
+                          percent: segundo * 0.01,
+                          linearStrokeCap: LinearStrokeCap.butt,
+                          center: Text(
+                            "$segundo%",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w300,
+                              fontSize: 13,
+                            ),
+                          ),
+                          progressColor: const Color.fromRGBO(0, 153, 51, 1.0),
+                          backgroundColor:
+                              const Color.fromRGBO(133, 138, 141, 1.0),
+                        ),
+                      ),
+                      Expanded(
+                        //columna fecha
+                        flex: 2,
+                        child: LinearPercentIndicator(
+                          animation: true,
+                          animationDuration: 1000,
+                          lineHeight: 20.0,
+                          percent: tercero * 0.01,
+                          linearStrokeCap: LinearStrokeCap.butt,
+                          center: Text(
+                            "$tercero%",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w300,
+                              fontSize: 13,
+                            ),
+                          ),
+                          progressColor: const Color.fromRGBO(0, 153, 51, 1.0),
+                          backgroundColor:
+                              const Color.fromRGBO(133, 138, 141, 1.0),
+                        ),
+                      ),
+                      Expanded(
+                        //columna fecha
+                        flex: 2,
+                        child: Center(
+                          child: LinearPercentIndicator(
+                            animation: true,
+                            animationDuration: 1000,
+                            lineHeight: 20.0,
+                            percent: cuarto * 0.01,
+                            linearStrokeCap: LinearStrokeCap.butt,
+                            center: Text(
+                              "$cuarto%",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w300,
+                                fontSize: 13,
+                              ),
+                            ),
+                            progressColor:
+                                const Color.fromRGBO(0, 153, 51, 1.0),
+                            backgroundColor:
+                                const Color.fromRGBO(133, 138, 141, 1.0),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              )),
         ));
   }
 
@@ -414,7 +555,7 @@ class _ProdimView extends State<Prodim> {
                     child: Text(nombre,
                         style: TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.w300,
+                          fontWeight: FontWeight.w400,
                           fontSize: 15,
                         )))),
             Expanded(
@@ -445,7 +586,9 @@ class _ProdimView extends State<Prodim> {
 
   Future<dynamic> _getListado(BuildContext context) async {
     send.clear();
-    lista_obras.clear();
+    mids.clear();
+    rft.clear();
+    sisplade.clear();
     EasyLoading.instance
       ..displayDuration = const Duration(milliseconds: 2000)
       ..indicatorType = EasyLoadingIndicatorType.fadingCircle
@@ -465,7 +608,7 @@ class _ProdimView extends State<Prodim> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://192.168.1.93:8000/api/getDesgloseProdim/$id_cliente,$anio";
+    url = "http://192.168.1.93:8000/api/getRFT/$id_cliente,$anio";
     print('$id_cliente $anio');
     try {
       final respuesta = await http.get(Uri.parse(url));
@@ -475,63 +618,42 @@ class _ProdimView extends State<Prodim> {
         if (respuesta.body != "") {
           final data = json.decode(respuesta.body);
           data.forEach((e) {
-            final prodim = json.encode(e['prodim']);
-            dynamic prodim_1 = json.decode(prodim);
+            final mids_1 = json.encode(e['mids']);
+            dynamic mids_2 = json.decode(mids_1);
 
-            prodim_1.forEach((i) {
-              firma_electronica = i['firma_electronica'];
-              revisado = i['revisado'];
-              validado = i['validado'];
-              convenio = i['convenio'];
+            mids_2.forEach((i) {
+              mids.add(cards(context, 'Planeado', i['planeado']));
+              mids.add(cards(context, 'Validado', i['validado']));
+              mids.add(cards(context, 'Firmado', i['firmado']));
             });
 
-            final comprometido = json.encode(e['comprometido']);
+            final sisplade_1 = json.encode(e['sisplade']);
+            dynamic sisplade_2 = json.decode(sisplade_1);
+
+            sisplade_2.forEach((i) {
+              sisplade.add(cards(context, 'Planeado', i['planeado']));
+              sisplade.add(cards(context, 'Capturado', i['capturado']));
+              sisplade.add(cards(context, 'Validado', i['validado']));
+            });
+
+            final comprometido = json.encode(e['rft']);
+            print("hola3");
             dynamic comprometido_1 = json.decode(comprometido);
 
             comprometido_1.forEach((i) {
-              lista_obras.add(cards_listado(
-                  context, i['nombre'], numberFormat(i['monto'].toDouble())));
-              final desglose = json.encode(e['desglose']);
-              dynamic desglose_1 = json.decode(desglose);
-              desglose_1.forEach((a) {
-                if (i['nombre'] == a['nombre']) {
-                  print(a['concepto']);
-                  lista_obras.add(cards_desglose(context, a['concepto'],
-                      numberFormat(a['monto'].toDouble())));
-                }
-              });
-            });
-
-            final gastos_indirectos = json.encode(e['gastos']);
-            dynamic indirectos_1 = json.decode(gastos_indirectos);
-
-            indirectos_1.forEach((i) {
-              gastos.add(
-                cards_listado(
+              print(i['nombre_obra']);
+              print(i['primer_trimestre']);
+              print(i['segundo_trimestre']);
+              print(i['tercer_trimestre']);
+              print(i['cuarto_trimestre']);
+              rft.add(cards_listado(
                   context,
-                  i['nombre'],
-                  numberFormat(i['monto'].toDouble()),
-                ),
-              );
+                  i['nombre_obra'],
+                  i['primer_trimestre'],
+                  i['segundo_trimestre'],
+                  i['tercer_trimestre'],
+                  i['cuarto_trimestre']));
             });
-
-            /*fecha_integracion = e['acta_integracion_consejo'];
-            fecha_priorizacion = e['acta_priorizacion'];
-            fecha_adendum = e['adendum_priorizacion'];
-            double avance =
-                int.parse(e['avance_tecnico'].toStringAsFixed(0)).toDouble();
-            double monto_contratado = e['monto_contratado'].toDouble();
-            String nombre = e['nombre_obra'];
-            if (nombre.length > 48) {
-              nombre = nombre.substring(0, 53) + '...';
-            }
-            lista_obras.add(cards_listado(
-                context,
-                nombre,
-                numberFormat(monto_contratado),
-                avance,
-                e['id_obra'],
-                e['modalidad_ejecucion']));*/
           });
           _onRefresh();
           _onLoading();

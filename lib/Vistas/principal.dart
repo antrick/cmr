@@ -349,7 +349,7 @@ class _WelcomeView extends State<Welcome> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://sistema.mrcorporativo.com/api/getCliente/$id_cliente";
+    url = "http://192.168.1.93:8000/api/getCliente/$id_cliente";
     try {
       final respuesta = await http.get(Uri.parse(url));
       if (respuesta.statusCode == 200) {

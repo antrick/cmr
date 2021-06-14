@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Vistas/fondos.dart';
-import 'package:flutter_app/Vistas/gastos_indirectos.dart';
 import 'package:flutter_app/Vistas/obra_publica.dart';
+import 'package:flutter_app/Vistas/plataformas.dart';
 import 'package:flutter_app/Vistas/principal.dart';
 import 'package:flutter_app/Vistas/prodim.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_app/Vistas/anio.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Anio extends StatefulWidget {
   int anio;
@@ -36,14 +32,15 @@ class _AnioView extends State<Anio> {
   int anio_inicio = 2020;
   int anio_fin = 2022;
   bool inicio = false;
+  String texto = "";
   String logo =
       'https://raw.githubusercontent.com/tirado12/CMRInicio/master/logo_rojas.png';
   String prodim = '';
   Color c = const Color(0xFF42A5F5);
   String url;
   final formkey = GlobalKey<FormState>();
-  bool prodimdf;
-  bool gi;
+  bool prodimdf = false;
+  bool gi = false;
 
   List<Widget> send = [];
 
@@ -163,29 +160,27 @@ class _AnioView extends State<Anio> {
           Padding(
             padding: EdgeInsets.all(20.0),
             child: SizedBox(
+              height: 100,
               width: 260,
               child: ElevatedButton(
                 child: Center(
                   child: Container(
-                    margin: const EdgeInsets.only(
-                        top: 15, bottom: 15, left: 10, right: 10),
                     child: Column(
-                      children: [
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
                         Icon(
                           Icons.monetization_on_rounded,
                           color: Colors.white,
                           size: 30,
                         ),
-                        Container(
-                          child: Text(
-                            "Fuentes de Financiamiento",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w300,
-                            ),
-                            textAlign: TextAlign.center,
+                        Text(
+                          "Fuentes de Financiamiento",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w300,
                           ),
+                          textAlign: TextAlign.center,
                         ),
                       ],
                     ),
@@ -222,27 +217,25 @@ class _AnioView extends State<Anio> {
           Padding(
             padding: EdgeInsets.all(20.0),
             child: SizedBox(
+              height: 100,
               width: 260,
               child: ElevatedButton(
                 child: Center(
                   child: Container(
-                    margin: const EdgeInsets.only(
-                        top: 15, bottom: 15, left: 10, right: 10),
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
                           Icons.construction,
                           color: Colors.white,
                           size: 30,
                         ),
-                        Container(
-                          child: Text(
-                            "Obra Pública",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w300,
-                            ),
+                        Text(
+                          "Obra Pública",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w300,
                           ),
                         ),
                       ],
@@ -271,7 +264,7 @@ class _AnioView extends State<Anio> {
         ],
       ),
     );
-    if (prodimdf) {
+    if (prodimdf || gi) {
       send.add(
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -279,28 +272,27 @@ class _AnioView extends State<Anio> {
             Padding(
               padding: EdgeInsets.all(20.0),
               child: SizedBox(
+                height: 100,
                 width: 260,
                 child: ElevatedButton(
                   child: Center(
                     child: Container(
-                      margin: const EdgeInsets.only(
-                          top: 15, bottom: 15, left: 10, right: 10),
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
                             Icons.auto_stories,
                             color: Colors.white,
                             size: 30,
                           ),
-                          Container(
-                            child: Text(
-                              "PRODIM",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w300,
-                              ),
+                          Text(
+                            texto,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w300,
                             ),
+                            textAlign: TextAlign.center,
                           ),
                         ],
                       ),
@@ -313,6 +305,8 @@ class _AnioView extends State<Anio> {
                         arguments: Prodim(
                           anio: anio,
                           id_cliente: id_cliente,
+                          prodimb: prodimdf,
+                          gib: gi,
                         ));
                   },
                   style: ElevatedButton.styleFrom(
@@ -331,67 +325,65 @@ class _AnioView extends State<Anio> {
         ),
       );
     }
-    if (gi) {
-      send.add(
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: EdgeInsets.all(20.0),
-              child: SizedBox(
-                width: 260,
-                child: ElevatedButton(
-                  child: Center(
-                    child: Container(
-                      margin: const EdgeInsets.only(
-                          top: 15, bottom: 15, left: 10, right: 10),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.calculate,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                          Container(
-                            child: Text(
-                              'Gastos Indirectos',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w300,
-                              ),
-                              textAlign: TextAlign.center,
+    send.add(
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(20.0),
+            child: SizedBox(
+              height: 100,
+              width: 260,
+              child: ElevatedButton(
+                child: Center(
+                  child: Container(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.computer,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                        Container(
+                          child: Text(
+                            'Plataformas Digitales',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w300,
                             ),
+                            textAlign: TextAlign.center,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                  onPressed: () {
-                    /*Navigator.pushNamed(context, '/fondos');*/
+                ),
+                onPressed: () {
+                  /*Navigator.pushNamed(context, '/fondos');*/
 
-                    Navigator.pushNamed(context, '/gastosIndirectos',
-                        arguments: Gastos(
-                          anio: anio,
-                          id_cliente: id_cliente,
-                        ));
-                  },
-                  style: ElevatedButton.styleFrom(
-                    primary: const Color.fromRGBO(9, 46, 116, 1.0),
-                    shape: RoundedRectangleBorder(
-                      //borde del boton
-                      borderRadius: BorderRadius.circular(10.0),
-                      side: BorderSide(color: Colors.white),
-                    ),
-                    elevation: 8.0,
+                  Navigator.pushNamed(context, '/plataformas',
+                      arguments: Plataformas(
+                        anio: anio,
+                        id_cliente: id_cliente,
+                      ));
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: const Color.fromRGBO(9, 46, 116, 1.0),
+                  shape: RoundedRectangleBorder(
+                    //borde del boton
+                    borderRadius: BorderRadius.circular(10.0),
+                    side: BorderSide(color: Colors.white),
                   ),
+                  elevation: 8.0,
                 ),
               ),
             ),
-          ],
-        ),
-      );
-    }
+          ),
+        ],
+      ),
+    );
   }
 
   void _showSecondPage(BuildContext context) {
@@ -427,7 +419,7 @@ class _AnioView extends State<Anio> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://sistema.mrcorporativo.com/api/getProdim/$id_cliente,$anio";
+    url = "http://192.168.1.93:8000/api/getProdim/$id_cliente,$anio";
 
     try {
       final respuesta = await http.get(Uri.parse(url));
@@ -436,12 +428,17 @@ class _AnioView extends State<Anio> {
         if (respuesta.body != "[]") {
           final data = json.decode(respuesta.body);
           data.forEach((e) {
-            if (e['prodim'] == 1) {
-              prodimdf = true;
-            }
-
             if (e['gastos_indirectos'] == 1) {
               gi = true;
+              texto = "Gastos Indirectos";
+            }
+
+            if (e['prodim'] == 1) {
+              if (texto != "") {
+                texto = texto + "\n";
+              }
+              prodimdf = true;
+              texto = texto + "PRODIMDF";
             }
           });
           _onRefresh();

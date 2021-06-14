@@ -261,7 +261,7 @@ class _LoginFormState extends State<LoginForm> {
     if (formkey.currentState.validate()) {
       formkey.currentState.save();
       url =
-          "http://sistema.mrcorporativo.com/api/getUsuario/$_usuario,$_password,$_idOneSignal";
+          "http://192.168.1.93:8000/api/getUsuario/$_usuario,$_password,$_idOneSignal";
       EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
       EasyLoading.show(
         status: 'CARGANDO',
@@ -289,7 +289,7 @@ class _LoginFormState extends State<LoginForm> {
       ..maskColor = Colors.black.withOpacity(0.88)
       ..userInteractions = false
       ..dismissOnTap = true;
-    url = "http://sistema.mrcorporativo.com/api/getUsuarioToken/$token";
+    url = "http://192.168.1.93:8000/api/getUsuarioToken/$token";
     EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
     EasyLoading.show(
       status: 'CARGANDO',
