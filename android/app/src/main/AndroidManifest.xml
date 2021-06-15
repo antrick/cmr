@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWOTK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- This Line -->
+    
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="CMR APP"
@@ -54,4 +55,6 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+
+    
 </manifest>

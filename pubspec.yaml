@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.0.0 <3.0.0"
 
 dependencies:
   percent_indicator: ^2.1.9+1
@@ -39,13 +39,16 @@ dependencies:
   flutter_mobx: ^2.0.0
   firebase_messaging: ^9.1.1
   responsive_framework: ^0.1.1
-  permission_handler: ^4.4.0+hotfix.2
-  downloads_path_provider_28: ^0.1.2
-  dio:
-  open_file: ^3.2.1
-  flutter_local_notifications: ^6.0.0
-  path_provider: ^2.0.2
+  
+  
+  
+  
+  flutter_local_notifications: ^5.0.0+1
+  
   http:
+  flutter_downloader: ^1.6.1
+  path_provider: ^2.0.2
+  permission_handler: ^8.1.1
 
 dev_dependencies:
   flutter_test:
