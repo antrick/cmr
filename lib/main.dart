@@ -407,8 +407,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _prepareSaveDir() async {
     _localPath =
         (await _findLocalPath()) + Platform.pathSeparator + 'Download';
-    print(_localPath);
-    final savedDir = Directory("hola: "+_localPath);
+    final savedDir = Directory(_localPath);
     bool hasExisted = await savedDir.exists();
     if (!hasExisted) {
       savedDir.create();
@@ -419,7 +418,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final directory = widget.platform == TargetPlatform.android
         ? await getExternalStorageDirectory()
         : await getApplicationDocumentsDirectory();
-    return directory?.path;
+    return directory.path;
   }
 }
 
