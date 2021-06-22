@@ -78,7 +78,7 @@ class _FondosView extends State<Fondos> {
         body: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("images/fondo.jpg.png"),
+              image: AssetImage("images/Fondo03.png"),
               fit: BoxFit.cover,
             ),
           ),

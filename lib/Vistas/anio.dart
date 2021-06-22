@@ -87,7 +87,7 @@ class _AnioView extends State<Anio> {
         body: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("images/fondo.jpg.png"),
+              image: AssetImage("images/Fondo03.png"),
               fit: BoxFit.cover,
             ),
           ),
@@ -243,11 +243,15 @@ class _AnioView extends State<Anio> {
                   ),
                 ),
                 onPressed: () {
-                  Navigator.pushNamed(context, '/obras',
-                      arguments: Obras(
-                        anio: anio,
-                        id_cliente: id_cliente,
-                      ));
+                  Navigator.pushNamed(
+                    context,
+                    '/obras',
+                    arguments: Obras(
+                      anio: anio,
+                      id_cliente: id_cliente,
+                      platform: Theme.of(context).platform,
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   primary: const Color.fromRGBO(9, 46, 116, 1.0),
@@ -419,7 +423,7 @@ class _AnioView extends State<Anio> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://192.168.1.93:8000/api/getProdim/$id_cliente,$anio";
+    url = "http://192.168.10.160:8000/api/getProdim/$id_cliente,$anio";
 
     try {
       final respuesta = await http.get(Uri.parse(url));

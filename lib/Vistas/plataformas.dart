@@ -85,7 +85,7 @@ class _PlataformasView extends State<Plataformas> {
           body: Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("images/Fondo05.png"),
+                image: AssetImage("images/Fondo03.png"),
                 fit: BoxFit.cover,
               ),
             ),
@@ -608,7 +608,7 @@ class _PlataformasView extends State<Plataformas> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://192.168.1.93:8000/api/getRFT/$id_cliente,$anio";
+    url = "http://192.168.10.160:8000/api/getRFT/$id_cliente,$anio";
     print('$id_cliente $anio');
     try {
       final respuesta = await http.get(Uri.parse(url));

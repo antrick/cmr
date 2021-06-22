@@ -26,6 +26,11 @@ void configLoading() {
 }
 
 class LoginForm extends StatefulWidget {
+  final TargetPlatform platform;
+  LoginForm({
+    this.platform,
+  });
+
   @override
   _LoginFormState createState() => _LoginFormState();
 }
@@ -60,7 +65,7 @@ class _LoginFormState extends State<LoginForm> {
         constraints: BoxConstraints.expand(),
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("images/fondo.jpg.png"),
+            image: AssetImage("images/Fondo03.png"),
             fit: BoxFit.cover,
           ),
         ),
@@ -261,7 +266,7 @@ class _LoginFormState extends State<LoginForm> {
     if (formkey.currentState.validate()) {
       formkey.currentState.save();
       url =
-          "http://192.168.1.93:8000/api/getUsuario/$_usuario,$_password,$_idOneSignal";
+          "http://192.168.10.160:8000/api/getUsuario/$_usuario,$_password,$_idOneSignal";
       EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
       EasyLoading.show(
         status: 'CARGANDO',
@@ -289,7 +294,7 @@ class _LoginFormState extends State<LoginForm> {
       ..maskColor = Colors.black.withOpacity(0.88)
       ..userInteractions = false
       ..dismissOnTap = true;
-    url = "http://192.168.1.93:8000/api/getUsuarioToken/$token";
+    url = "http://192.168.10.141:8000/api/getUsuarioToken/$token";
     EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
     EasyLoading.show(
       status: 'CARGANDO',

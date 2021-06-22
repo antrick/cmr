@@ -76,7 +76,7 @@ class _WelcomeView extends State<Welcome> {
         body: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("images/Fondo01.png"),
+              image: AssetImage("images/Fondo03.png"),
               fit: BoxFit.cover,
             ),
           ),
@@ -349,7 +349,7 @@ class _WelcomeView extends State<Welcome> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://192.168.1.93:8000/api/getCliente/$id_cliente";
+    url = "http://192.168.10.160:8000/api/getCliente/$id_cliente";
     try {
       final respuesta = await http.get(Uri.parse(url));
       if (respuesta.statusCode == 200) {
