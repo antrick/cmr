@@ -699,6 +699,8 @@ class _PlataformasView extends State<Plataformas> {
               ),
               color: Colors.transparent,
               elevation: 0,
+              highlightColor: Colors.transparent,
+              highlightElevation: 0,
               onPressed: () {
                 Navigator.of(context).pop();
                 _saveValue(null);
@@ -728,6 +730,8 @@ class _PlataformasView extends State<Plataformas> {
               ),
               color: Colors.transparent,
               elevation: 0,
+              highlightColor: Colors.transparent,
+              highlightElevation: 0,
               onPressed: () {
                 Navigator.of(context).pop();
               },

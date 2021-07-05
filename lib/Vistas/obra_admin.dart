@@ -1341,6 +1341,8 @@ class _ObrasView extends State<Obras_admin> {
               ),
               color: Colors.transparent,
               elevation: 0,
+              highlightColor: Colors.transparent,
+              highlightElevation: 0,
               onPressed: () {
                 Navigator.of(context).pop();
                 _saveValue(null);
@@ -1370,6 +1372,8 @@ class _ObrasView extends State<Obras_admin> {
               ),
               color: Colors.transparent,
               elevation: 0,
+              highlightColor: Colors.transparent,
+              highlightElevation: 0,
               onPressed: () {
                 Navigator.of(context).pop();
               },

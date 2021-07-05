@@ -197,6 +197,8 @@ class _AnioView extends State<Anio> {
                 ),
                 color: Colors.transparent,
                 elevation: 0,
+                highlightColor: Colors.transparent,
+                highlightElevation: 0,
                 onPressed: () {
                   Navigator.of(context).pop();
                   _saveValue(null);
@@ -226,6 +228,8 @@ class _AnioView extends State<Anio> {
                 ),
                 color: Colors.transparent,
                 elevation: 0,
+                highlightColor: Colors.transparent,
+                highlightElevation: 0,
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
