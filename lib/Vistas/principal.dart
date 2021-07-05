@@ -1,11 +1,18 @@
+import 'package:convex_bottom_bar/convex_bottom_bar.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Vistas/anio.dart';
 import 'package:flutter_app/Vistas/counter.dart';
+import 'package:flutter_app/Vistas/login.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart' as http;
+import 'package:page_transition/page_transition.dart';
 import 'dart:convert';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Welcome extends StatefulWidget {
   @override
@@ -29,8 +36,12 @@ class _WelcomeView extends State<Welcome> {
   String logo =
       'https://raw.githubusercontent.com/tirado12/CMRInicio/master/logo_rojas.png';
   Color c = const Color(0xFF42A5F5);
+  int currentIndex = 2;
+  GlobalKey _bottomNavigationKey = GlobalKey();
+  int activeIndex = 0;
   String url;
   final formkey = GlobalKey<FormState>();
+  int clave_municipio;
 
   List<Widget> send = [];
 
@@ -76,7 +87,7 @@ class _WelcomeView extends State<Welcome> {
         body: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("images/Fondo03.png"),
+              image: AssetImage("images/Fondo06.png"),
               fit: BoxFit.cover,
             ),
           ),
@@ -90,34 +101,153 @@ class _WelcomeView extends State<Welcome> {
             ),
           ),
         ),
-        bottomNavigationBar: _menuInferior(context),
+        bottomSheet: _menuInferior(context),
+        bottomNavigationBar: Container(
+          height: 25,
+          decoration: BoxDecoration(
+            color: const Color.fromRGBO(9, 46, 116, 1.0),
+          ),
+          child: Center(
+            child: new RichText(
+              text: new TextSpan(
+                children: [
+                  new TextSpan(
+                    text: 'Desarrollado por ',
+                    style: new TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                  new TextSpan(
+                    text: 'INGENINN 360',
+                    style: new TextStyle(
+                      color: Colors.white,
+                      decoration: TextDecoration.underline,
+                      decorationThickness: 2,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    recognizer: new TapGestureRecognizer()
+                      ..onTap = () {
+                        launch('https://www.ingeninn360.com/');
+                      },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
 
   Widget _menuInferior(BuildContext context) {
-    return Container(
-      height: 60,
-      color: Colors.black12,
-      child: InkWell(
-        onTap: () => {
-          Navigator.of(context)
-              .pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false),
-          _saveValue(null),
-        },
-        child: Padding(
-          padding: EdgeInsets.only(top: 8.0),
-          child: Column(
-            children: <Widget>[
-              Icon(
-                Icons.logout,
-              ),
-              Text('Salir'),
-            ],
-          ),
+    return CurvedNavigationBar(
+      key: _bottomNavigationKey,
+      index: 0,
+      height: 50.0,
+      items: <Widget>[
+        Icon(
+          CupertinoIcons.house,
+          size: 30,
+          color: Colors.white,
         ),
-      ),
+        Icon(
+          CupertinoIcons.square_arrow_left,
+          size: 30,
+          color: Colors.white,
+        ),
+      ],
+      color: Color.fromRGBO(9, 46, 116, 1.0),
+      buttonBackgroundColor: Color.fromRGBO(9, 46, 116, 1.0),
+      backgroundColor: Colors.transparent,
+      animationCurve: Curves.fastOutSlowIn,
+      animationDuration: Duration(milliseconds: 600),
+      onTap: (index) {
+        setState(() {
+          currentIndex = 0;
+          print(currentIndex);
+        });
+      },
+      letIndexChange: (index) {
+        if (index == 1) {
+          _showAlertDialog();
+          return false;
+        }
+        return true;
+      },
     );
+  }
+
+  void _showAlertDialog() {
+    showDialog(
+        context: context,
+        builder: (buildcontext) {
+          return AlertDialog(
+            title: Text(
+              "¿Está seguro de que desea salir?",
+              style: TextStyle(
+                color: Color.fromRGBO(9, 46, 116, 1.0),
+                fontWeight: FontWeight.w500,
+                fontSize: 17,
+              ),
+            ),
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+              side: BorderSide(
+                color: Color.fromRGBO(9, 46, 116, 1.0),
+              ),
+            ),
+            actions: <Widget>[
+              RaisedButton(
+                child: Text(
+                  "ACEPTAR",
+                  style: TextStyle(
+                    color: Color.fromRGBO(9, 46, 116, 1.0),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                color: Colors.transparent,
+                elevation: 0,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _saveValue(null);
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    PageTransition(
+                      alignment: Alignment.bottomCenter,
+                      curve: Curves.easeInOut,
+                      duration: Duration(milliseconds: 1000),
+                      reverseDuration: Duration(milliseconds: 1000),
+                      type: PageTransitionType.rightToLeftJoined,
+                      child: LoginForm(),
+                      childCurrent: new Container(),
+                    ),
+                    (Route<dynamic> route) => false,
+                  );
+                },
+              ),
+              RaisedButton(
+                child: Text(
+                  "CERRAR",
+                  style: TextStyle(
+                    color: Color.fromRGBO(9, 46, 116, 1.0),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                color: Colors.transparent,
+                elevation: 0,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        });
   }
 
   void showHome(BuildContext context) {
@@ -129,13 +259,22 @@ class _WelcomeView extends State<Welcome> {
     send.add(Padding(
       padding: EdgeInsets.all(20.0),
     ));
-    send.add(Container(
+    send.add(
+      Container(
         width: 130.0,
         height: 130.0,
         decoration: new BoxDecoration(
-            shape: BoxShape.circle,
-            image: new DecorationImage(
-                fit: BoxFit.contain, image: new NetworkImage(logo)))));
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Color.fromRGBO(9, 46, 116, 1.0),
+          ),
+          image: new DecorationImage(
+            fit: BoxFit.contain,
+            image: new NetworkImage(logo),
+          ),
+        ),
+      ),
+    );
     send.add(
       SizedBox(
         height: 40,
@@ -145,7 +284,7 @@ class _WelcomeView extends State<Welcome> {
       Text(
         "H. Ayuntamiento Constitucional de",
         style: TextStyle(
-          color: Colors.white,
+          color: Color.fromRGBO(9, 46, 116, 1.0),
           fontWeight: FontWeight.w300,
           fontSize: 20,
         ),
@@ -156,7 +295,7 @@ class _WelcomeView extends State<Welcome> {
       Text(
         nombre_municipio,
         style: TextStyle(
-          color: Colors.white,
+          color: Color.fromRGBO(9, 46, 116, 1.0),
           fontWeight: FontWeight.w500,
           fontSize: 25,
         ),
@@ -167,7 +306,7 @@ class _WelcomeView extends State<Welcome> {
       Text(
         "$nombre_distrito, Oaxaca.",
         style: TextStyle(
-          color: Colors.white,
+          color: Color.fromRGBO(9, 46, 116, 1.0),
           fontWeight: FontWeight.w300,
           fontSize: 20,
         ),
@@ -183,7 +322,7 @@ class _WelcomeView extends State<Welcome> {
       Text(
         "RFC: $rfc",
         style: TextStyle(
-          color: Colors.white,
+          color: Color.fromRGBO(9, 46, 116, 1.0),
           fontWeight: FontWeight.w300,
           fontSize: 20,
         ),
@@ -200,7 +339,7 @@ class _WelcomeView extends State<Welcome> {
         child: Text(
           "$direccion",
           style: TextStyle(
-            color: Colors.white,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
             fontWeight: FontWeight.w300,
             fontSize: 20,
           ),
@@ -219,7 +358,7 @@ class _WelcomeView extends State<Welcome> {
       Text(
         "EJERCICIO",
         style: TextStyle(
-          color: Colors.white,
+          color: Color.fromRGBO(9, 46, 116, 1.0),
           fontWeight: FontWeight.w500,
           fontSize: 20,
         ),
@@ -256,11 +395,15 @@ class _WelcomeView extends State<Welcome> {
                     ),
                   ),
                   onPressed: () {
-                    Navigator.pushNamed(context, '/anio',
-                        arguments: Anio(
-                          anio: i,
-                          id_cliente: id_cliente,
-                        ));
+                    Navigator.pushNamed(
+                      context,
+                      '/anio',
+                      arguments: Anio(
+                        anio: i,
+                        id_cliente: id_cliente,
+                        clave: clave_municipio,
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     primary: Colors.blue[700],
@@ -349,7 +492,7 @@ class _WelcomeView extends State<Welcome> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://192.168.10.160:8000/api/getCliente/$id_cliente";
+    url = "http://sistema.mrcorporativo.com/api/getCliente/$id_cliente";
     try {
       final respuesta = await http.get(Uri.parse(url));
       if (respuesta.statusCode == 200) {
@@ -358,6 +501,7 @@ class _WelcomeView extends State<Welcome> {
           final data = json.decode(respuesta.body);
           data.forEach((e) {
             id_cliente = e['id_cliente'];
+            clave_municipio = e['clave'];
             nombre_municipio = e['nombre_municipio'];
             nombre_distrito = e['nombre_distrito'];
             email = e['rfc'];

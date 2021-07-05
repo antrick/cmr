@@ -4,6 +4,7 @@ import 'package:flutter_app/Vistas/obra_admin.dart';
 import 'package:flutter_app/Vistas/obra_contrato.dart';
 import 'package:flutter_app/Vistas/principal.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:getwidget/components/accordian/gf_accordian.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'dart:convert';
@@ -17,11 +18,13 @@ class Prodim extends StatefulWidget {
   int anio;
   bool prodimb;
   bool gib;
+  int clave;
   Prodim({
     this.id_cliente,
     this.anio,
     this.prodimb,
     this.gib,
+    this.clave,
   });
 }
 
@@ -41,6 +44,7 @@ class _ProdimView extends State<Prodim> {
   int revisado;
   bool prodim;
   bool gi;
+  int clave_municipio;
   List<Widget> gastos = [];
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
@@ -68,6 +72,7 @@ class _ProdimView extends State<Prodim> {
     anio = args.anio;
     prodim = args.prodimb;
     gi = args.gib;
+    clave_municipio = args.clave;
 
     if (!lista_obras.isEmpty && inicio) {
       _options();
@@ -87,7 +92,7 @@ class _ProdimView extends State<Prodim> {
           body: Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("images/Fondo03.png"),
+                image: AssetImage("images/Fondo06.png"),
                 fit: BoxFit.cover,
               ),
             ),
@@ -162,17 +167,33 @@ class _ProdimView extends State<Prodim> {
         height: 30,
       ));
     }
-    if (prodim) {
+    if (!prodim) {
       send.add(
         Center(
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
             child: Text(
-              "PROGRAMA DE DESARROLLO INSTITUCIONAL MUNICIPAL Y DE LAS  DEMARCACIONES TERRITORIALES DEL DISTRITO FEDERAL (PRODIMDF)",
+              "PRODIMDF",
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w500,
-                fontSize: 18,
+                fontSize: 20,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+      send.add(
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
+            child: Text(
+              "Programa de Desarrollo Institucional Municipal y de las demarcaciones territoriales del Distrito Federal",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w300,
+                fontSize: 17,
               ),
               textAlign: TextAlign.center,
             ),
@@ -184,38 +205,41 @@ class _ProdimView extends State<Prodim> {
           height: 20,
         ),
       );
-      send.add(cards(context, 'Firma Electrónica', firma_electronica));
-
-      send.add(cards(context, 'Revisado', revisado));
-
-      send.add(cards(context, 'Validado', validado));
-
-      send.add(cards(context, 'Firma de convenio', convenio));
-
       send.add(
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              "Comprometido",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-                fontSize: 18,
+        Container(
+          child: GFAccordion(
+            titleBorderRadius: BorderRadius.circular(6),
+            margin: EdgeInsets.only(top: 10, bottom: 8, left: 10, right: 10),
+            titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
+            titleChild:
+                cards_comprometido(context, 'Comprometido', firma_electronica),
+            expandedTitleBackgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
+            collapsedTitleBackgroundColor:
+                const Color.fromRGBO(9, 46, 116, 1.0),
+            contentBackgroundColor: const Color.fromRGBO(4, 124, 188, 1.0),
+            contentChild: Container(
+              child: Column(
+                children: lista_obras,
               ),
-              textAlign: TextAlign.center,
+            ),
+            collapsedIcon: Icon(
+              Icons.arrow_drop_down_outlined,
+              color: Colors.white,
+            ),
+            expandedIcon: Icon(
+              Icons.arrow_drop_up,
+              color: Colors.white,
             ),
           ),
         ),
       );
-      send.add(SizedBox(
-        height: 10,
-      ));
-      send.add(Container(
-        child: Column(
-          children: lista_obras,
-        ),
-      ));
+      send.add(cards(context, 'Presentado', firma_electronica));
+
+      send.add(cards(context, 'Revisado', revisado));
+
+      send.add(cards(context, 'Aprobado', validado));
+
+      send.add(cards(context, 'Firma de convenio', convenio));
     }
   }
 
@@ -234,19 +258,17 @@ class _ProdimView extends State<Prodim> {
         }
 
         if (index == 1) {
-          Navigator.pushNamed(context, '/anio',
-              arguments: Anio(
-                anio: anio,
-                id_cliente: id_cliente,
-              ));
+          Navigator.pushNamed(
+            context,
+            '/anio',
+            arguments: Anio(
+              anio: anio,
+              id_cliente: id_cliente,
+              clave: clave_municipio,
+            ),
+          );
         }
-        if (index == 2) {
-          Navigator.pushNamed(context, '/obras',
-              arguments: Prodim(
-                anio: anio,
-                id_cliente: id_cliente,
-              ));
-        }
+        if (index == 2) {}
         if (index == 3) {
           Navigator.of(context).pushNamedAndRemoveUntil(
             '/',
@@ -265,8 +287,8 @@ class _ProdimView extends State<Prodim> {
           label: 'Año $anio',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.construction),
-          label: 'Obra Publica',
+          icon: Icon(Icons.auto_stories),
+          label: 'PRODIM',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.logout),
@@ -362,6 +384,67 @@ class _ProdimView extends State<Prodim> {
                     fontWeight: FontWeight.w300,
                     fontSize: 15,
                   )),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget cards_comprometido(BuildContext context, nombre, estado) {
+    IconData estado_icon;
+    Color color;
+    Color color_barra;
+    if (estado == 1) {
+      estado_icon = Icons.check_circle_rounded;
+      color = Colors.green;
+      color_barra = const Color.fromRGBO(9, 46, 116, 1.0);
+    }
+    if (estado == 2) {
+      estado_icon = Icons.cancel /*check_circle_rounded*/;
+      color = Colors.red;
+      color_barra = const Color.fromRGBO(9, 46, 116, 1.0);
+    }
+
+    if (estado == 3) {
+      estado_icon = Icons.remove_circle;
+      color = Colors.yellow;
+      color_barra = Colors.grey[500];
+    }
+    return Container(
+      height: 65,
+      child: Card(
+        // RoundedRectangleBorder para proporcionarle esquinas circulares al Card
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        // margen para el Card
+        margin: EdgeInsets.only(
+          left: 0,
+          right: 0,
+          bottom: 0,
+        ),
+        // La sombra que tiene el Card aumentará
+        elevation: 0,
+        //Colocamos una fila en dentro del card
+        color: color_barra,
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+                flex: 6,
+                child: Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: Text(nombre,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w300,
+                          fontSize: 15,
+                        )))),
+            Expanded(
+              flex: 1,
+              child: Icon(
+                estado_icon,
+                color: color,
+              ),
             ),
           ],
         ),
@@ -465,7 +548,8 @@ class _ProdimView extends State<Prodim> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://192.168.10.160:8000/api/getDesgloseProdim/$id_cliente,$anio";
+    url =
+        "http://sistema.mrcorporativo.com/api/getDesgloseProdim/$id_cliente,$anio";
     print('$id_cliente $anio');
     try {
       final respuesta = await http.get(Uri.parse(url));

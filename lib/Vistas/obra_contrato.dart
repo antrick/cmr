@@ -1,9 +1,14 @@
+import 'package:convex_bottom_bar/convex_bottom_bar.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Vistas/anio.dart';
+import 'package:flutter_app/Vistas/login.dart';
 import 'package:flutter_app/Vistas/obra_publica.dart';
 import 'package:flutter_app/Vistas/principal.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:getwidget/components/accordian/gf_accordian.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'dart:convert';
@@ -26,12 +31,18 @@ class Obras_contrato extends StatefulWidget with WidgetsBindingObserver {
   int id_obra;
   int id_cliente;
   int anio;
+  int clave;
+  String nombre;
+  String nombre_archivo;
   Obras_contrato({
     Key key,
     this.id_obra,
     this.id_cliente,
     this.anio,
     this.platform,
+    this.clave,
+    this.nombre,
+    this.nombre_archivo,
   }) : super(key: key);
 }
 
@@ -45,6 +56,7 @@ class Vehicle {
 
 class _ObrasContrato extends State<Obras_contrato> {
   String nombre_obra = 'Ejemplo de nombre de obra';
+  String nombre_corto = 'Ejemplo de nombre de obra';
   String monto = '10,000';
   double avance_fisico = 20.0;
   double avance_tecnico = 20.0;
@@ -70,6 +82,10 @@ class _ObrasContrato extends State<Obras_contrato> {
   int f_cumplimiento;
   int f_v_o;
   String tipo_contrato;
+  bool visibility_obj = false;
+  int clave_municipio;
+  int obra;
+  String nombre_archivo;
 
   //DOWNLOAD ARCHIVOS
   List<_TaskInfo> _tasks;
@@ -104,6 +120,9 @@ class _ObrasContrato extends State<Obras_contrato> {
     id_obra = args.id_obra;
     id_cliente = args.id_cliente;
     anio = args.anio;
+    clave_municipio = args.clave;
+    nombre_corto = args.nombre;
+    nombre_archivo = args.nombre_archivo;
     /*_getListado(context);*/
     if (!exp.isEmpty && inicio) {
       _options();
@@ -135,7 +154,7 @@ class _ObrasContrato extends State<Obras_contrato> {
                     child: Text('FECHA DE INICIO',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Color.fromRGBO(9, 46, 116, 1.0),
                           fontWeight: FontWeight.w500,
                           fontSize: 15,
                         ))),
@@ -144,7 +163,7 @@ class _ObrasContrato extends State<Obras_contrato> {
                     child: Text('FECHA DE FIN',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Color.fromRGBO(9, 46, 116, 1.0),
                           fontWeight: FontWeight.w500,
                           fontSize: 15,
                         ))),
@@ -153,7 +172,7 @@ class _ObrasContrato extends State<Obras_contrato> {
                     child: Text('MONTO',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Color.fromRGBO(9, 46, 116, 1.0),
                           fontWeight: FontWeight.w500,
                           fontSize: 15,
                         ))),
@@ -223,41 +242,6 @@ class _ObrasContrato extends State<Obras_contrato> {
                 : _permissionReady
                     ? _buildDownloadList()
                     : _buildNoPermissionWarning()),
-        /*Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage("images/Fondo05.png"),
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: NestedScrollView(
-              // Setting floatHeaderSlivers to true is required in order to float
-              // the outer slivers over the inner scrollable.
-              floatHeaderSlivers: false,
-              headerSliverBuilder:
-                  (BuildContext context, bool innerBoxIsScrolled) {
-                return <Widget>[
-                  SliverAppBar(
-                    toolbarHeight: 1,
-                    title: const Text(''),
-                    floating: false,
-                    centerTitle: true,
-                    forceElevated: innerBoxIsScrolled,
-                    backgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
-                  ),
-                ];
-              },
-              body: SmartRefresher(
-                enablePullDown: false,
-                enablePullUp: false,
-                controller: _refreshController,
-                child: ListView.builder(
-                  itemBuilder: (c, i) => send[i],
-                  itemCount: send.length,
-                ),
-              ), //menu(context), //menu(context),
-            ),
-          ),*/
       ),
     );
   }
@@ -267,6 +251,7 @@ class _ObrasContrato extends State<Obras_contrato> {
     int avance_fisico_1 = avance_fisico.toInt();
     int avance_economico_1 = avance_economico.toInt();
     int avance_tecnico_1 = avance_tecnico.toInt();
+    bool nombre = nombre_corto == nombre_obra;
     print(modalidad);
     if (modalidad == 3) {
       print('hola');
@@ -280,77 +265,139 @@ class _ObrasContrato extends State<Obras_contrato> {
     send.add(SizedBox(
       height: 30,
     ));
-    /*send.add(
-      Container(
-        margin: EdgeInsets.only(left: 15, right: 15, bottom: 20),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Expanded(
-                flex: 3,
-                child: Text(nombre_obra.toUpperCase(),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 18,
-                    ))),
-            Expanded(
-              flex: 1,
-              child: Icon(
-                Icons.get_app_rounded,
-                color: Colors.green,
-                size: 25,
+
+    send.add(
+      visibility_obj
+          ? new Container()
+          : Container(
+              margin: EdgeInsets.only(left: 15, right: 15),
+              child: Text(
+                nombre_corto.toUpperCase(),
+                style: TextStyle(
+                  color: Color.fromRGBO(9, 46, 116, 1.0),
+                  fontWeight: FontWeight.w500,
+                  fontSize: 17,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+    );
+    send.add(
+      visibility_obj
+          ? Container(
+              margin: EdgeInsets.only(left: 15, right: 15),
+              child: Text(
+                nombre_obra.toUpperCase(),
+                style: TextStyle(
+                  color: Color.fromRGBO(9, 46, 116, 1.0),
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.justify,
               ),
             )
-          ],
+          : new Container(),
+    );
+    send.add(
+      Container(
+        margin: EdgeInsets.only(left: 15, right: 15),
+        child: InkWell(
+          onTap: () {
+            _changed(visibility_obj);
+          },
+          child: Card(
+            // RoundedRectangleBorder para proporcionarle esquinas circulares al Card
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+              side: BorderSide(color: Colors.transparent),
+            ),
+            // margen para el Card
+            margin: EdgeInsets.only(
+              left: 10,
+              right: 10,
+              bottom: 8,
+            ),
+            // La sombra que tiene el Card aumentará
+            elevation: 0,
+            //Colocamos una fila en dentro del card
+            color: Colors.transparent,
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Expanded(
+                  flex: nombre ? 0 : 5,
+                  child: nombre
+                      ? new Container()
+                      : Container(
+                          child: Text(
+                            visibility_obj ? "Ver menos" : "Ver más",
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.w300,
+                              fontSize: 16,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                ),
+                Expanded(
+                  flex: 5,
+                  child: Column(
+                    children: _items
+                        .map(
+                          (item) => item.task == null
+                              ? _buildListSection(item.name)
+                              : DownloadItem(
+                                  data: item,
+                                  onItemClick: (task) {
+                                    _openDownloadedFile(task).then((success) {
+                                      if (!success) {
+                                        Scaffold.of(context).showSnackBar(
+                                            SnackBar(
+                                                content: Text(
+                                                    'Cannot open this file')));
+                                      }
+                                    });
+                                  },
+                                  onActionClick: (task) {
+                                    if (task.status ==
+                                        DownloadTaskStatus.undefined) {
+                                      _requestDownload(task);
+                                    } else if (task.status ==
+                                        DownloadTaskStatus.running) {
+                                      _pauseDownload(task);
+                                    } else if (task.status ==
+                                        DownloadTaskStatus.paused) {
+                                      _resumeDownload(task);
+                                    } else if (task.status ==
+                                        DownloadTaskStatus.complete) {
+                                      _delete(task);
+                                    } else if (task.status ==
+                                        DownloadTaskStatus.failed) {
+                                      _retryDownload(task);
+                                    }
+                                  },
+                                ),
+                        )
+                        .toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
-    );*/
-    send.add(Column(
-      children: _items
-          .map(
-            (item) => item.task == null
-                ? _buildListSection(item.name)
-                : DownloadItem(
-                    data: item,
-                    nombre: nombre_obra,
-                    onItemClick: (task) {
-                      _openDownloadedFile(task).then((success) {
-                        if (!success) {
-                          Scaffold.of(context).showSnackBar(
-                              SnackBar(content: Text('Cannot open this file')));
-                        }
-                      });
-                    },
-                    onActionClick: (task) {
-                      if (task.status == DownloadTaskStatus.undefined) {
-                        _requestDownload(task);
-                      } else if (task.status == DownloadTaskStatus.running) {
-                        _pauseDownload(task);
-                      } else if (task.status == DownloadTaskStatus.paused) {
-                        _resumeDownload(task);
-                      } else if (task.status == DownloadTaskStatus.complete) {
-                        _delete(task);
-                      } else if (task.status == DownloadTaskStatus.failed) {
-                        _retryDownload(task);
-                      }
-                    },
-                  ),
-          )
-          .toList(),
-    ));
-    send.add(SizedBox(
-      height: 10,
-    ));
+    );
+
     send.add(
       Container(
         margin: EdgeInsets.only(left: 15, right: 15),
         child: Text(
           'Modalidad de ejecucion: Contrato',
           style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w300,
-            fontSize: 18,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
+            fontWeight: FontWeight.w400,
+            fontSize: 17,
           ),
         ),
       ),
@@ -361,9 +408,9 @@ class _ObrasContrato extends State<Obras_contrato> {
         child: Text(
           'Modalidad de asignación: $n_moda',
           style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w300,
-            fontSize: 18,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
+            fontWeight: FontWeight.w400,
+            fontSize: 17,
           ),
         ),
       ),
@@ -373,11 +420,11 @@ class _ObrasContrato extends State<Obras_contrato> {
       Container(
         margin: EdgeInsets.only(left: 15, right: 15, top: 20),
         child: Text(
-          'NÚMERO DE CONTRATO: $contrato',
+          'Número de contrato: $contrato',
           style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w500,
-            fontSize: 18,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
+            fontWeight: FontWeight.w700,
+            fontSize: 17,
           ),
         ),
       ),
@@ -392,9 +439,9 @@ class _ObrasContrato extends State<Obras_contrato> {
         child: Text(
           '$tipo_contrato',
           style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w300,
-            fontSize: 18,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
+            fontWeight: FontWeight.w400,
+            fontSize: 17,
           ),
         ),
       ),
@@ -410,22 +457,25 @@ class _ObrasContrato extends State<Obras_contrato> {
           mainAxisSize: MainAxisSize.max,
           children: [
             Expanded(
-                flex: 3,
-                child: Text('INVERSIÓN',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 18,
-                    ))),
+              flex: 3,
+              child: Text(
+                'Inversión',
+                style: TextStyle(
+                  color: Color.fromRGBO(9, 46, 116, 1.0),
+                  fontWeight: FontWeight.w700,
+                  fontSize: 17,
+                ),
+              ),
+            ),
             Expanded(
               //columna fecha
               flex: 5,
               child: Text(
                 '\u0024 $monto',
                 style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w300,
-                  fontSize: 18,
+                  color: Color.fromRGBO(9, 46, 116, 1.0),
+                  fontWeight: FontWeight.w700,
+                  fontSize: 17,
                 ),
               ),
             ),
@@ -447,9 +497,9 @@ class _ObrasContrato extends State<Obras_contrato> {
                   flex: 3,
                   child: Text(fondoT,
                       style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w300,
-                        fontSize: 18,
+                        color: Color.fromRGBO(9, 46, 116, 1.0),
+                        fontWeight: FontWeight.w400,
+                        fontSize: 17,
                       ))),
               Expanded(
                 //columna fecha
@@ -457,9 +507,9 @@ class _ObrasContrato extends State<Obras_contrato> {
                 child: Text(
                   '\u0024 $montoT',
                   style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w300,
-                    fontSize: 18,
+                    color: Color.fromRGBO(9, 46, 116, 1.0),
+                    fontWeight: FontWeight.w400,
+                    fontSize: 17,
                   ),
                 ),
               ),
@@ -469,10 +519,10 @@ class _ObrasContrato extends State<Obras_contrato> {
       );
     }
     send.add(SizedBox(
-      height: 10,
+      height: 30,
     ));
 
-    send.add(
+    /*send.add(
       Container(
         margin: EdgeInsets.only(left: 15, right: 15),
         child: Row(
@@ -482,9 +532,9 @@ class _ObrasContrato extends State<Obras_contrato> {
                 flex: 3,
                 child: Text('Avance Fisico',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Color.fromRGBO(9, 46, 116, 1.0),
                       fontWeight: FontWeight.w300,
-                      fontSize: 18,
+                      fontSize: 17,
                     ))),
             Expanded(
               //columna fecha
@@ -497,7 +547,7 @@ class _ObrasContrato extends State<Obras_contrato> {
                 center: Text(
                   "$avance_fisico_1%",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Color.fromRGBO(9, 46, 116, 1.0),
                     fontWeight: FontWeight.w500,
                     fontSize: 16,
                   ),
@@ -510,46 +560,151 @@ class _ObrasContrato extends State<Obras_contrato> {
           ],
         ),
       ),
+    );*/
+    send.add(
+      Container(
+        margin: EdgeInsets.only(left: 15, right: 15),
+        child: Text(
+          'Porcentaje de avance',
+          style: TextStyle(
+            color: Color.fromRGBO(9, 46, 116, 1.0),
+            fontWeight: FontWeight.w700,
+            fontSize: 17,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
     );
+    send.add(SizedBox(
+      height: 10,
+    ));
     send.add(
       Container(
         margin: EdgeInsets.only(left: 15, right: 15, top: 5),
         child: Row(
           mainAxisSize: MainAxisSize.max,
           children: [
-            Expanded(
+            /*Expanded(
                 flex: 3,
-                child: Text('Avance Económico',
+                child: Text('Avance Financiero',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Color.fromRGBO(9, 46, 116, 1.0),
                       fontWeight: FontWeight.w300,
-                      fontSize: 18,
-                    ))),
+                      fontSize: 17,
+                    ))),*/
             Expanded(
               //columna fecha
               flex: 5,
-              child: LinearPercentIndicator(
+              child: CircularPercentIndicator(
+                radius: 80.0,
                 animation: true,
                 animationDuration: 1000,
-                lineHeight: 20.0,
+                percent: avance_fisico_1 * 0.01,
+                circularStrokeCap: CircularStrokeCap.round,
+                center: Text(
+                  "$avance_fisico_1%",
+                  style: TextStyle(
+                    color: Color.fromRGBO(9, 46, 116, 1.0),
+                    fontWeight: FontWeight.w400,
+                    fontSize: 17,
+                  ),
+                ),
+                progressColor: Colors.blue,
+                backgroundColor: Colors.grey[350],
+                lineWidth: 8,
+                footer: Container(
+                  margin: const EdgeInsets.only(top: 10.0),
+                  height: 30,
+                  child: Center(
+                    child: Text(
+                      "Fisico",
+                      style: new TextStyle(
+                          color: Color.fromRGBO(9, 46, 116, 1.0),
+                          fontWeight: FontWeight.w400,
+                          fontSize: 17.0),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              //columna fecha
+              flex: 5,
+              child: CircularPercentIndicator(
+                radius: 80.0,
+                animation: true,
+                animationDuration: 1000,
                 percent: avance_economico * 0.01,
-                linearStrokeCap: LinearStrokeCap.roundAll,
+                circularStrokeCap: CircularStrokeCap.round,
                 center: Text(
                   "$avance_economico_1%",
                   style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
+                    color: Color.fromRGBO(9, 46, 116, 1.0),
+                    fontWeight: FontWeight.w400,
+                    fontSize: 17,
                   ),
                 ),
-                progressColor: const Color.fromRGBO(0, 153, 51, 1.0),
-                backgroundColor: const Color.fromRGBO(133, 138, 141, 1.0),
+                progressColor: Colors.blue,
+                backgroundColor: Colors.grey[350],
+                lineWidth: 8,
+                footer: Container(
+                  margin: const EdgeInsets.only(top: 10.0),
+                  height: 30,
+                  child: Center(
+                    child: Text(
+                      "Financiero",
+                      style: new TextStyle(
+                          color: Color.fromRGBO(9, 46, 116, 1.0),
+                          fontWeight: FontWeight.w400,
+                          fontSize: 17.0),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              //columna fecha
+              flex: 5,
+              child: CircularPercentIndicator(
+                radius: 80.0,
+                animation: true,
+                animationDuration: 1000,
+                percent: avance_tecnico_1 * 0.01,
+                circularStrokeCap: CircularStrokeCap.round,
+                center: Text(
+                  '$avance_tecnico_1%',
+                  style: TextStyle(
+                    color: Color.fromRGBO(9, 46, 116, 1.0),
+                    fontWeight: FontWeight.w400,
+                    fontSize: 17,
+                  ),
+                ),
+                progressColor: Colors.blue,
+                backgroundColor: Colors.grey[350],
+                lineWidth: 8,
+                footer: Container(
+                  margin: const EdgeInsets.only(top: 10.0),
+                  height: 30,
+                  child: Center(
+                    child: Text(
+                      'Expediente\nTécnico',
+                      style: new TextStyle(
+                          color: Color.fromRGBO(9, 46, 116, 1.0),
+                          fontWeight: FontWeight.w400,
+                          fontSize: 17.0),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
         ),
       ),
     );
+    /*print("hola 12");
     send.add(
       Container(
         margin: EdgeInsets.only(left: 15, right: 15, top: 5),
@@ -559,11 +714,11 @@ class _ObrasContrato extends State<Obras_contrato> {
             Expanded(
               flex: 3,
               child: Text(
-                'Avance Técnico',
+                'Expediente Técnico',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Color.fromRGBO(9, 46, 116, 1.0),
                   fontWeight: FontWeight.w300,
-                  fontSize: 18,
+                  fontSize: 16,
                 ),
               ),
             ),
@@ -591,29 +746,31 @@ class _ObrasContrato extends State<Obras_contrato> {
           ],
         ),
       ),
-    );
+    );*/
     send.add(SizedBox(
       height: 10,
     ));
-
     send.add(
       Container(
         child: GFAccordion(
-          titleBorderRadius: BorderRadius.only(),
-          margin: EdgeInsets.only(top: 10),
+          titleBorder: Border.all(
+            width: 1.0,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
+          ),
+          margin: EdgeInsets.only(top: 10, left: 10, right: 10),
           titlePadding:
               EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
           titleChild: Text(
-            'PARTE SOCIAL',
+            'Parte social',
             style: TextStyle(
-              color: Colors.white,
+              color: Color.fromRGBO(9, 46, 116, 1.0),
               fontWeight: FontWeight.w500,
-              fontSize: 18,
+              fontSize: 17,
             ),
           ),
-          expandedTitleBackgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
-          collapsedTitleBackgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
-          contentBackgroundColor: const Color.fromRGBO(4, 124, 188, 1.0),
+          expandedTitleBackgroundColor: Colors.transparent,
+          collapsedTitleBackgroundColor: Colors.transparent,
+          contentBackgroundColor: Color.fromRGBO(204, 204, 204, 0.3),
           contentChild: Container(
             child: Column(
               children: [
@@ -644,11 +801,11 @@ class _ObrasContrato extends State<Obras_contrato> {
           ),
           collapsedIcon: Icon(
             Icons.arrow_drop_down_outlined,
-            color: Colors.white,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
           ),
           expandedIcon: Icon(
             Icons.arrow_drop_up,
-            color: Colors.white,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
           ),
         ),
       ),
@@ -656,21 +813,24 @@ class _ObrasContrato extends State<Obras_contrato> {
     send.add(
       Container(
         child: GFAccordion(
-          titleBorderRadius: BorderRadius.only(),
-          margin: EdgeInsets.only(top: 10),
+          titleBorder: Border.all(
+            width: 1.0,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
+          ),
+          margin: EdgeInsets.only(top: 10, left: 10, right: 10),
           titlePadding:
               EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
           titleChild: Text(
-            'PROYECTO EJECUTIVO',
+            'Proyecto ejecutivo',
             style: TextStyle(
-              color: Colors.white,
+              color: Color.fromRGBO(9, 46, 116, 1.0),
               fontWeight: FontWeight.w500,
-              fontSize: 18,
+              fontSize: 17,
             ),
           ),
-          expandedTitleBackgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
-          collapsedTitleBackgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
-          contentBackgroundColor: const Color.fromRGBO(4, 124, 188, 1.0),
+          expandedTitleBackgroundColor: Colors.transparent,
+          collapsedTitleBackgroundColor: Colors.transparent,
+          contentBackgroundColor: Color.fromRGBO(204, 204, 204, 0.3),
           contentChild: Container(
             child: Column(
               children: [
@@ -707,45 +867,11 @@ class _ObrasContrato extends State<Obras_contrato> {
           ),
           collapsedIcon: Icon(
             Icons.arrow_drop_down_outlined,
-            color: Colors.white,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
           ),
           expandedIcon: Icon(
             Icons.arrow_drop_up,
-            color: Colors.white,
-          ),
-        ),
-      ),
-    );
-    send.add(
-      Container(
-        child: GFAccordion(
-          titleBorderRadius: BorderRadius.only(),
-          margin: EdgeInsets.only(top: 10),
-          titlePadding:
-              EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
-          titleChild: Text(
-            'PROCESO DE CONTRATACIÓN',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w500,
-              fontSize: 18,
-            ),
-          ),
-          expandedTitleBackgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
-          collapsedTitleBackgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
-          contentBackgroundColor: const Color.fromRGBO(4, 124, 188, 1.0),
-          contentChild: Container(
-            child: Column(
-              children: licitacion,
-            ),
-          ),
-          collapsedIcon: Icon(
-            Icons.arrow_drop_down_outlined,
-            color: Colors.white,
-          ),
-          expandedIcon: Icon(
-            Icons.arrow_drop_up,
-            color: Colors.white,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
           ),
         ),
       ),
@@ -754,21 +880,62 @@ class _ObrasContrato extends State<Obras_contrato> {
     send.add(
       Container(
         child: GFAccordion(
-          titleBorderRadius: BorderRadius.only(),
-          margin: EdgeInsets.only(top: 10),
+          titleBorder: Border.all(
+            width: 1.0,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
+          ),
+          margin: EdgeInsets.only(top: 10, left: 10, right: 10),
           titlePadding:
               EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
           titleChild: Text(
-            'EJECUCIÓN DE OBRA',
+            'Proceso de contratación',
             style: TextStyle(
-              color: Colors.white,
+              color: Color.fromRGBO(9, 46, 116, 1.0),
               fontWeight: FontWeight.w500,
-              fontSize: 18,
+              fontSize: 17,
             ),
           ),
-          expandedTitleBackgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
-          collapsedTitleBackgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
-          contentBackgroundColor: const Color.fromRGBO(4, 124, 188, 1.0),
+          expandedTitleBackgroundColor: Colors.transparent,
+          collapsedTitleBackgroundColor: Colors.transparent,
+          contentBackgroundColor: Color.fromRGBO(204, 204, 204, 0.3),
+          contentChild: Container(
+            child: Column(
+              children: licitacion,
+            ),
+          ),
+          collapsedIcon: Icon(
+            Icons.arrow_drop_down_outlined,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
+          ),
+          expandedIcon: Icon(
+            Icons.arrow_drop_up,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
+          ),
+        ),
+      ),
+    );
+
+    send.add(
+      Container(
+        child: GFAccordion(
+          titleBorder: Border.all(
+            width: 1.0,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
+          ),
+          margin: EdgeInsets.only(top: 10, left: 10, right: 10),
+          titlePadding:
+              EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
+          titleChild: Text(
+            'Ejecución de obra',
+            style: TextStyle(
+              color: Color.fromRGBO(9, 46, 116, 1.0),
+              fontWeight: FontWeight.w500,
+              fontSize: 17,
+            ),
+          ),
+          expandedTitleBackgroundColor: Colors.transparent,
+          collapsedTitleBackgroundColor: Colors.transparent,
+          contentBackgroundColor: Color.fromRGBO(204, 204, 204, 0.3),
           contentChild: Container(
             child: Column(
               children: [
@@ -784,33 +951,37 @@ class _ObrasContrato extends State<Obras_contrato> {
           ),
           collapsedIcon: Icon(
             Icons.arrow_drop_down_outlined,
-            color: Colors.white,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
           ),
           expandedIcon: Icon(
             Icons.arrow_drop_up,
-            color: Colors.white,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
           ),
         ),
       ),
     );
+    print("hola 15");
     send.add(
       Container(
         child: GFAccordion(
-          titleBorderRadius: BorderRadius.only(),
-          margin: EdgeInsets.only(top: 10),
+          titleBorder: Border.all(
+            width: 1.0,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
+          ),
+          margin: EdgeInsets.only(top: 10, left: 10, right: 10),
           titlePadding:
               EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
           titleChild: Text(
-            'DOCUMENTACIÓN COMPROBATORIA',
+            'Documentación comprobatoria',
             style: TextStyle(
-              color: Colors.white,
+              color: Color.fromRGBO(9, 46, 116, 1.0),
               fontWeight: FontWeight.w500,
-              fontSize: 18,
+              fontSize: 17,
             ),
           ),
-          expandedTitleBackgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
-          collapsedTitleBackgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
-          contentBackgroundColor: const Color.fromRGBO(4, 124, 188, 1.0),
+          expandedTitleBackgroundColor: Colors.transparent,
+          collapsedTitleBackgroundColor: Colors.transparent,
+          contentBackgroundColor: Color.fromRGBO(204, 204, 204, 0.3),
           contentChild: Container(
             child: Column(
               children: [
@@ -823,11 +994,11 @@ class _ObrasContrato extends State<Obras_contrato> {
           ),
           collapsedIcon: Icon(
             Icons.arrow_drop_down_outlined,
-            color: Colors.white,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
           ),
           expandedIcon: Icon(
             Icons.arrow_drop_up,
-            color: Colors.white,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
           ),
         ),
       ),
@@ -835,25 +1006,27 @@ class _ObrasContrato extends State<Obras_contrato> {
     for (var i = 0; i < estimacion.length; i++) {
       send.add(estimacion[i]);
     }
-
     send.add(
       Container(
         child: GFAccordion(
-          titleBorderRadius: BorderRadius.only(),
-          margin: EdgeInsets.only(top: 10),
+          titleBorder: Border.all(
+            width: 1.0,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
+          ),
+          margin: EdgeInsets.only(top: 10, left: 10, right: 10),
           titlePadding:
               EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
           titleChild: Text(
-            'TERMINACIÓN DE LOS TRABAJOS',
+            'Terminación de los trabajos',
             style: TextStyle(
-              color: Colors.white,
+              color: Color.fromRGBO(9, 46, 116, 1.0),
               fontWeight: FontWeight.w500,
-              fontSize: 18,
+              fontSize: 17,
             ),
           ),
-          expandedTitleBackgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
-          collapsedTitleBackgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
-          contentBackgroundColor: const Color.fromRGBO(4, 124, 188, 1.0),
+          expandedTitleBackgroundColor: Colors.transparent,
+          collapsedTitleBackgroundColor: Colors.transparent,
+          contentBackgroundColor: Color.fromRGBO(204, 204, 204, 0.3),
           contentChild: Container(
             child: Column(
               children: [
@@ -872,40 +1045,39 @@ class _ObrasContrato extends State<Obras_contrato> {
           ),
           collapsedIcon: Icon(
             Icons.arrow_drop_down_outlined,
-            color: Colors.white,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
           ),
           expandedIcon: Icon(
             Icons.arrow_drop_up,
-            color: Colors.white,
+            color: Color.fromRGBO(9, 46, 116, 1.0),
           ),
         ),
       ),
     );
-
+    print("hola 17");
     if (observaciones != '') {
       observaciones = observaciones.substring(0, observaciones.length - 2);
       send.add(
         Container(
           child: GFAccordion(
-            titleBorderRadius: BorderRadius.only(
-              topLeft: Radius.circular(6),
+            titleBorder: Border.all(
+              width: 1.0,
+              color: Color.fromRGBO(9, 46, 116, 1.0),
             ),
+            margin: EdgeInsets.only(top: 10, left: 10, right: 10),
             titlePadding:
                 EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
-            margin: EdgeInsets.only(top: 10),
             titleChild: Text(
-              'OBSERVACIONES',
+              'Observaciones',
               style: TextStyle(
-                color: Colors.white,
+                color: Color.fromRGBO(9, 46, 116, 1.0),
                 fontWeight: FontWeight.w500,
-                fontSize: 18,
+                fontSize: 17,
               ),
             ),
-            expandedTitleBackgroundColor:
-                const Color.fromRGBO(207, 86, 41, 1.0),
-            collapsedTitleBackgroundColor:
-                const Color.fromRGBO(207, 86, 41, 1.0),
-            contentBackgroundColor: const Color.fromRGBO(4, 124, 188, 1.0),
+            expandedTitleBackgroundColor: Colors.transparent,
+            collapsedTitleBackgroundColor: Colors.transparent,
+            contentBackgroundColor: Color.fromRGBO(204, 204, 204, 0.3),
             contentChild: Container(
               child: Column(children: [
                 Container(
@@ -913,19 +1085,23 @@ class _ObrasContrato extends State<Obras_contrato> {
                   child: Card(
                     // RoundedRectangleBorder para proporcionarle esquinas circulares al Card
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6)),
+                      borderRadius: BorderRadius.circular(6),
+                      side: BorderSide(
+                        color: Color.fromRGBO(9, 46, 116, 1.0),
+                      ),
+                    ),
                     // margen para el Card
                     // La sombra que tiene el Card aumentará
                     elevation: 0,
                     //Colocamos una fila en dentro del card
-                    color: const Color.fromRGBO(9, 46, 116, 1.0),
+                    color: Colors.transparent,
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Text(
                         observaciones,
                         style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w300,
+                          color: Color.fromRGBO(9, 46, 116, 1.0),
+                          fontWeight: FontWeight.w400,
                           fontSize: 15,
                         ),
                       ),
@@ -936,73 +1112,256 @@ class _ObrasContrato extends State<Obras_contrato> {
             ),
             collapsedIcon: Icon(
               Icons.arrow_drop_down_outlined,
-              color: Colors.white,
+              color: Color.fromRGBO(9, 46, 116, 1.0),
             ),
             expandedIcon: Icon(
               Icons.arrow_drop_up,
-              color: Colors.white,
+              color: Color.fromRGBO(9, 46, 116, 1.0),
             ),
           ),
         ),
       );
     }
+    send.add(SizedBox(
+      height: 35,
+    ));
   }
 
 //menu inferior
   Widget _menuInferior(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: 2, // this will be set when a new tab is tapped
-      type: BottomNavigationBarType.fixed,
-      onTap: (int index) {
-        if (index == 0) {
+    return CurvedNavigationBar(
+      key: GlobalKey(),
+      index: 2,
+      height: 50.0,
+      items: <Widget>[
+        Icon(
+          CupertinoIcons.house,
+          size: 30,
+          color: Colors.white,
+        ),
+        Icon(
+          CupertinoIcons.calendar,
+          size: 30,
+          color: Colors.white,
+        ),
+        Icon(
+          CupertinoIcons.book,
+          size: 30,
+          color: Colors.white,
+        ),
+        Icon(
+          CupertinoIcons.square_arrow_left,
+          size: 30,
+          color: Colors.white,
+        ),
+      ],
+      color: Color.fromRGBO(9, 46, 116, 1.0),
+      buttonBackgroundColor: Color.fromRGBO(9, 46, 116, 1.0),
+      backgroundColor: Colors.transparent,
+      animationCurve: Curves.fastOutSlowIn,
+      animationDuration: Duration(milliseconds: 600),
+      onTap: (i) {
+        if (i == 0) {
           Navigator.of(context).pushNamedAndRemoveUntil(
               '/inicio', (Route<dynamic> route) => false,
               arguments: Welcome(
                 id_cliente: id_cliente,
               ));
         }
-
-        if (index == 1) {
-          Navigator.pushNamed(context, '/anio',
-              arguments: Anio(
-                anio: anio,
-                id_cliente: id_cliente,
-              ));
-        }
-        if (index == 2) {
-          Navigator.pushNamed(context, '/obras',
-              arguments: Obras(
-                anio: anio,
-                id_cliente: id_cliente,
-              ));
-        }
-        if (index == 3) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            '/',
-            (Route<dynamic> route) => false,
+        if (i == 1) {
+          Navigator.pushNamed(
+            context,
+            '/anio',
+            arguments: Anio(
+              anio: anio,
+              id_cliente: id_cliente,
+              clave: clave_municipio,
+            ),
           );
-          _saveValue(null);
         }
       },
+      letIndexChange: (index) {
+        if (index == 3) {
+          _showAlertDialog();
+          return false;
+        }
+        return true;
+      },
+    );
+  }
+
+  void _showAlertDialog() {
+    showDialog(
+      context: context,
+      builder: (buildcontext) {
+        return AlertDialog(
+          title: Text(
+            "¿Está seguro de que desea salir?",
+            style: TextStyle(
+              color: Color.fromRGBO(9, 46, 116, 1.0),
+              fontWeight: FontWeight.w500,
+              fontSize: 17,
+            ),
+          ),
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(6),
+            side: BorderSide(
+              color: Color.fromRGBO(9, 46, 116, 1.0),
+            ),
+          ),
+          actions: <Widget>[
+            RaisedButton(
+              child: Text(
+                "ACEPTAR",
+                style: TextStyle(
+                  color: Color.fromRGBO(9, 46, 116, 1.0),
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              color: Colors.transparent,
+              elevation: 0,
+              onPressed: () {
+                Navigator.of(context).pop();
+                _saveValue(null);
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  PageTransition(
+                    alignment: Alignment.bottomCenter,
+                    curve: Curves.easeInOut,
+                    duration: Duration(milliseconds: 1000),
+                    reverseDuration: Duration(milliseconds: 1000),
+                    type: PageTransitionType.rightToLeftJoined,
+                    child: LoginForm(),
+                    childCurrent: new Container(),
+                  ),
+                  (Route<dynamic> route) => false,
+                );
+              },
+            ),
+            RaisedButton(
+              child: Text(
+                "CERRAR",
+                style: TextStyle(
+                  color: Color.fromRGBO(9, 46, 116, 1.0),
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              color: Colors.transparent,
+              elevation: 0,
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
+  /*Widget _menuInferior(BuildContext context) {
+    return ConvexAppBar(
+      backgroundColor: Color.fromRGBO(9, 46, 116, 1.0),
+      style: TabStyle.react,
+      disableDefaultTabController: false,
       items: [
-        BottomNavigationBarItem(
-          icon: new Icon(Icons.home_rounded),
-          label: 'Inicio',
+        TabItem(
+          icon: CupertinoIcons.house,
+          title: 'Inio',
+          activeIcon: Padding(
+            padding: EdgeInsets.only(bottom: 100),
+            child: Icon(
+              CupertinoIcons.house,
+              color: Colors.white,
+              size: 30,
+            ),
+          ),
         ),
-        BottomNavigationBarItem(
-          icon: new Icon(Icons.calendar_today),
-          label: 'Año $anio',
+        TabItem(
+          icon: CupertinoIcons.calendar,
+          title: 'Ejercicio $anio',
+          activeIcon: Padding(
+            padding: EdgeInsets.only(bottom: 1000),
+            child: Icon(
+              CupertinoIcons.calendar,
+              color: Colors.white,
+              size: 30,
+            ),
+          ),
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.construction),
-          label: 'Obra Publica',
+        TabItem(
+          icon: CupertinoIcons.book,
+          title: 'Expediente',
+          activeIcon: Padding(
+            padding: EdgeInsets.only(bottom: 1000),
+            child: Icon(
+              CupertinoIcons.book,
+              color: Colors.white,
+              size: 30,
+            ),
+          ),
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.logout),
-          label: 'Salir',
+        TabItem(
+          icon: CupertinoIcons.square_arrow_left,
+          title: 'Cerrar Sesión ',
+          activeIcon: Padding(
+            padding: EdgeInsets.only(bottom: 1000),
+            child: Icon(
+              CupertinoIcons.square_arrow_left,
+              color: Colors.white,
+              size: 30,
+            ),
+          ),
         ),
       ],
+
+      initialActiveIndex: 2, //optional, default as 0
+      onTap: (int i) {
+        if (i == 0) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+              '/inicio', (Route<dynamic> route) => false,
+              arguments: Welcome(
+                id_cliente: id_cliente,
+              ));
+        }
+        if (i == 1) {
+          print("hola mundo");
+          Navigator.pushNamed(
+            context,
+            '/anio',
+            arguments: Anio(
+              anio: anio,
+              id_cliente: id_cliente,
+              clave: clave_municipio,
+            ),
+          );
+        }
+        if (i == 3) {
+          _saveValue(null);
+          Navigator.pushAndRemoveUntil(
+            context,
+            PageTransition(
+              alignment: Alignment.bottomCenter,
+              curve: Curves.easeInOut,
+              duration: Duration(milliseconds: 1000),
+              reverseDuration: Duration(milliseconds: 1000),
+              type: PageTransitionType.rightToLeftJoined,
+              child: LoginForm(),
+              childCurrent: new Container(),
+            ),
+            (Route<dynamic> route) => false,
+          );
+        }
+      },
     );
+  }*/
+
+  void _changed(bool visibility) {
+    setState(() {
+      visibility_obj = !visibility;
+      print(visibility_obj);
+    });
   }
 
 //-----------Cards de Actas preliminares------------
@@ -1010,9 +1369,11 @@ class _ObrasContrato extends State<Obras_contrato> {
     IconData estado_icon;
     Color color;
     Color color_barra;
+    Widget ret;
+
     if (estado == 1) {
       estado_icon = Icons.check_circle_rounded;
-      color = Colors.green;
+      color = Colors.blue;
       color_barra = const Color.fromRGBO(9, 46, 116, 1.0);
     }
     if (estado == 2) {
@@ -1026,45 +1387,54 @@ class _ObrasContrato extends State<Obras_contrato> {
       color = Colors.yellow;
       color_barra = Colors.grey[500];
     }
-    return Container(
-      height: 65,
-      child: Card(
-        // RoundedRectangleBorder para proporcionarle esquinas circulares al Card
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-        // margen para el Card
-        margin: EdgeInsets.only(
-          left: 10,
-          right: 10,
-          bottom: 8,
-        ),
-        // La sombra que tiene el Card aumentará
-        elevation: 10,
-        //Colocamos una fila en dentro del card
-        color: color_barra,
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Expanded(
-                flex: 3,
-                child: Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: Text(nombre,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w300,
-                          fontSize: 15,
-                        )))),
-            Expanded(
-              flex: 1,
-              child: Icon(
-                estado_icon,
-                color: color,
+    bool estado_2 = estado == 3;
+    estado_2
+        ? ret = new Container()
+        : ret = new Container(
+            height: 65,
+            child: Card(
+              // RoundedRectangleBorder para proporcionarle esquinas circulares al Card
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6),
+                side: BorderSide(
+                  color: Color.fromRGBO(9, 46, 116, 1.0),
+                ),
+              ),
+              // margen para el Card
+              margin: EdgeInsets.only(
+                left: 10,
+                right: 10,
+                bottom: 8,
+              ),
+              // La sombra que tiene el Card aumentará
+              elevation: 0,
+              //Colocamos una fila en dentro del card
+              color: Colors.transparent,
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Expanded(
+                      flex: 3,
+                      child: Padding(
+                          padding: EdgeInsets.all(10.0),
+                          child: Text(nombre,
+                              style: TextStyle(
+                                color: Color.fromRGBO(9, 46, 116, 1.0),
+                                fontWeight: FontWeight.w400,
+                                fontSize: 15,
+                              )))),
+                  Expanded(
+                    flex: 1,
+                    child: Icon(
+                      estado_icon,
+                      color: color,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
+          );
+    return ret;
   }
 
   Widget cards_facturas(BuildContext context, folio, monto) {
@@ -1275,7 +1645,7 @@ class _ObrasContrato extends State<Obras_contrato> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://192.168.10.160:8000/api/getObraExpediente/$id_obra";
+    url = "https://sistema.mrcorporativo.com/api/getObraExpediente/$id_obra";
     try {
       final respuesta = await http.get(Uri.parse(url));
       if (respuesta.statusCode == 200) {
@@ -1374,6 +1744,7 @@ class _ObrasContrato extends State<Obras_contrato> {
             data1.forEach((i) {
               if (i != null) {
                 nombre_obra = i['nombre_obra'];
+                nombre_corto = i['nombre_corto'];
                 monto = numberFormat(i['monto_contratado'].toDouble());
                 avance_fisico =
                     int.parse(i['avance_fisico'].toStringAsFixed(0)).toDouble();
@@ -1443,9 +1814,9 @@ class _ObrasContrato extends State<Obras_contrato> {
                 }
                 contrato = i['contrato'];
                 if (i['contrato_tipo'] == 1) {
-                  tipo_contrato = 'PRECIOS UNITARIOS';
+                  tipo_contrato = 'Precios unitarios';
                 } else {
-                  tipo_contrato = 'PRECIOS ALZADOS';
+                  tipo_contrato = 'Precios alzados';
                 }
               }
             });
@@ -1466,26 +1837,25 @@ class _ObrasContrato extends State<Obras_contrato> {
                 estimacion.add(
                   Container(
                     child: GFAccordion(
-                      titleBorderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(6),
-                      ),
                       titlePadding: EdgeInsets.only(
                           left: 15, right: 15, top: 10, bottom: 10),
-                      margin: EdgeInsets.only(left: 20, top: 10),
+                      margin: EdgeInsets.only(top: 10, left: 20, right: 10),
                       titleChild: Text(
                         'ESTIMACION $p',
                         style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w400,
+                          color: Color.fromRGBO(9, 46, 116, 1.0),
+                          fontWeight: FontWeight.w500,
                           fontSize: 17,
                         ),
                       ),
-                      expandedTitleBackgroundColor:
-                          const Color.fromRGBO(9, 46, 116, 1.0),
-                      collapsedTitleBackgroundColor:
-                          const Color.fromRGBO(9, 46, 116, 1.0),
+                      expandedTitleBackgroundColor: Colors.transparent,
+                      collapsedTitleBackgroundColor: Colors.transparent,
                       contentBackgroundColor:
-                          const Color.fromRGBO(4, 124, 188, 1.0),
+                          Color.fromRGBO(204, 204, 204, 0.3),
+                      titleBorder: Border.all(
+                        width: 1.0,
+                        color: Color.fromRGBO(9, 46, 116, 1.0),
+                      ),
                       contentChild: Container(
                         child: Column(
                           children: [
@@ -1519,11 +1889,11 @@ class _ObrasContrato extends State<Obras_contrato> {
                       ),
                       collapsedIcon: Icon(
                         Icons.arrow_drop_down_outlined,
-                        color: Colors.white,
+                        color: Color.fromRGBO(9, 46, 116, 1.0),
                       ),
                       expandedIcon: Icon(
                         Icons.arrow_drop_up,
-                        color: Colors.white,
+                        color: Color.fromRGBO(9, 46, 116, 1.0),
                       ),
                     ),
                   ),
@@ -1609,15 +1979,6 @@ class _ObrasContrato extends State<Obras_contrato> {
     await prefs.setString('token', token);
   }
 
-  final _documents = [
-    {
-      'name': 'Acta de Integración del Consejo de Desarrollo Municipal',
-      'posicion': 1,
-      'link':
-          'https://www.mrcorporativo.com/temario-contabilidad-municipal-2020.pdf'
-    },
-  ];
-
   @override
   void initState() {
     init();
@@ -1682,7 +2043,7 @@ class _ObrasContrato extends State<Obras_contrato> {
   Widget _buildDownloadList() => Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("images/Fondo03.png"),
+            image: AssetImage("images/Fondo06.png"),
             fit: BoxFit.cover,
           ),
         ),
@@ -1719,7 +2080,7 @@ class _ObrasContrato extends State<Obras_contrato> {
         child: Text(
           title,
           style: TextStyle(
-              fontWeight: FontWeight.bold, color: Colors.blue, fontSize: 18.0),
+              fontWeight: FontWeight.bold, color: Colors.blue, fontSize: 17.0),
         ),
       );
 
@@ -1734,11 +2095,11 @@ class _ObrasContrato extends State<Obras_contrato> {
                 child: Text(
                   'Please grant accessing storage permission to continue -_-',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.blueGrey, fontSize: 18.0),
+                  style: TextStyle(color: Colors.blueGrey, fontSize: 17.0),
                 ),
               ),
               SizedBox(
-                height: 32.0,
+                height: 25.0,
               ),
               FlatButton(
                   onPressed: () {
@@ -1838,6 +2199,14 @@ class _ObrasContrato extends State<Obras_contrato> {
     int count = 0;
     _tasks = [];
     _items = [];
+    final _documents = [
+      {
+        'name': nombre_corto,
+        'posicion': 1,
+        'link':
+            'http://sistema.mrcorporativo.com/archivos/$clave_municipio/$anio/obras/$id_obra/$nombre_archivo.pdf'
+      },
+    ];
 
     _tasks.addAll(_documents.map((document) => _TaskInfo(
         name: document['name'],
@@ -1912,13 +2281,11 @@ class DownloadItem extends StatelessWidget {
   final _ItemHolder data;
   final Function(_TaskInfo) onItemClick;
   final Function(_TaskInfo) onActionClick;
-  final String nombre;
 
   DownloadItem({
     this.data,
     this.onItemClick,
     this.onActionClick,
-    this.nombre,
   });
 
   @override
@@ -1933,18 +2300,10 @@ class DownloadItem extends StatelessWidget {
         child: Stack(
           children: <Widget>[
             Container(
-              margin: EdgeInsets.only(left: 15, right: 15, bottom: 20),
+              margin: EdgeInsets.only(left: 15, right: 15),
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  Expanded(
-                      flex: 3,
-                      child: Text(nombre.toUpperCase(),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 18,
-                          ))),
                   Expanded(
                     flex: 1,
                     child: _buildActionForTask(data.task),
@@ -1975,12 +2334,14 @@ class DownloadItem extends StatelessWidget {
         onPressed: () {
           onActionClick(task);
         },
-        child: Icon(
-          Icons.file_download,
-          color: Colors.green,
-        ),
+        child: Text("Descargar checklist",
+            style: TextStyle(
+              color: Colors.blue,
+              fontWeight: FontWeight.w300,
+              fontSize: 16,
+            )),
         shape: CircleBorder(),
-        constraints: BoxConstraints(minHeight: 32.0, minWidth: 32.0),
+        constraints: BoxConstraints(minHeight: 25.0, minWidth: 25.0),
       );
     } else if (task.status == DownloadTaskStatus.running) {
       return RawMaterialButton(
@@ -1992,7 +2353,7 @@ class DownloadItem extends StatelessWidget {
           color: Colors.red,
         ),
         shape: CircleBorder(),
-        constraints: BoxConstraints(minHeight: 32.0, minWidth: 32.0),
+        constraints: BoxConstraints(minHeight: 25.0, minWidth: 25.0),
       );
     } else if (task.status == DownloadTaskStatus.paused) {
       return RawMaterialButton(
@@ -2004,12 +2365,12 @@ class DownloadItem extends StatelessWidget {
           color: Colors.green,
         ),
         shape: CircleBorder(),
-        constraints: BoxConstraints(minHeight: 32.0, minWidth: 32.0),
+        constraints: BoxConstraints(minHeight: 25.0, minWidth: 25.0),
       );
     } else if (task.status == DownloadTaskStatus.complete) {
       return Row(
         mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.remove_red_eye,
@@ -2024,7 +2385,7 @@ class DownloadItem extends StatelessWidget {
               color: Colors.red,
             ),
             shape: CircleBorder(),
-            constraints: BoxConstraints(minHeight: 32.0, minWidth: 32.0),
+            constraints: BoxConstraints(minHeight: 25.0, minWidth: 25.0),
           )
         ],
       );
@@ -2033,7 +2394,7 @@ class DownloadItem extends StatelessWidget {
     } else if (task.status == DownloadTaskStatus.failed) {
       return Row(
         mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text('Fallido', style: TextStyle(color: Colors.red)),
           RawMaterialButton(
@@ -2045,7 +2406,7 @@ class DownloadItem extends StatelessWidget {
               color: Colors.green,
             ),
             shape: CircleBorder(),
-            constraints: BoxConstraints(minHeight: 32.0, minWidth: 32.0),
+            constraints: BoxConstraints(minHeight: 25.0, minWidth: 25.0),
           )
         ],
       );

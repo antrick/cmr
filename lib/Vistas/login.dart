@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Vistas/counter.dart';
 import 'package:flutter_app/Vistas/principal.dart';
@@ -8,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dart:async';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void configLoading() {
   EasyLoading.instance
@@ -59,13 +61,16 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    _returnValue(context).toString();
+    print(MediaQuery.of(context).size.height);
+    //_returnValue(context).toString();
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Container(
         constraints: BoxConstraints.expand(),
         decoration: BoxDecoration(
+          color: const Color(0xff7c94b6),
           image: DecorationImage(
-            image: AssetImage("images/Fondo03.png"),
+            image: AssetImage("images/Fondo06.png"),
             fit: BoxFit.cover,
           ),
         ),
@@ -89,28 +94,33 @@ class _LoginFormState extends State<LoginForm> {
               TextFormField(
                 autocorrect: false,
                 style: TextStyle(
-                    color: Colors.black,
+                    color: Colors.white,
                     fontWeight: FontWeight.w300,
                     fontSize: 20),
-                cursorColor: Colors.lightBlue,
+                cursorColor: Colors.white,
                 cursorRadius: Radius.circular(1.0),
                 cursorWidth: 2.0,
                 decoration: const InputDecoration(
                   prefixIcon: const Icon(
                     Icons.person,
-                    color: Colors.black54,
+                    color: Colors.white,
                   ),
-                  fillColor: Colors.white,
+                  fillColor: Color.fromRGBO(9, 46, 116, 1.0),
                   filled: true,
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(50.0)),
-                    borderSide: BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    borderSide: BorderSide(
+                      color: Colors.blue,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(50.0)),
-                    borderSide: BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    borderSide: BorderSide(
+                      color: Colors.blue,
+                    ),
                   ),
                   hintText: 'USUARIO',
+                  hintStyle: TextStyle(color: Colors.white),
                 ),
                 onSaved: (text) {
                   _usuario = text;
@@ -126,37 +136,43 @@ class _LoginFormState extends State<LoginForm> {
                 keyboardType: TextInputType.text,
                 autocorrect: false,
                 style: TextStyle(
-                    color: Colors.black,
+                    color: Colors.white,
                     fontWeight: FontWeight.w300,
                     fontSize: 20),
                 enableSuggestions: false,
                 obscureText: !this._isHidden,
                 cursorHeight: 20,
+                cursorColor: Colors.white,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(
                     Icons.lock,
-                    color: Colors.black54,
+                    color: Colors.white,
                   ),
                   suffixIcon: IconButton(
                     icon: Icon(
                       Icons.remove_red_eye,
-                      color: this._isHidden ? Colors.blue : Colors.grey,
+                      color: this._isHidden ? Colors.white : Colors.blue,
                     ),
                     onPressed: () {
                       setState(() => this._isHidden = !this._isHidden);
                     },
                   ),
-                  fillColor: Colors.white,
+                  fillColor: Color.fromRGBO(9, 46, 116, 1.0),
                   filled: true,
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(50.0)),
-                    borderSide: BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    borderSide: BorderSide(
+                      color: Colors.blue,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(50.0)),
-                    borderSide: BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    borderSide: BorderSide(
+                      color: Colors.blue,
+                    ),
                   ),
                   hintText: 'CONTRASEÑA',
+                  hintStyle: TextStyle(color: Colors.white),
                 ),
                 onSaved: (text) {
                   _password = text;
@@ -188,26 +204,89 @@ class _LoginFormState extends State<LoginForm> {
                   primary: Colors.orange[800],
                   shape: RoundedRectangleBorder(
                     //borde del boton
-                    borderRadius: BorderRadius.circular(50.0),
+                    borderRadius: BorderRadius.circular(10.0),
                   ),
                   elevation: 9.0,
                 ),
               ),
-              SizedBox(height: 10.0),
+              /*SizedBox(height: 10.0),
               TextButton(
                 onPressed: () => _showAlertDialog(context),
                 child: Text(
                   'OLVIDE MI CONTRASEÑA',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.black,
                     fontSize: 15,
                     decoration: TextDecoration.underline,
                     decorationThickness: 2,
                     fontWeight: FontWeight.w300,
                   ),
                 ),
+              ),*/
+              /*SizedBox(height: 80.0),
+              Text(
+                'CREAMOS GESTIONES\nEXITOSAS',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 35,
+                  decorationThickness: 2,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),*/
+
+              Container(
+                height: MediaQuery.of(context).size.height - 535,
+                child: Center(
+                  child: Text(
+                    'CREAMOS GESTIONES EXITOSAS',
+                    style: TextStyle(
+                      color: Color.fromRGBO(179, 179, 179, 1.0),
+                      fontSize: 25,
+                      decorationThickness: 2,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ),
             ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        height: 25,
+        decoration: BoxDecoration(
+          color: Color.fromRGBO(9, 46, 116, 1.0),
+        ),
+        child: Center(
+          child: new RichText(
+            text: new TextSpan(
+              children: [
+                new TextSpan(
+                  text: 'Desarrollado por ',
+                  style: new TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+                new TextSpan(
+                  text: 'INGENINN 360',
+                  style: new TextStyle(
+                    color: Colors.white,
+                    decoration: TextDecoration.underline,
+                    decorationThickness: 2,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  recognizer: new TapGestureRecognizer()
+                    ..onTap = () {
+                      launch('https://www.ingeninn360.com/');
+                    },
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -266,7 +345,7 @@ class _LoginFormState extends State<LoginForm> {
     if (formkey.currentState.validate()) {
       formkey.currentState.save();
       url =
-          "http://192.168.10.160:8000/api/getUsuario/$_usuario,$_password,$_idOneSignal";
+          "https://sistema.mrcorporativo.com/api/getUsuario/$_usuario,$_password,$_idOneSignal";
       EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
       EasyLoading.show(
         status: 'CARGANDO',
@@ -277,10 +356,6 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   void _showSecondToken(BuildContext context, token) {
-    /*Navigator.pushReplacementNamed(context, '/inicio',
-        arguments: Welcome(
-          id_cliente: 1,
-        ));*/
     EasyLoading.instance
       ..displayDuration = const Duration(milliseconds: 2000)
       ..indicatorType = EasyLoadingIndicatorType.fadingCircle
@@ -294,7 +369,7 @@ class _LoginFormState extends State<LoginForm> {
       ..maskColor = Colors.black.withOpacity(0.88)
       ..userInteractions = false
       ..dismissOnTap = true;
-    url = "http://192.168.10.141:8000/api/getUsuarioToken/$token";
+    url = "https://sistema.mrcorporativo.com//api/getUsuarioToken/$token";
     EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
     EasyLoading.show(
       status: 'CARGANDO',
@@ -315,18 +390,18 @@ class _LoginFormState extends State<LoginForm> {
 
   Future<dynamic> _getListado() async {
     try {
+      print("url");
       print(url);
       final respuesta = await http.get(Uri.parse(url));
+
       if (respuesta.statusCode == 200) {
         bool resp = respuesta.body == "";
         if (respuesta.body != "") {
           final data = json.decode(respuesta.body);
           data.forEach((e) {
-            print("hola");
             id_cliente = e['id_cliente'];
             token_t = e['remember_token'];
           });
-
           _saveValue(token_t);
           _login(id_cliente);
           return jsonDecode(respuesta.body);
@@ -356,6 +431,8 @@ class _LoginFormState extends State<LoginForm> {
         print("Error con la respusta");
       }
     } catch (e) {
+      print("ERROR");
+      print(e);
       EasyLoading.instance
         ..displayDuration = const Duration(milliseconds: 2000)
         ..indicatorType = EasyLoadingIndicatorType.fadingCircle
@@ -372,9 +449,10 @@ class _LoginFormState extends State<LoginForm> {
       EasyLoading.dismiss();
       EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
       EasyLoading.showError(
-        'ERROR DE CONEXIÓN 1',
+        'ERROR DE CONEXIÓN',
         maskType: EasyLoadingMaskType.custom,
       );
+      return null;
     }
   }
 
@@ -471,6 +549,8 @@ class _LoginFormState extends State<LoginForm> {
       OSiOSSettings.autoPrompt: false,
       OSiOSSettings.promptBeforeOpeningPushUrl: true
     };
+
+    print("object");
 
     OneSignal.shared
         .setNotificationReceivedHandler((OSNotification notification) {
@@ -669,3 +749,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 }*/
+
+//=============================CODIGO DE EJEMPLO================================
+
+/**/

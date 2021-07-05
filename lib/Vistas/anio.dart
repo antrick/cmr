@@ -1,9 +1,14 @@
+import 'package:convex_bottom_bar/convex_bottom_bar.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Vistas/fondos.dart';
+import 'package:flutter_app/Vistas/login.dart';
 import 'package:flutter_app/Vistas/obra_publica.dart';
 import 'package:flutter_app/Vistas/plataformas.dart';
 import 'package:flutter_app/Vistas/principal.dart';
 import 'package:flutter_app/Vistas/prodim.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart' as http;
@@ -13,11 +18,13 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 class Anio extends StatefulWidget {
   int anio;
   int id_cliente;
+  int clave;
   _AnioView createState() => _AnioView();
 
   Anio({
     this.anio,
     this.id_cliente,
+    this.clave,
   });
 }
 
@@ -41,6 +48,11 @@ class _AnioView extends State<Anio> {
   final formkey = GlobalKey<FormState>();
   bool prodimdf = false;
   bool gi = false;
+  int clave_municipio;
+  List<int> list_id_obras = [];
+  List<String> list_nombre_obras = [];
+  int currentIndex = 2;
+  GlobalKey _bottomNavigationKey = GlobalKey();
 
   List<Widget> send = [];
 
@@ -69,6 +81,7 @@ class _AnioView extends State<Anio> {
     final Anio args = ModalRoute.of(context).settings.arguments;
     id_cliente = args.id_cliente;
     anio = args.anio;
+    clave_municipio = args.clave;
     _returnValue(context);
     if (inicio) {
       _options();
@@ -87,7 +100,7 @@ class _AnioView extends State<Anio> {
         body: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("images/Fondo03.png"),
+              image: AssetImage("images/Fondo06.png"),
               fit: BoxFit.cover,
             ),
           ),
@@ -107,39 +120,193 @@ class _AnioView extends State<Anio> {
   }
 
   Widget _menuInferior(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: 1, // this will be set when a new tab is tapped
-      type: BottomNavigationBarType.fixed,
-      onTap: (int index) {
-        if (index == 0) {
+    return CurvedNavigationBar(
+      key: _bottomNavigationKey,
+      index: 1,
+      height: 50.0,
+      items: <Widget>[
+        Icon(
+          CupertinoIcons.house,
+          size: 30,
+          color: Colors.white,
+        ),
+        Icon(
+          CupertinoIcons.calendar,
+          size: 30,
+          color: Colors.white,
+        ),
+        Icon(
+          CupertinoIcons.square_arrow_left,
+          size: 30,
+          color: Colors.white,
+        ),
+      ],
+      color: Color.fromRGBO(9, 46, 116, 1.0),
+      buttonBackgroundColor: Color.fromRGBO(9, 46, 116, 1.0),
+      backgroundColor: Colors.transparent,
+      animationCurve: Curves.fastOutSlowIn,
+      animationDuration: Duration(milliseconds: 600),
+      onTap: (i) {
+        if (i == 0) {
           Navigator.of(context).pushNamedAndRemoveUntil(
               '/inicio', (Route<dynamic> route) => false,
               arguments: Welcome(
                 id_cliente: id_cliente,
               ));
         }
-        if (index == 2) {
-          Navigator.of(context)
-              .pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
-          _saveValue(null);
-        }
       },
-      items: [
-        BottomNavigationBarItem(
-          icon: new Icon(Icons.home_rounded),
-          label: 'Inicio',
-        ),
-        BottomNavigationBarItem(
-          icon: new Icon(Icons.calendar_today),
-          label: 'Ejercicio $anio',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.logout),
-          label: 'Salir',
-        ),
-      ],
+      letIndexChange: (index) {
+        if (index == 2) {
+          _showAlertDialog();
+          return false;
+        }
+        return true;
+      },
     );
   }
+
+  void _showAlertDialog() {
+    showDialog(
+        context: context,
+        builder: (buildcontext) {
+          return AlertDialog(
+            title: Text(
+              "¿Está seguro de que desea salir?",
+              style: TextStyle(
+                color: Color.fromRGBO(9, 46, 116, 1.0),
+                fontWeight: FontWeight.w500,
+                fontSize: 17,
+              ),
+            ),
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+              side: BorderSide(
+                color: Color.fromRGBO(9, 46, 116, 1.0),
+              ),
+            ),
+            actions: <Widget>[
+              RaisedButton(
+                child: Text(
+                  "ACEPTAR",
+                  style: TextStyle(
+                    color: Color.fromRGBO(9, 46, 116, 1.0),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                color: Colors.transparent,
+                elevation: 0,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _saveValue(null);
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    PageTransition(
+                      alignment: Alignment.bottomCenter,
+                      curve: Curves.easeInOut,
+                      duration: Duration(milliseconds: 1000),
+                      reverseDuration: Duration(milliseconds: 1000),
+                      type: PageTransitionType.rightToLeftJoined,
+                      child: LoginForm(),
+                      childCurrent: new Container(),
+                    ),
+                    (Route<dynamic> route) => false,
+                  );
+                },
+              ),
+              RaisedButton(
+                child: Text(
+                  "CERRAR",
+                  style: TextStyle(
+                    color: Color.fromRGBO(9, 46, 116, 1.0),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                color: Colors.transparent,
+                elevation: 0,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        });
+  }
+
+  /*Widget _menuInferior(BuildContext context) {
+    return ConvexAppBar(
+      backgroundColor: Color.fromRGBO(9, 46, 116, 1.0),
+      style: TabStyle.react,
+      disableDefaultTabController: false,
+      items: [
+        TabItem(
+          icon: CupertinoIcons.house,
+          title: 'Inio',
+          activeIcon: Padding(
+            padding: EdgeInsets.only(bottom: 100),
+            child: Icon(
+              CupertinoIcons.house,
+              color: Colors.white,
+              size: 30,
+            ),
+          ),
+        ),
+        TabItem(
+          icon: CupertinoIcons.calendar,
+          title: 'Ejercicio $anio',
+          activeIcon: Padding(
+            padding: EdgeInsets.only(bottom: 1000),
+            child: Icon(
+              CupertinoIcons.calendar,
+              color: Colors.white,
+              size: 30,
+            ),
+          ),
+        ),
+        TabItem(
+          icon: CupertinoIcons.square_arrow_left,
+          title: 'Cerrar Sesión ',
+          activeIcon: Padding(
+            padding: EdgeInsets.only(bottom: 1000),
+            child: Icon(
+              CupertinoIcons.square_arrow_left,
+              color: Colors.white,
+              size: 30,
+            ),
+          ),
+        ),
+      ],
+
+      initialActiveIndex: 1, //optional, default as 0
+      onTap: (int i) {
+        if (i == 0) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+              '/inicio', (Route<dynamic> route) => false,
+              arguments: Welcome(
+                id_cliente: id_cliente,
+              ));
+        }
+        if (i == 2) {
+          _saveValue(null);
+          Navigator.pushAndRemoveUntil(
+            context,
+            PageTransition(
+              alignment: Alignment.bottomCenter,
+              curve: Curves.easeInOut,
+              duration: Duration(milliseconds: 1000),
+              reverseDuration: Duration(milliseconds: 1000),
+              type: PageTransitionType.rightToLeftJoined,
+              child: LoginForm(),
+              childCurrent: new Container(),
+            ),
+            (Route<dynamic> route) => false,
+          );
+        }
+      },
+    );
+  }*/
 
   void showHome(BuildContext context) {
     Navigator.pop(context);
@@ -170,15 +337,15 @@ class _AnioView extends State<Anio> {
                       children: <Widget>[
                         Icon(
                           Icons.monetization_on_rounded,
-                          color: Colors.white,
+                          color: Color.fromRGBO(9, 46, 116, 1.0),
                           size: 30,
                         ),
                         Text(
                           "Fuentes de Financiamiento",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Color.fromRGBO(9, 46, 116, 1.0),
                             fontSize: 20,
-                            fontWeight: FontWeight.w300,
+                            fontWeight: FontWeight.w500,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -193,16 +360,19 @@ class _AnioView extends State<Anio> {
                       arguments: Fondos(
                         anio: anio,
                         id_cliente: id_cliente,
+                        clave: clave_municipio,
                       ));
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: const Color.fromRGBO(9, 46, 116, 1.0),
+                  primary: Colors.transparent,
                   shape: RoundedRectangleBorder(
                     //borde del boton
                     borderRadius: BorderRadius.circular(10.0),
-                    side: BorderSide(color: Colors.white),
+                    side: BorderSide(
+                      color: Color.fromRGBO(9, 46, 116, 1.0),
+                    ),
                   ),
-                  elevation: 8.0,
+                  elevation: 0,
                 ),
               ),
             ),
@@ -227,15 +397,15 @@ class _AnioView extends State<Anio> {
                       children: [
                         Icon(
                           Icons.construction,
-                          color: Colors.white,
+                          color: Color.fromRGBO(9, 46, 116, 1.0),
                           size: 30,
                         ),
                         Text(
                           "Obra Pública",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Color.fromRGBO(9, 46, 116, 1.0),
                             fontSize: 20,
-                            fontWeight: FontWeight.w300,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
@@ -243,24 +413,28 @@ class _AnioView extends State<Anio> {
                   ),
                 ),
                 onPressed: () {
+                  print(clave_municipio);
                   Navigator.pushNamed(
                     context,
                     '/obras',
                     arguments: Obras(
                       anio: anio,
                       id_cliente: id_cliente,
+                      clave: clave_municipio,
                       platform: Theme.of(context).platform,
                     ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: const Color.fromRGBO(9, 46, 116, 1.0),
+                  primary: Colors.transparent,
                   shape: RoundedRectangleBorder(
                     //borde del boton
                     borderRadius: BorderRadius.circular(10.0),
-                    side: BorderSide(color: Colors.white),
+                    side: BorderSide(
+                      color: Color.fromRGBO(9, 46, 116, 1.0),
+                    ),
                   ),
-                  elevation: 8.0,
+                  elevation: 0,
                 ),
               ),
             ),
@@ -268,7 +442,7 @@ class _AnioView extends State<Anio> {
         ],
       ),
     );
-    if (prodimdf || gi) {
+    /*if (prodimdf || gi) {
       send.add(
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -328,7 +502,7 @@ class _AnioView extends State<Anio> {
           ],
         ),
       );
-    }
+    }*/
     send.add(
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -346,16 +520,16 @@ class _AnioView extends State<Anio> {
                       children: [
                         Icon(
                           Icons.computer,
-                          color: Colors.white,
+                          color: Color.fromRGBO(9, 46, 116, 1.0),
                           size: 30,
                         ),
                         Container(
                           child: Text(
                             'Plataformas Digitales',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Color.fromRGBO(9, 46, 116, 1.0),
                               fontSize: 20,
-                              fontWeight: FontWeight.w300,
+                              fontWeight: FontWeight.w500,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -371,16 +545,24 @@ class _AnioView extends State<Anio> {
                       arguments: Plataformas(
                         anio: anio,
                         id_cliente: id_cliente,
+                        prodimb: prodimdf,
+                        gib: gi,
+                        clave: clave_municipio,
+                        platform: Theme.of(context).platform,
+                        id_obras_list: list_id_obras,
+                        nombre_obras_list: list_nombre_obras,
                       ));
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: const Color.fromRGBO(9, 46, 116, 1.0),
+                  primary: Colors.transparent,
                   shape: RoundedRectangleBorder(
                     //borde del boton
                     borderRadius: BorderRadius.circular(10.0),
-                    side: BorderSide(color: Colors.white),
+                    side: BorderSide(
+                      color: Color.fromRGBO(9, 46, 116, 1.0),
+                    ),
                   ),
-                  elevation: 8.0,
+                  elevation: 0,
                 ),
               ),
             ),
@@ -423,27 +605,45 @@ class _AnioView extends State<Anio> {
       status: 'CARGANDO',
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://192.168.10.160:8000/api/getProdim/$id_cliente,$anio";
+    url = "http://sistema.mrcorporativo.com/api/getProdim/$id_cliente,$anio";
+    print(url);
 
     try {
       final respuesta = await http.get(Uri.parse(url));
+      print(respuesta.body);
       if (respuesta.statusCode == 200) {
         print(respuesta.body);
         if (respuesta.body != "[]") {
           final data = json.decode(respuesta.body);
           data.forEach((e) {
-            if (e['gastos_indirectos'] == 1) {
-              gi = true;
-              texto = "Gastos Indirectos";
-            }
+            final prodim_1 = json.encode(e['prodim']);
+            dynamic prodim_2 = json.decode(prodim_1);
 
-            if (e['prodim'] == 1) {
-              if (texto != "") {
-                texto = texto + "\n";
+            prodim_2.forEach((i) {
+              if (i['gastos_indirectos'] == 1) {
+                gi = true;
+                texto = "Gastos Indirectos";
               }
-              prodimdf = true;
-              texto = texto + "PRODIMDF";
-            }
+
+              if (i['prodim'] == 1) {
+                if (texto != "") {
+                  texto = texto + "\n";
+                }
+                prodimdf = true;
+                texto = texto + "PRODIMDF";
+              }
+            });
+            final obras_1 = json.encode(e['obras']);
+            dynamic obras_2 = json.decode(obras_1);
+
+            obras_2.forEach((i) {
+              print(i['id_obra']);
+              list_id_obras.add(i['id_obra']);
+              print(i['nombre_corto']);
+              list_nombre_obras.add(i['nombre_corto']);
+              print(i['nombre_corto']);
+            });
+            print(list_nombre_obras.length);
           });
           _onRefresh();
           _onLoading();
@@ -488,13 +688,6 @@ class _AnioView extends State<Anio> {
   Future<String> _returnValue(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final token = await prefs.getString("token");
-    print(token);
-    /*if (token != null) {
-      Navigator.pushReplacementNamed(context, '/inicio',
-          arguments: Welcome(
-            id_cliente: 1,
-          ));
-    }*/
     return token;
   }
 
