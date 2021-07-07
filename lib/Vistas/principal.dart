@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/Vistas/anio.dart';
 import 'package:flutter_app/Vistas/counter.dart';
 import 'package:flutter_app/Vistas/login.dart';
+import 'package:flutter_app/Vistas/sizes_helpers.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart' as http;
 import 'package:page_transition/page_transition.dart';
@@ -13,6 +14,7 @@ import 'dart:convert';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 
 class Welcome extends StatefulWidget {
   @override
@@ -85,6 +87,7 @@ class _WelcomeView extends State<Welcome> {
           title: Text("BIENVENIDO"),
         ),
         body: Container(
+          height: displayHeight(context),
           decoration: BoxDecoration(
             image: DecorationImage(
               image: AssetImage("images/Fondo06.png"),
@@ -234,7 +237,7 @@ class _WelcomeView extends State<Welcome> {
               ),
               RaisedButton(
                 child: Text(
-                  "CERRAR",
+                  "CANCELAR",
                   style: TextStyle(
                     color: Color.fromRGBO(9, 46, 116, 1.0),
                     fontWeight: FontWeight.w500,
@@ -261,7 +264,7 @@ class _WelcomeView extends State<Welcome> {
   void _options() {
     send.clear();
     send.add(Padding(
-      padding: EdgeInsets.all(20.0),
+      padding: EdgeInsets.all(18.0),
     ));
     send.add(
       Container(
@@ -281,7 +284,7 @@ class _WelcomeView extends State<Welcome> {
     );
     send.add(
       SizedBox(
-        height: 40,
+        height: displayHeight(context) * 0.02,
       ),
     );
     send.add(
@@ -319,7 +322,7 @@ class _WelcomeView extends State<Welcome> {
     );
     send.add(
       SizedBox(
-        height: 30,
+        height: displayHeight(context) * 0.03,
       ),
     );
     send.add(
@@ -335,7 +338,7 @@ class _WelcomeView extends State<Welcome> {
     );
     send.add(
       SizedBox(
-        height: 30,
+        height: displayHeight(context) * 0.02,
       ),
     );
     send.add(
@@ -354,7 +357,7 @@ class _WelcomeView extends State<Welcome> {
     );
     send.add(
       SizedBox(
-        height: 60,
+        height: displayHeight(context) * 0.02,
       ),
     );
 
@@ -371,7 +374,7 @@ class _WelcomeView extends State<Welcome> {
     );
     send.add(
       SizedBox(
-        height: 20,
+        height: displayHeight(context) * 0.02,
       ),
     );
     DateTime date = DateTime.now();
@@ -387,7 +390,7 @@ class _WelcomeView extends State<Welcome> {
             Padding(
               padding: EdgeInsets.all(10.0),
               child: SizedBox(
-                height: 50,
+                height: displayHeight(context) * 0.06,
                 width: 200,
                 child: ElevatedButton(
                   child: Text(
@@ -433,7 +436,7 @@ class _WelcomeView extends State<Welcome> {
             Padding(
               padding: EdgeInsets.all(10.0),
               child: SizedBox(
-                height: 50,
+                height: displayHeight(context) * 0.06,
                 width: 200,
                 child: ElevatedButton(
                   child: Text(
@@ -460,6 +463,7 @@ class _WelcomeView extends State<Welcome> {
           ],
         ),
       );
+      
     }
   }
 
