@@ -3,7 +3,6 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Vistas/anio.dart';
-import 'package:flutter_app/Vistas/expediente_contrato.dart';
 import 'package:flutter_app/Vistas/login.dart';
 import 'package:flutter_app/Vistas/obra_publica.dart';
 import 'package:flutter_app/Vistas/principal.dart';
@@ -35,18 +34,17 @@ const rechazedColor = Colors.red;
 const inProgressColor = Colors.blue;
 const todoColor = Color(0xffd1d2d7);
 
-class Obras_contrato extends StatefulWidget with WidgetsBindingObserver {
+class Expediente_contrato extends StatefulWidget with WidgetsBindingObserver {
   final TargetPlatform platform;
   @override
-  _ObrasContrato createState() => _ObrasContrato();
+  _ExpedienteContrato createState() => _ExpedienteContrato();
   int id_obra;
   int id_cliente;
   int anio;
   int clave;
   String nombre;
   String nombre_archivo;
-  int archivos;
-  Obras_contrato({
+  Expediente_contrato({
     Key key,
     this.id_obra,
     this.id_cliente,
@@ -55,7 +53,6 @@ class Obras_contrato extends StatefulWidget with WidgetsBindingObserver {
     this.clave,
     this.nombre,
     this.nombre_archivo,
-    this.archivos,
   }) : super(key: key);
 }
 
@@ -67,7 +64,7 @@ class Vehicle {
   Vehicle(this.title, this.contents, this.icons);
 }
 
-class _ObrasContrato extends State<Obras_contrato> {
+class _ExpedienteContrato extends State<Expediente_contrato> {
   String nombre_obra = 'Ejemplo de nombre de obra';
   String nombre_corto = 'Ejemplo de nombre de obra';
   String monto = '10,000';
@@ -100,8 +97,6 @@ class _ObrasContrato extends State<Obras_contrato> {
   int clave_municipio;
   int obra;
   String nombre_archivo;
-  String rfc_contratista;
-  String nombre_contratista;
 
   //DOWNLOAD ARCHIVOS
   List<_TaskInfo> _tasks;
@@ -111,15 +106,11 @@ class _ObrasContrato extends State<Obras_contrato> {
   String _localPath;
   ReceivePort _port = ReceivePort();
   Widget anticipo_proceso;
-  bool anticipo_fin = false;
   Widget anticipo_fechas;
   Widget finiquito_proceso;
   Widget finiquito_fechas;
-  bool finiquito_fin = false;
   List<Widget> procesos_estimacion = [];
   List<Widget> fechas_estimacion = [];
-  int archivos = 0;
-  int estimacion_index = 3;
 
   int _processIndex = 2;
   var _nombre_proceso = [];
@@ -145,21 +136,26 @@ class _ObrasContrato extends State<Obras_contrato> {
 
   @override
   Widget build(BuildContext context) {
-    final Obras_contrato args = ModalRoute.of(context).settings.arguments;
+    final Expediente_contrato args = ModalRoute.of(context).settings.arguments;
     id_obra = args.id_obra;
     id_cliente = args.id_cliente;
     anio = args.anio;
     clave_municipio = args.clave;
     nombre_corto = args.nombre;
     nombre_archivo = args.nombre_archivo;
-    archivos = args.archivos;
     /*_getListado(context);*/
-    if (inicio) {
+    if (!exp.isEmpty && inicio) {
       _options();
+      /*send.add(
+        Container(
+          height: 100,
+          child: linea_tiempo(),
+        ),
+      );*/
     }
     if (send.isEmpty && !inicio) {
       _getListado(context);
-      /*arrendamientos.add(
+      arrendamientos.add(
         Container(
           height: 30,
           child: Card(
@@ -180,32 +176,41 @@ class _ObrasContrato extends State<Obras_contrato> {
               mainAxisSize: MainAxisSize.max,
               children: [
                 Expanded(
-                    flex: 3,
-                    child: Text('FECHA DE INICIO',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Color.fromRGBO(9, 46, 116, 1.0),
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15,
-                        ))),
+                  flex: 3,
+                  child: Text(
+                    'FECHA DE INICIO',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Color.fromRGBO(9, 46, 116, 1.0),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
                 Expanded(
-                    flex: 3,
-                    child: Text('FECHA DE FIN',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Color.fromRGBO(9, 46, 116, 1.0),
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15,
-                        ))),
+                  flex: 3,
+                  child: Text(
+                    'FECHA DE FIN',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Color.fromRGBO(9, 46, 116, 1.0),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
                 Expanded(
-                    flex: 3,
-                    child: Text('MONTO',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Color.fromRGBO(9, 46, 116, 1.0),
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15,
-                        ))),
+                  flex: 3,
+                  child: Text(
+                    'MONTO',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Color.fromRGBO(9, 46, 116, 1.0),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -253,7 +258,7 @@ class _ObrasContrato extends State<Obras_contrato> {
             ),
           ),
         ),
-      );*/
+      );
       inicio = true;
     }
     return SafeArea(
@@ -376,39 +381,43 @@ class _ObrasContrato extends State<Obras_contrato> {
                 Expanded(
                   flex: 5,
                   child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 0),
-                        child: DownloadItem(
-                          data: _items[0],
-                          onItemClick: (task) {
-                            _openDownloadedFile(task).then((success) {
-                              if (!success) {
-                                Scaffold.of(context).showSnackBar(SnackBar(
-                                    content: Text('Cannot open this file')));
-                              }
-                            });
-                          },
-                          onActionClick: (task) {
-                            if (task.status == DownloadTaskStatus.undefined) {
-                              _requestDownload(task);
-                            } else if (task.status ==
-                                DownloadTaskStatus.running) {
-                              _pauseDownload(task);
-                            } else if (task.status ==
-                                DownloadTaskStatus.paused) {
-                              _resumeDownload(task);
-                            } else if (task.status ==
-                                DownloadTaskStatus.complete) {
-                              _delete(task);
-                            } else if (task.status ==
-                                DownloadTaskStatus.failed) {
-                              _retryDownload(task);
-                            }
-                          },
-                        ),
-                      ),
-                    ],
+                    children: _items
+                        .map(
+                          (item) => item.task == null
+                              ? _buildListSection(item.name)
+                              : DownloadItem(
+                                  data: item,
+                                  onItemClick: (task) {
+                                    _openDownloadedFile(task).then((success) {
+                                      if (!success) {
+                                        Scaffold.of(context).showSnackBar(
+                                            SnackBar(
+                                                content: Text(
+                                                    'Cannot open this file')));
+                                      }
+                                    });
+                                  },
+                                  onActionClick: (task) {
+                                    if (task.status ==
+                                        DownloadTaskStatus.undefined) {
+                                      _requestDownload(task);
+                                    } else if (task.status ==
+                                        DownloadTaskStatus.running) {
+                                      _pauseDownload(task);
+                                    } else if (task.status ==
+                                        DownloadTaskStatus.paused) {
+                                      _resumeDownload(task);
+                                    } else if (task.status ==
+                                        DownloadTaskStatus.complete) {
+                                      _delete(task);
+                                    } else if (task.status ==
+                                        DownloadTaskStatus.failed) {
+                                      _retryDownload(task);
+                                    }
+                                  },
+                                ),
+                        )
+                        .toList(),
                   ),
                 ),
               ],
@@ -418,698 +427,7 @@ class _ObrasContrato extends State<Obras_contrato> {
       ),
     );
 
-    send.add(
-      Container(
-        margin: EdgeInsets.only(left: 15, right: 15),
-        child: Text(
-          'Modalidad de ejecucion: Contrato',
-          style: TextStyle(
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-            fontWeight: FontWeight.w400,
-            fontSize: 17,
-          ),
-        ),
-      ),
-    );
-    send.add(
-      Container(
-        margin: EdgeInsets.only(left: 15, right: 15),
-        child: Text(
-          'Modalidad de asignación: $n_moda',
-          style: TextStyle(
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-            fontWeight: FontWeight.w400,
-            fontSize: 17,
-          ),
-        ),
-      ),
-    );
-    send.add(
-      SizedBox(
-        height: 20,
-      ),
-    );
-
-    send.add(
-      Container(
-        margin: EdgeInsets.only(left: 15, right: 15),
-        child: Text(
-          'Datos del contratista',
-          style: TextStyle(
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-            fontWeight: FontWeight.w700,
-            fontSize: 17,
-          ),
-        ),
-      ),
-    );
-
-    send.add(
-      Container(
-        margin: EdgeInsets.only(left: 15, right: 15),
-        child: Row(
-          children: [
-            Text(
-              'Razón Social: ',
-              style: TextStyle(
-                color: Color.fromRGBO(9, 46, 116, 1.0),
-                fontWeight: FontWeight.w400,
-                fontSize: 17,
-              ),
-            ),
-            Text(
-              '$nombre_contratista',
-              style: TextStyle(
-                color: Color.fromRGBO(9, 46, 116, 1.0),
-                fontWeight: FontWeight.w700,
-                fontSize: 17,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-
-    send.add(
-      Container(
-        margin: EdgeInsets.only(left: 15, right: 15),
-        child: Row(
-          children: [
-            Text(
-              'RFC: ',
-              style: TextStyle(
-                color: Color.fromRGBO(9, 46, 116, 1.0),
-                fontWeight: FontWeight.w400,
-                fontSize: 17,
-              ),
-            ),
-            Text(
-              '$rfc_contratista',
-              style: TextStyle(
-                color: Color.fromRGBO(9, 46, 116, 1.0),
-                fontWeight: FontWeight.w700,
-                fontSize: 17,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-
-    send.add(
-      SizedBox(
-        height: 10,
-      ),
-    );
-
-    send.add(
-      Container(
-        margin: EdgeInsets.only(left: 15, right: 15, top: 20),
-        child: Text(
-          'Número de contrato: $contrato',
-          style: TextStyle(
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-            fontWeight: FontWeight.w700,
-            fontSize: 17,
-          ),
-        ),
-      ),
-    );
-
-    send.add(
-      Container(
-        margin: EdgeInsets.only(
-          left: 15,
-          right: 15,
-        ),
-        child: Text(
-          '$tipo_contrato',
-          style: TextStyle(
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-            fontWeight: FontWeight.w400,
-            fontSize: 17,
-          ),
-        ),
-      ),
-    );
-
-    send.add(
-      SizedBox(
-        height: 10,
-      ),
-    );
-    send.add(
-      Container(
-        margin: EdgeInsets.only(left: 15, right: 15, top: 20),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Expanded(
-              flex: 3,
-              child: Text(
-                'Inversión',
-                style: TextStyle(
-                  color: Color.fromRGBO(9, 46, 116, 1.0),
-                  fontWeight: FontWeight.w700,
-                  fontSize: 17,
-                ),
-              ),
-            ),
-            Expanded(
-              //columna fecha
-              flex: 5,
-              child: Text(
-                '\u0024 $monto',
-                style: TextStyle(
-                  color: Color.fromRGBO(9, 46, 116, 1.0),
-                  fontWeight: FontWeight.w700,
-                  fontSize: 17,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-    for (var i = 0; i < fondo.length; i++) {
-      String fondoT = fondo[i];
-      i++;
-      String montoT = fondo[i];
-      send.add(
-        Container(
-          margin: EdgeInsets.only(left: 15, right: 15, bottom: 20, top: 0),
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                  flex: 3,
-                  child: Text(fondoT,
-                      style: TextStyle(
-                        color: Color.fromRGBO(9, 46, 116, 1.0),
-                        fontWeight: FontWeight.w400,
-                        fontSize: 17,
-                      ))),
-              Expanded(
-                //columna fecha
-                flex: 5,
-                child: Text(
-                  '\u0024 $montoT',
-                  style: TextStyle(
-                    color: Color.fromRGBO(9, 46, 116, 1.0),
-                    fontWeight: FontWeight.w400,
-                    fontSize: 17,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-    send.add(
-      SizedBox(
-        height: 30,
-      ),
-    );
-
-    send.add(
-      Container(
-        margin: EdgeInsets.only(left: 15, right: 15),
-        child: Text(
-          'Porcentaje de avance',
-          style: TextStyle(
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-            fontWeight: FontWeight.w700,
-            fontSize: 17,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-    send.add(
-      SizedBox(
-        height: 10,
-      ),
-    );
-    send.add(
-      Container(
-        margin: EdgeInsets.only(left: 15, right: 15, top: 5),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            /*Expanded(
-                flex: 3,
-                child: Text('Avance Financiero',
-                    style: TextStyle(
-                      color: Color.fromRGBO(9, 46, 116, 1.0),
-                      fontWeight: FontWeight.w300,
-                      fontSize: 17,
-                    ))),*/
-            Expanded(
-              //columna fecha
-              flex: 5,
-              child: CircularPercentIndicator(
-                radius: 80.0,
-                animation: true,
-                animationDuration: 1000,
-                percent: avance_fisico_1 * 0.01,
-                circularStrokeCap: CircularStrokeCap.round,
-                center: Text(
-                  "$avance_fisico_1%",
-                  style: TextStyle(
-                    color: Color.fromRGBO(9, 46, 116, 1.0),
-                    fontWeight: FontWeight.w400,
-                    fontSize: 17,
-                  ),
-                ),
-                progressColor: Colors.blue,
-                backgroundColor: Colors.grey[350],
-                lineWidth: 8,
-                footer: Container(
-                  margin: const EdgeInsets.only(top: 10.0),
-                  height: 30,
-                  child: Center(
-                    child: Text(
-                      "Fisico",
-                      style: new TextStyle(
-                          color: Color.fromRGBO(9, 46, 116, 1.0),
-                          fontWeight: FontWeight.w400,
-                          fontSize: 17.0),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              //columna fecha
-              flex: 5,
-              child: CircularPercentIndicator(
-                radius: 80.0,
-                animation: true,
-                animationDuration: 1000,
-                percent: avance_economico * 0.01,
-                circularStrokeCap: CircularStrokeCap.round,
-                center: Text(
-                  "$avance_economico_1%",
-                  style: TextStyle(
-                    color: Color.fromRGBO(9, 46, 116, 1.0),
-                    fontWeight: FontWeight.w400,
-                    fontSize: 17,
-                  ),
-                ),
-                progressColor: Colors.blue,
-                backgroundColor: Colors.grey[350],
-                lineWidth: 8,
-                footer: Container(
-                  margin: const EdgeInsets.only(top: 10.0),
-                  height: 30,
-                  child: Center(
-                    child: Text(
-                      "Financiero",
-                      style: new TextStyle(
-                          color: Color.fromRGBO(9, 46, 116, 1.0),
-                          fontWeight: FontWeight.w400,
-                          fontSize: 17.0),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              //columna fecha
-              flex: 5,
-              child: CircularPercentIndicator(
-                radius: 80.0,
-                animation: true,
-                animationDuration: 1000,
-                percent: avance_tecnico_1 * 0.01,
-                circularStrokeCap: CircularStrokeCap.round,
-                center: Text(
-                  '$avance_tecnico_1%',
-                  style: TextStyle(
-                    color: Color.fromRGBO(9, 46, 116, 1.0),
-                    fontWeight: FontWeight.w400,
-                    fontSize: 17,
-                  ),
-                ),
-                progressColor: Colors.blue,
-                backgroundColor: Colors.grey[350],
-                lineWidth: 8,
-                footer: Container(
-                  margin: const EdgeInsets.only(top: 10.0),
-                  height: 30,
-                  child: Center(
-                    child: Text(
-                      'Expediente\nTécnico',
-                      style: new TextStyle(
-                          color: Color.fromRGBO(9, 46, 116, 1.0),
-                          fontWeight: FontWeight.w400,
-                          fontSize: 17.0),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-    send.add(
-      SizedBox(
-        height: 30,
-      ),
-    );
-
-    if (anticipo_proceso != null) {
-      send.add(
-        Container(
-          child: GFAccordion(
-            titleBorder: Border.all(
-              width: 1.0,
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-            ),
-            margin: EdgeInsets.only(top: 10, left: 10, right: 10),
-            titlePadding:
-                EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
-            titleChild: Text(
-              'Proceso de Anticipo',
-              style: TextStyle(
-                color: Color.fromRGBO(9, 46, 116, 1.0),
-                fontWeight: FontWeight.w500,
-                fontSize: 17,
-              ),
-            ),
-            showAccordion: true,
-            expandedTitleBackgroundColor: Colors.transparent,
-            collapsedTitleBackgroundColor: Colors.transparent,
-            contentBackgroundColor: Colors.transparent,
-            contentChild: Container(
-              child: Column(children: [
-                anticipo_fin
-                    ? Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 0),
-                            child: DownloadItem(
-                              data: _items[1],
-                              onItemClick: (task) {
-                                _openDownloadedFile(task).then((success) {
-                                  if (!success) {
-                                    Scaffold.of(context).showSnackBar(SnackBar(
-                                        content:
-                                            Text('Cannot open this file')));
-                                  }
-                                });
-                              },
-                              onActionClick: (task) {
-                                if (task.status ==
-                                    DownloadTaskStatus.undefined) {
-                                  _requestDownload(task);
-                                } else if (task.status ==
-                                    DownloadTaskStatus.running) {
-                                  _pauseDownload(task);
-                                } else if (task.status ==
-                                    DownloadTaskStatus.paused) {
-                                  _resumeDownload(task);
-                                } else if (task.status ==
-                                    DownloadTaskStatus.complete) {
-                                  _delete(task);
-                                } else if (task.status ==
-                                    DownloadTaskStatus.failed) {
-                                  _retryDownload(task);
-                                }
-                              },
-                            ),
-                          ),
-                        ],
-                      )
-                    : new Container(),
-                anticipo_proceso,
-                SizedBox(
-                  height: 10,
-                ),
-                anticipo_fechas,
-              ]),
-            ),
-            collapsedIcon: Icon(
-              Icons.arrow_drop_down_outlined,
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-            ),
-            expandedIcon: Icon(
-              Icons.arrow_drop_up,
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (procesos_estimacion.length > 0) {
-      send.add(
-        Container(
-          child: GFAccordion(
-            titleBorder: Border.all(
-              width: 1.0,
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-            ),
-            margin: EdgeInsets.only(top: 10, left: 10, right: 10),
-            titlePadding:
-                EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
-            titleChild: Text(
-              'Proceso Estimaciones',
-              style: TextStyle(
-                color: Color.fromRGBO(9, 46, 116, 1.0),
-                fontWeight: FontWeight.w500,
-                fontSize: 17,
-              ),
-            ),
-            expandedTitleBackgroundColor: Colors.transparent,
-            collapsedTitleBackgroundColor: Colors.transparent,
-            contentBackgroundColor: Colors.transparent,
-            contentChild: Container(
-              child: Column(
-                children: procesos_estimacion,
-              ),
-            ),
-            collapsedIcon: Icon(
-              Icons.arrow_drop_down_outlined,
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-            ),
-            expandedIcon: Icon(
-              Icons.arrow_drop_up,
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (finiquito_proceso != null) {
-      send.add(
-        Container(
-          child: GFAccordion(
-            titleBorder: Border.all(
-              width: 1.0,
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-            ),
-            margin: EdgeInsets.only(top: 10, left: 10, right: 10),
-            titlePadding:
-                EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
-            titleChild: Text(
-              'Proceso de Finiquito',
-              style: TextStyle(
-                color: Color.fromRGBO(9, 46, 116, 1.0),
-                fontWeight: FontWeight.w500,
-                fontSize: 17,
-              ),
-            ),
-            expandedTitleBackgroundColor: Colors.transparent,
-            collapsedTitleBackgroundColor: Colors.transparent,
-            contentBackgroundColor: Colors.transparent,
-            contentChild: Container(
-              child: Column(children: [
-                finiquito_fin
-                    ? Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 0),
-                            child: DownloadItem(
-                              data: _items[2],
-                              onItemClick: (task) {
-                                _openDownloadedFile(task).then((success) {
-                                  if (!success) {
-                                    Scaffold.of(context).showSnackBar(SnackBar(
-                                        content:
-                                            Text('Cannot open this file')));
-                                  }
-                                });
-                              },
-                              onActionClick: (task) {
-                                if (task.status ==
-                                    DownloadTaskStatus.undefined) {
-                                  _requestDownload(task);
-                                } else if (task.status ==
-                                    DownloadTaskStatus.running) {
-                                  _pauseDownload(task);
-                                } else if (task.status ==
-                                    DownloadTaskStatus.paused) {
-                                  _resumeDownload(task);
-                                } else if (task.status ==
-                                    DownloadTaskStatus.complete) {
-                                  _delete(task);
-                                } else if (task.status ==
-                                    DownloadTaskStatus.failed) {
-                                  _retryDownload(task);
-                                }
-                              },
-                            ),
-                          ),
-                        ],
-                      )
-                    : new Container(),
-                finiquito_proceso,
-                SizedBox(
-                  height: 10,
-                ),
-                finiquito_fechas,
-              ]),
-            ),
-            collapsedIcon: Icon(
-              Icons.arrow_drop_down_outlined,
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-            ),
-            expandedIcon: Icon(
-              Icons.arrow_drop_up,
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-            ),
-          ),
-        ),
-      );
-    }
-
-    send.add(
-      SizedBox(
-        height: 30,
-      ),
-    );
-    send.add(
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(20.0),
-            child: SizedBox(
-              height: 50,
-              width: 160,
-              child: ElevatedButton(
-                child: Center(
-                  child: Container(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: Icon(
-                            CupertinoIcons.folder_badge_plus,
-                            color: Color.fromRGBO(9, 46, 116, 1.0),
-                            size: 20.0,
-                          ),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Text(
-                            "Expediente",
-                            style: TextStyle(
-                              color: Color.fromRGBO(9, 46, 116, 1.0),
-                              fontSize: 17,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                onPressed: () {
-                  print(clave_municipio);
-                  Navigator.pushNamed(
-                    context,
-                    '/expediente',
-                    arguments: Expediente_contrato(
-                      id_obra: id_obra,
-                      id_cliente: id_cliente,
-                      anio: anio,
-                      clave: clave_municipio,
-                      nombre: nombre_corto,
-                      nombre_archivo: nombre_archivo,
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.transparent,
-                  shape: RoundedRectangleBorder(
-                    //borde del boton
-                    borderRadius: BorderRadius.circular(10.0),
-                    side: BorderSide(
-                      color: Color.fromRGBO(9, 46, 116, 1.0),
-                    ),
-                  ),
-                  elevation: 0,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    /*print("hola 12");
-    send.add(
-      Container(
-        margin: EdgeInsets.only(left: 15, right: 15, top: 5),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Expanded(
-              flex: 3,
-              child: Text(
-                'Expediente Técnico',
-                style: TextStyle(
-                  color: Color.fromRGBO(9, 46, 116, 1.0),
-                  fontWeight: FontWeight.w300,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-            Expanded(
-              //columna fecha
-              flex: 5,
-              child: LinearPercentIndicator(
-                animation: true,
-                animationDuration: 1000,
-                lineHeight: 20.0,
-                percent: avance_tecnico_1 * 0.01,
-                linearStrokeCap: LinearStrokeCap.roundAll,
-                center: Text(
-                  '$avance_tecnico_1%',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
-                  ),
-                ),
-                progressColor: const Color.fromRGBO(0, 153, 51, 1.0),
-                backgroundColor: const Color.fromRGBO(133, 138, 141, 1.0),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );*/
-    /*send.add(SizedBox(
+    send.add(SizedBox(
       height: 10,
     ));
     send.add(
@@ -1486,7 +804,7 @@ class _ObrasContrato extends State<Obras_contrato> {
     }
     send.add(SizedBox(
       height: 35,
-    ));*/
+    ));
   }
 
 //menu inferior
@@ -1927,7 +1245,7 @@ class _ObrasContrato extends State<Obras_contrato> {
     );
   }
 
-  Widget estimacion_proceso(proceso, fechas, nombre, nombre_archivo) {
+  Widget estimacion_proceso(proceso, fechas, nombre) {
     return Container(
       child: GFAccordion(
         titleBorder: Border.all(
@@ -1950,43 +1268,6 @@ class _ObrasContrato extends State<Obras_contrato> {
         contentChild: Container(
           child: Column(
             children: [
-              nombre_archivo
-                  ? Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 0),
-                          child: DownloadItem(
-                            data: _items[estimacion_index],
-                            onItemClick: (task) {
-                              _openDownloadedFile(task).then((success) {
-                                if (!success) {
-                                  Scaffold.of(context).showSnackBar(SnackBar(
-                                      content: Text('Cannot open this file')));
-                                }
-                              });
-                            },
-                            onActionClick: (task) {
-                              if (task.status == DownloadTaskStatus.undefined) {
-                                _requestDownload(task);
-                              } else if (task.status ==
-                                  DownloadTaskStatus.running) {
-                                _pauseDownload(task);
-                              } else if (task.status ==
-                                  DownloadTaskStatus.paused) {
-                                _resumeDownload(task);
-                              } else if (task.status ==
-                                  DownloadTaskStatus.complete) {
-                                _delete(task);
-                              } else if (task.status ==
-                                  DownloadTaskStatus.failed) {
-                                _retryDownload(task);
-                              }
-                            },
-                          ),
-                        ),
-                      ],
-                    )
-                  : new Container(),
               proceso,
               SizedBox(
                 height: 10,
@@ -2454,7 +1735,7 @@ class _ObrasContrato extends State<Obras_contrato> {
     lista_obras.clear();
     EasyLoading.instance
       ..displayDuration = const Duration(milliseconds: 2000)
-      ..indicatorType = EasyLoadingIndicatorType.cubeGrid
+      ..indicatorType = EasyLoadingIndicatorType.fadingCircle
       ..loadingStyle = EasyLoadingStyle.dark
       ..indicatorSize = 45.0
       ..radius = 10.0
@@ -2468,6 +1749,7 @@ class _ObrasContrato extends State<Obras_contrato> {
 
     EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
     EasyLoading.show(
+      status: '',
       indicator: Container(
         height: 100,
         width: 120,
@@ -2505,7 +1787,7 @@ class _ObrasContrato extends State<Obras_contrato> {
           data.forEach((e) {
             final parte_social = json.encode(e['parte_social']);
             dynamic data1 = json.decode(parte_social);
-            /*data1.forEach((i) {
+            data1.forEach((i) {
               if (i != null) {
                 exp.add(i['acta_integreacion_consejo']);
                 exp.add(i['acta_seleccion_obras']);
@@ -2583,7 +1865,7 @@ class _ObrasContrato extends State<Obras_contrato> {
                       i['propuesta_licitantes_economica']),
                 );
               }
-            });*/
+            });
             final parte_obra = json.encode(e['obra']);
             data1 = json.decode('[' + parte_obra + ']');
             int anticipo = 3;
@@ -2608,35 +1890,6 @@ class _ObrasContrato extends State<Obras_contrato> {
               }
             });
             final parte_admin = json.encode(e['obra_exp']);
-            data1 = json.decode(parte_admin);
-            data1.forEach((i) {
-              if (i != null) {
-                contrato = i['contrato'];
-                if (i['contrato_tipo'] == 1) {
-                  tipo_contrato = 'Precios unitarios';
-                } else {
-                  tipo_contrato = 'Precios alzados';
-                }
-              }
-            });
-
-            final parte_fondo = json.encode(e['fondo']);
-            data1 = json.decode(parte_fondo);
-            data1.forEach((i) {
-              if (i != null) {
-                fondo.add(i['nombre_corto']);
-                fondo.add(numberFormat(i['monto'].toDouble()));
-              }
-            });
-            final contratista = json.encode(e['contratista']);
-            data1 = json.decode(contratista);
-            data1.forEach((i) {
-              if (i != null) {
-                rfc_contratista = i['rfc'];
-                nombre_contratista = i['razon_social'];
-              }
-            });
-            /*final parte_admin = json.encode(e['obra_exp']);
             data1 = json.decode(parte_admin);
             data1.forEach((i) {
               if (i != null) {
@@ -2784,7 +2037,7 @@ class _ObrasContrato extends State<Obras_contrato> {
                 observaciones =
                     observaciones + '* ' + i['observacion'] + '\n\n';
               }
-            });*/
+            });
 
             final desglose = json.encode(e['desglose']);
             data1 = json.decode(desglose);
@@ -2810,10 +2063,8 @@ class _ObrasContrato extends State<Obras_contrato> {
                 int estado_pago = 3;
                 int estado_solventacion = 3;
                 int estado_observaciones = 3;
-                bool nombre_archivo;
                 final desglose_obs = json.encode(e['desglose_obs']);
                 final data2 = json.decode(desglose_obs);
-                print(data2);
                 data2.forEach((x) {
                   if (x['nombre'] == nombre_proceso) {
                     _fechas_obs.add(x['fecha_observaciones']);
@@ -2826,7 +2077,6 @@ class _ObrasContrato extends State<Obras_contrato> {
                   estado_recepcion = 1;
                   fecha_recepcion = i['fecha_recepcion'];
                 }
-                nombre_archivo = i['archivo_nombre'] != null;
 
                 if (i["fecha_validacion"] != null) {
                   estado_validacion = 1;
@@ -2837,7 +2087,16 @@ class _ObrasContrato extends State<Obras_contrato> {
                   fecha_pago = i['fecha_pago'];
                   estado_pago = 1;
                 }
-
+                print("estado_recepcion");
+                print(estado_recepcion);
+                print("obse");
+                print(estado_observaciones);
+                print("solv");
+                print(estado_solventacion);
+                print("val");
+                print(estado_validacion);
+                print("pago");
+                print(estado_pago);
                 _estado.add(estado_recepcion);
                 _estado.add(estado_observaciones);
                 _estado.add(estado_solventacion);
@@ -2845,6 +2104,7 @@ class _ObrasContrato extends State<Obras_contrato> {
                 _estado.add(estado_pago);
 
                 String fechas_obse = "";
+                print("hola");
 
                 for (int z = 0; z < _fechas_obs.length; z++) {
                   print(_fechas_obs[z]);
@@ -2869,7 +2129,6 @@ class _ObrasContrato extends State<Obras_contrato> {
                       _processes, _estado, nombre_proceso, 20, 100.0);
                   anticipo_fechas = fechas(fecha_recepcion, fechas_obse,
                       fechas_solven, fecha_validacion, fecha_pago, 80);
-                  anticipo_fin = nombre_archivo;
                 }
                 if (nombre_proceso.toLowerCase().contains("estimación") &&
                     !nombre_proceso.toLowerCase().contains("finiquito")) {
@@ -2879,19 +2138,15 @@ class _ObrasContrato extends State<Obras_contrato> {
                             _processes, _estado, nombre_proceso, 80, 90.0),
                         fechas(fecha_recepcion, fechas_obse, fechas_solven,
                             fecha_validacion, fecha_pago, 120),
-                        nombre_proceso,
-                        nombre_archivo),
+                        nombre_proceso),
                   );
-                  if (nombre_archivo) estimacion_index++;
                 }
                 if (nombre_proceso.toLowerCase().contains("finiquito")) {
                   finiquito_proceso = linea_tiempo(
                       _processes, _estado, nombre_proceso, 20, 100.0);
                   finiquito_fechas = fechas(fecha_recepcion, fechas_obse,
                       fechas_solven, fecha_validacion, fecha_pago, 80);
-                  finiquito_fin = nombre_archivo;
                 }
-
                 print(anticipo_proceso);
               }
             });
@@ -3089,17 +2344,16 @@ class _ObrasContrato extends State<Obras_contrato> {
                 height: 25.0,
               ),
               FlatButton(
-                onPressed: () {
-                  _retryRequestPermission();
-                },
-                child: Text(
-                  'Retry',
-                  style: TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20.0),
-                ),
-              ),
+                  onPressed: () {
+                    _retryRequestPermission();
+                  },
+                  child: Text(
+                    'Retry',
+                    style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20.0),
+                  ))
             ],
           ),
         ),
@@ -3187,39 +2441,15 @@ class _ObrasContrato extends State<Obras_contrato> {
     int count = 0;
     _tasks = [];
     _items = [];
-    var _documents = [
+    final _documents = [
       {
         'name': nombre_corto,
         'posicion': 1,
         'link':
-            'http://sistema.mrcorporativo.com/archivos/$clave_municipio/$anio/obras/$id_obra/checklist/$nombre_archivo.pdf'
-      },
-      {
-        'name': "Checklist Anticipo",
-        'posicion': 2,
-        'link':
-            'http://sistema.mrcorporativo.com/archivos/$clave_municipio/$anio/obras/$id_obra/checklist/Checklist Anticipo$clave_municipio$id_obra.pdf'
-      },
-      {
-        'name': nombre_corto,
-        'posicion': 1,
-        'link':
-            'http://sistema.mrcorporativo.com/archivos/$clave_municipio/$anio/obras/$id_obra/checklist/Checklist Finiquito$clave_municipio$id_obra.pdf'
+            'http://sistema.mrcorporativo.com/archivos/$clave_municipio/$anio/obras/$id_obra/$nombre_archivo.pdf'
       },
     ];
-    print("archivos");
-    print(archivos);
-    for (int i = 0; i < archivos; i++) {
-      int id_estimacion = i + 1;
-      _documents.add(
-        {
-          'name': nombre_corto,
-          'posicion': 1,
-          'link':
-              'http://sistema.mrcorporativo.com/archivos/$clave_municipio/$anio/obras/$id_obra/checklist/Checklist Estimación$id_estimacion$clave_municipio$id_obra.pdf'
-        },
-      );
-    }
+
     _tasks.addAll(_documents.map((document) => _TaskInfo(
         name: document['name'],
         posicion: document['posicion'],

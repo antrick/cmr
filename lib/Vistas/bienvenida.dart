@@ -133,7 +133,7 @@ class _AnimacionView extends State<Animacion> {
   void timeOutCallBack() {}
 
   void _showSecondToken(BuildContext context, token) {
-    url = "https://sistema.mrcorporativo.com/api/getUsuarioToken/$token";
+    url = "http://sistema.mrcorporativo.com/api/getUsuarioToken/$token";
     _getListado(context);
   }
 

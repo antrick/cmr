@@ -7,7 +7,9 @@ import 'package:flutter_app/Vistas/anio.dart';
 import 'package:flutter_app/Vistas/counter.dart';
 import 'package:flutter_app/Vistas/login.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
+import 'package:loading_animations/loading_animations.dart';
 import 'package:page_transition/page_transition.dart';
 import 'dart:convert';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -484,7 +486,7 @@ class _WelcomeView extends State<Welcome> {
       ..indicatorSize = 45.0
       ..radius = 10.0
       ..progressColor = Colors.white
-      ..backgroundColor = const Color.fromRGBO(9, 46, 116, 1.0)
+      ..backgroundColor = Colors.transparent
       ..indicatorColor = Colors.white
       ..textColor = Colors.white
       ..maskColor = Colors.black.withOpacity(0.88)
@@ -493,7 +495,25 @@ class _WelcomeView extends State<Welcome> {
 
     EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
     EasyLoading.show(
-      status: 'CARGANDO',
+      indicator: Container(
+        height: 100,
+        width: 120,
+        child: SpinKitCubeGrid(
+          size: 90,
+          duration: Duration(milliseconds: 900),
+          itemBuilder: (BuildContext context, int index) {
+            int i = index + 1;
+            return DecoratedBox(
+              decoration: BoxDecoration(
+                /*color: index.isEven ? Colors.red : Colors.green,*/
+                image: DecorationImage(
+                  image: AssetImage("images/icono$i.png"),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
       maskType: EasyLoadingMaskType.custom,
     );
     url = "http://sistema.mrcorporativo.com/api/getCliente/$id_cliente";

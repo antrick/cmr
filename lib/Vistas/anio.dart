@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,6 +10,8 @@ import 'package:flutter_app/Vistas/obra_publica.dart';
 import 'package:flutter_app/Vistas/plataformas.dart';
 import 'package:flutter_app/Vistas/principal.dart';
 import 'package:flutter_app/Vistas/prodim.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:loading_animations/loading_animations.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -78,6 +82,10 @@ class _AnioView extends State<Anio> {
 
   @override
   Widget build(BuildContext context) {
+    LoadingFlipping.square(
+      borderColor: Colors.cyan,
+      size: 30.0,
+    );
     final Anio args = ModalRoute.of(context).settings.arguments;
     id_cliente = args.id_cliente;
     anio = args.anio;
@@ -146,26 +154,100 @@ class _AnioView extends State<Anio> {
       backgroundColor: Colors.transparent,
       animationCurve: Curves.fastOutSlowIn,
       animationDuration: Duration(milliseconds: 600),
-      onTap: (i) {
-        if (i == 0) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-              '/inicio', (Route<dynamic> route) => false,
-              arguments: Welcome(
-                id_cliente: id_cliente,
-              ));
-        }
-      },
+      onTap: (i) {},
       letIndexChange: (index) {
         if (index == 2) {
           _showAlertDialog();
           return false;
         }
-        return true;
+        if (index == 0) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+              '/inicio', (Route<dynamic> route) => false,
+              arguments: Welcome(
+                id_cliente: id_cliente,
+              ));
+          return false;
+        }
+        return false;
       },
     );
   }
 
   void _showAlertDialog() {
+    showDialog(
+        context: context,
+        builder: (buildcontext) {
+          return AlertDialog(
+            title: Text(
+              "¿Está seguro de que desea salir?",
+              style: TextStyle(
+                color: Color.fromRGBO(9, 46, 116, 1.0),
+                fontWeight: FontWeight.w500,
+                fontSize: 17,
+              ),
+            ),
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+              side: BorderSide(
+                color: Color.fromRGBO(9, 46, 116, 1.0),
+              ),
+            ),
+            actions: <Widget>[
+              RaisedButton(
+                child: Text(
+                  "ACEPTAR",
+                  style: TextStyle(
+                    color: Color.fromRGBO(9, 46, 116, 1.0),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                color: Colors.transparent,
+                elevation: 0,
+                highlightColor: Colors.transparent,
+                highlightElevation: 0,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _saveValue(null);
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    PageTransition(
+                      alignment: Alignment.bottomCenter,
+                      curve: Curves.easeInOut,
+                      duration: Duration(milliseconds: 1000),
+                      reverseDuration: Duration(milliseconds: 1000),
+                      type: PageTransitionType.rightToLeftJoined,
+                      child: LoginForm(),
+                      childCurrent: new Container(),
+                    ),
+                    (Route<dynamic> route) => false,
+                  );
+                },
+              ),
+              RaisedButton(
+                child: Text(
+                  "CERRAR",
+                  style: TextStyle(
+                    color: Color.fromRGBO(9, 46, 116, 1.0),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                color: Colors.transparent,
+                elevation: 0,
+                highlightColor: Colors.transparent,
+                highlightElevation: 0,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        });
+  }
+
+  void _showAlertDialog_pre() {
     showDialog(
         context: context,
         builder: (buildcontext) {
@@ -592,12 +674,12 @@ class _AnioView extends State<Anio> {
   Future<dynamic> _getListado() async {
     EasyLoading.instance
       ..displayDuration = const Duration(milliseconds: 2000)
-      ..indicatorType = EasyLoadingIndicatorType.fadingCircle
+      ..indicatorType = EasyLoadingIndicatorType.squareCircle
       ..loadingStyle = EasyLoadingStyle.dark
       ..indicatorSize = 45.0
       ..radius = 10.0
       ..progressColor = Colors.white
-      ..backgroundColor = const Color.fromRGBO(9, 46, 116, 1.0)
+      ..backgroundColor = Colors.transparent
       ..indicatorColor = Colors.white
       ..textColor = Colors.white
       ..maskColor = Colors.black.withOpacity(0.88)
@@ -606,7 +688,25 @@ class _AnioView extends State<Anio> {
 
     EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
     EasyLoading.show(
-      status: 'CARGANDO',
+      indicator: Container(
+        height: 100,
+        width: 120,
+        child: SpinKitCubeGrid(
+          size: 90,
+          duration: Duration(milliseconds: 900),
+          itemBuilder: (BuildContext context, int index) {
+            int i = index + 1;
+            return DecoratedBox(
+              decoration: BoxDecoration(
+                /*color: index.isEven ? Colors.red : Colors.green,*/
+                image: DecorationImage(
+                  image: AssetImage("images/icono$i.png"),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
       maskType: EasyLoadingMaskType.custom,
     );
     url = "http://sistema.mrcorporativo.com/api/getProdim/$id_cliente,$anio";

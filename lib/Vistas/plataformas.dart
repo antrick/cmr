@@ -637,15 +637,21 @@ class _PlataformasView extends State<Plataformas> {
       backgroundColor: Colors.transparent,
       animationCurve: Curves.fastOutSlowIn,
       animationDuration: Duration(milliseconds: 600),
-      onTap: (i) {
-        if (i == 0) {
+      onTap: (i) {},
+      letIndexChange: (index) {
+        if (index == 3) {
+          _showAlertDialog();
+          return false;
+        }
+        if (index == 0) {
           Navigator.of(context).pushNamedAndRemoveUntil(
               '/inicio', (Route<dynamic> route) => false,
               arguments: Welcome(
                 id_cliente: id_cliente,
               ));
+          return false;
         }
-        if (i == 1) {
+        if (index == 1) {
           Navigator.pushNamed(
             context,
             '/anio',
@@ -655,14 +661,9 @@ class _PlataformasView extends State<Plataformas> {
               clave: clave_municipio,
             ),
           );
-        }
-      },
-      letIndexChange: (index) {
-        if (index == 3) {
-          _showAlertDialog();
           return false;
         }
-        return true;
+        return false;
       },
     );
   }

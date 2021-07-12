@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/Vistas/counter.dart';
 import 'package:flutter_app/Vistas/principal.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -335,7 +336,7 @@ class _LoginFormState extends State<LoginForm> {
       ..indicatorSize = 45.0
       ..radius = 10.0
       ..progressColor = Colors.white
-      ..backgroundColor = const Color.fromRGBO(9, 46, 116, 1.0)
+      ..backgroundColor = Colors.transparent
       ..indicatorColor = Colors.white
       ..textColor = Colors.white
       ..maskColor = Colors.black.withOpacity(0.88)
@@ -348,7 +349,25 @@ class _LoginFormState extends State<LoginForm> {
           "https://sistema.mrcorporativo.com/api/getUsuario/$_usuario,$_password,$_idOneSignal";
       EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
       EasyLoading.show(
-        status: 'CARGANDO',
+        indicator: Container(
+          height: 100,
+          width: 120,
+          child: SpinKitCubeGrid(
+            size: 90,
+            duration: Duration(milliseconds: 900),
+            itemBuilder: (BuildContext context, int index) {
+              int i = index + 1;
+              return DecoratedBox(
+                decoration: BoxDecoration(
+                  /*color: index.isEven ? Colors.red : Colors.green,*/
+                  image: DecorationImage(
+                    image: AssetImage("images/icono$i.png"),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
         maskType: EasyLoadingMaskType.custom,
       );
       _getListado();
@@ -363,16 +382,34 @@ class _LoginFormState extends State<LoginForm> {
       ..indicatorSize = 45.0
       ..radius = 10.0
       ..progressColor = Colors.white
-      ..backgroundColor = const Color.fromRGBO(9, 46, 116, 1.0)
+      ..backgroundColor = Colors.transparent
       ..indicatorColor = Colors.white
       ..textColor = Colors.white
       ..maskColor = Colors.black.withOpacity(0.88)
       ..userInteractions = false
       ..dismissOnTap = true;
-    url = "https://sistema.mrcorporativo.com//api/getUsuarioToken/$token";
+    url = "https://sistema.mrcorporativo.com/api/getUsuarioToken/$token";
     EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
     EasyLoading.show(
-      status: 'CARGANDO',
+      indicator: Container(
+        height: 100,
+        width: 120,
+        child: SpinKitCubeGrid(
+          size: 90,
+          duration: Duration(milliseconds: 900),
+          itemBuilder: (BuildContext context, int index) {
+            int i = index + 1;
+            return DecoratedBox(
+              decoration: BoxDecoration(
+                /*color: index.isEven ? Colors.red : Colors.green,*/
+                image: DecorationImage(
+                  image: AssetImage("images/icono$i.png"),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
       maskType: EasyLoadingMaskType.custom,
     );
     _getListado();

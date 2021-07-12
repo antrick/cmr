@@ -7,6 +7,7 @@ import 'package:flutter_app/Vistas/login.dart';
 import 'package:flutter_app/Vistas/obra_publica.dart';
 import 'package:flutter_app/Vistas/principal.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:getwidget/components/accordian/gf_accordian.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -390,7 +391,7 @@ class _ObrasView extends State<Obras_admin> {
                       ? new Container()
                       : Container(
                           child: Text(
-                            visibility_obj ? "Ver más" : "Ver menos",
+                            visibility_obj ? "Ver menos" : "Ver más",
                             style: TextStyle(
                               color: Colors.blue,
                               fontWeight: FontWeight.w300,
@@ -1279,15 +1280,21 @@ class _ObrasView extends State<Obras_admin> {
       backgroundColor: Colors.transparent,
       animationCurve: Curves.fastOutSlowIn,
       animationDuration: Duration(milliseconds: 600),
-      onTap: (i) {
-        if (i == 0) {
+      onTap: (i) {},
+      letIndexChange: (index) {
+        if (index == 3) {
+          _showAlertDialog();
+          return false;
+        }
+        if (index == 0) {
           Navigator.of(context).pushNamedAndRemoveUntil(
               '/inicio', (Route<dynamic> route) => false,
               arguments: Welcome(
                 id_cliente: id_cliente,
               ));
+          return false;
         }
-        if (i == 1) {
+        if (index == 1) {
           Navigator.pushNamed(
             context,
             '/anio',
@@ -1297,14 +1304,9 @@ class _ObrasView extends State<Obras_admin> {
               clave: clave_municipio,
             ),
           );
-        }
-      },
-      letIndexChange: (index) {
-        if (index == 3) {
-          _showAlertDialog();
           return false;
         }
-        return true;
+        return false;
       },
     );
   }
@@ -1780,7 +1782,7 @@ class _ObrasView extends State<Obras_admin> {
       ..indicatorSize = 45.0
       ..radius = 10.0
       ..progressColor = Colors.white
-      ..backgroundColor = const Color.fromRGBO(9, 46, 116, 1.0)
+      ..backgroundColor = Colors.transparent
       ..indicatorColor = Colors.white
       ..textColor = Colors.white
       ..maskColor = Colors.black.withOpacity(0.88)
@@ -1789,7 +1791,25 @@ class _ObrasView extends State<Obras_admin> {
 
     EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
     EasyLoading.show(
-      status: 'CARGANDO',
+      indicator: Container(
+        height: 100,
+        width: 120,
+        child: SpinKitCubeGrid(
+          size: 90,
+          duration: Duration(milliseconds: 900),
+          itemBuilder: (BuildContext context, int index) {
+            int i = index + 1;
+            return DecoratedBox(
+              decoration: BoxDecoration(
+                /*color: index.isEven ? Colors.red : Colors.green,*/
+                image: DecorationImage(
+                  image: AssetImage("images/icono$i.png"),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
       maskType: EasyLoadingMaskType.custom,
     );
     url = "http://sistema.mrcorporativo.com/api/getObraExpediente/$id_obra";

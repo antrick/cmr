@@ -8,6 +8,7 @@ import 'package:flutter_app/Vistas/obra_admin.dart';
 import 'package:flutter_app/Vistas/obra_contrato.dart';
 import 'package:flutter_app/Vistas/principal.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -357,7 +358,7 @@ class _ObrasView extends State<Obras> {
         'name': 'Acta de Priorización de Obras',
         'posicion': 2,
         'link':
-            'http://sistema.mrcorporativo.com/archivos/$clave_municipio/$anio/acta_priorizaicion.pdf'
+            'http://sistema.mrcorporativo.com/archivos/$clave_municipio/$anio/acta_priorizacion.pdf'
       },
       {
         'name': 'Acta de Adendum a la Priorización de Obras',
@@ -438,39 +439,18 @@ class _ObrasView extends State<Obras> {
     send.add(SizedBox(
       height: 10,
     ));
-    send.add(Column(
-      children: _items
-          .map(
-            (item) => item.task == null
-                ? _buildListSection(item.name)
-                : DownloadItem(
-                    data: item,
-                    fecha: fechas[item.posicion],
-                    onItemClick: (task) {
-                      _openDownloadedFile(task).then((success) {
-                        if (!success) {
-                          Scaffold.of(context).showSnackBar(
-                              SnackBar(content: Text('Cannot open this file')));
-                        }
-                      });
-                    },
-                    onActionClick: (task) {
-                      if (task.status == DownloadTaskStatus.undefined) {
-                        _requestDownload(task);
-                      } else if (task.status == DownloadTaskStatus.running) {
-                        _pauseDownload(task);
-                      } else if (task.status == DownloadTaskStatus.paused) {
-                        _resumeDownload(task);
-                      } else if (task.status == DownloadTaskStatus.complete) {
-                        _delete(task);
-                      } else if (task.status == DownloadTaskStatus.failed) {
-                        _retryDownload(task);
-                      }
-                    },
-                  ),
-          )
-          .toList(),
-    ));
+    send.add(
+      cards(context, 'Acta de Integración del Consejo de Desarrollo Municipal',
+          fecha_integracion, 0),
+    );
+    send.add(
+      cards(context, 'Acta de Priorización de Obras', fecha_priorizacion, 1),
+    );
+
+    send.add(
+      cards(context, 'Acta de Adendum a la Priorización de Obras',
+          fecha_adendum, 2),
+    );
 
     send.add(Container(
       child: Column(
@@ -584,15 +564,21 @@ class _ObrasView extends State<Obras> {
       backgroundColor: Colors.transparent,
       animationCurve: Curves.fastOutSlowIn,
       animationDuration: Duration(milliseconds: 600),
-      onTap: (i) {
-        if (i == 0) {
+      onTap: (i) {},
+      letIndexChange: (index) {
+        if (index == 3) {
+          _showAlertDialog();
+          return false;
+        }
+        if (index == 0) {
           Navigator.of(context).pushNamedAndRemoveUntil(
               '/inicio', (Route<dynamic> route) => false,
               arguments: Welcome(
                 id_cliente: id_cliente,
               ));
+          return false;
         }
-        if (i == 1) {
+        if (index == 1) {
           Navigator.pushNamed(
             context,
             '/anio',
@@ -602,14 +588,9 @@ class _ObrasView extends State<Obras> {
               clave: clave_municipio,
             ),
           );
-        }
-      },
-      letIndexChange: (index) {
-        if (index == 3) {
-          _showAlertDialog();
           return false;
         }
-        return true;
+        return false;
       },
     );
   }
@@ -786,12 +767,16 @@ class _ObrasView extends State<Obras> {
   }*/
 
 //-----------Cards de Actas preliminares------------
-  Widget cards(BuildContext context, nombre, fecha) {
+  Widget cards(BuildContext context, nombre, fecha, posicion) {
     return Container(
       height: 70,
       child: Card(
         // RoundedRectangleBorder para proporcionarle esquinas circulares al Card
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(6),
+          side: BorderSide(color: Color.fromRGBO(9, 46, 116, 1.0)),
+        ),
+
         // margen para el Card
         margin: EdgeInsets.only(
           left: 10,
@@ -799,7 +784,7 @@ class _ObrasView extends State<Obras> {
           bottom: 8,
         ),
         // La sombra que tiene el Card aumentará
-        elevation: 10,
+        elevation: 0,
         //Colocamos una fila en dentro del card
         color: Colors.transparent,
         child: Row(
@@ -814,25 +799,45 @@ class _ObrasView extends State<Obras> {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: Color.fromRGBO(9, 46, 116, 1.0),
-                          fontWeight: FontWeight.w300,
+                          fontWeight: FontWeight.w400,
                           fontSize: 15,
                         )))),
             Expanded(
               //columna fecha
               flex: 2,
-              child: Text(fecha,
+              child: Text(fecha.toString(),
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w300,
+                    color: Color.fromRGBO(9, 46, 116, 1.0),
+                    fontWeight: FontWeight.w400,
                     fontSize: 15,
                   )),
             ),
             Expanded(
-              flex: 1,
-              child: Icon(
-                Icons.get_app_rounded,
-                color: Colors.green,
+              flex: 2,
+              child: DownloadItem(
+                data: _items[posicion],
+                onItemClick: (task) {
+                  _openDownloadedFile(task).then((success) {
+                    if (!success) {
+                      Scaffold.of(context).showSnackBar(
+                          SnackBar(content: Text('Cannot open this file')));
+                    }
+                  });
+                },
+                onActionClick: (task) {
+                  if (task.status == DownloadTaskStatus.undefined) {
+                    _requestDownload(task);
+                  } else if (task.status == DownloadTaskStatus.running) {
+                    _pauseDownload(task);
+                  } else if (task.status == DownloadTaskStatus.paused) {
+                    _resumeDownload(task);
+                  } else if (task.status == DownloadTaskStatus.complete) {
+                    _delete(task);
+                  } else if (task.status == DownloadTaskStatus.failed) {
+                    _retryDownload(task);
+                  }
+                },
               ),
             )
           ],
@@ -843,7 +848,7 @@ class _ObrasView extends State<Obras> {
 // ------------- Cards Listado de obras -------------------
 
   Widget cards_listado(BuildContext context, nombre, monto, avance, id_obra,
-      modalidad, nombre_archivo) {
+      modalidad, nombre_archivo, archivos) {
     int avance_1 = avance.toInt();
     return Container(
       height: 70,
@@ -861,15 +866,19 @@ class _ObrasView extends State<Obras> {
                 ));
           }
           if (modalidad > 1) {
-            Navigator.pushNamed(context, '/contrato',
-                arguments: Obras_contrato(
-                  id_obra: id_obra,
-                  id_cliente: id_cliente,
-                  anio: anio,
-                  clave: clave_municipio,
-                  nombre: nombre,
-                  nombre_archivo: nombre_archivo,
-                ));
+            Navigator.pushNamed(
+              context,
+              '/contrato',
+              arguments: Obras_contrato(
+                id_obra: id_obra,
+                id_cliente: id_cliente,
+                anio: anio,
+                clave: clave_municipio,
+                nombre: nombre,
+                nombre_archivo: nombre_archivo,
+                archivos: archivos,
+              ),
+            );
           }
         },
         child: Card(
@@ -964,7 +973,7 @@ class _ObrasView extends State<Obras> {
       ..indicatorSize = 45.0
       ..radius = 10.0
       ..progressColor = Colors.white
-      ..backgroundColor = const Color.fromRGBO(9, 46, 116, 1.0)
+      ..backgroundColor = Colors.transparent
       ..indicatorColor = Colors.white
       ..textColor = Colors.white
       ..maskColor = Colors.black.withOpacity(0.88)
@@ -973,7 +982,25 @@ class _ObrasView extends State<Obras> {
 
     EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
     EasyLoading.show(
-      status: 'CARGANDO',
+      indicator: Container(
+        height: 100,
+        width: 120,
+        child: SpinKitCubeGrid(
+          size: 90,
+          duration: Duration(milliseconds: 900),
+          itemBuilder: (BuildContext context, int index) {
+            int i = index + 1;
+            return DecoratedBox(
+              decoration: BoxDecoration(
+                /*color: index.isEven ? Colors.red : Colors.green,*/
+                image: DecorationImage(
+                  image: AssetImage("images/icono$i.png"),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
       maskType: EasyLoadingMaskType.custom,
     );
     url =
@@ -987,25 +1014,39 @@ class _ObrasView extends State<Obras> {
         if (respuesta.body != "") {
           final data = json.decode(respuesta.body);
           data.forEach((e) {
-            fechas.add(e['acta_integracion_consejo']);
-            fechas.add(e['acta_priorizacion']);
-            fechas.add(e['adendum_priorizacion']);
-            double avance = int.parse(e['avance_tecnico']).toDouble();
-            double monto_contratado = e['monto_contratado'].toDouble();
-            String nombre = e['nombre_obra'];
-            if (nombre.length > 52) {
-              nombre = nombre.substring(0, 53) + '...';
-            }
+            final desglose = json.encode(e['obras']);
+            final data1 = json.decode(desglose);
+            data1.forEach((i) {
+              if (i != null) {
+                fecha_integracion = i['acta_integracion_consejo'];
+                fecha_priorizacion = i['acta_priorizacion'];
+                fecha_adendum = i['adendum_priorizacion'];
+                double avance = int.parse(i['avance_tecnico']).toDouble();
+                double monto_contratado = i['monto_contratado'].toDouble();
+                String nombre = i['nombre_obra'];
+                int pagos = 0;
+                var des = json.encode(e['desglose']);
+                var data2 = json.decode(des);
+                data2.forEach((x) {
+                  if (i['id_obra'] == x['id_obra']) pagos = x['pagos_count'];
+                });
 
-            lista_obras.add(cards_listado(
-                context,
-                nombre,
-                numberFormat(monto_contratado),
-                avance,
-                e['id_obra'],
-                e['modalidad_ejecucion'],
-                e['nombre_archivo']));
+                lista_obras.add(
+                  cards_listado(
+                    context,
+                    nombre,
+                    numberFormat(monto_contratado),
+                    avance,
+                    i['id_obra'],
+                    i['modalidad_ejecucion'],
+                    i['nombre_archivo'],
+                    pagos,
+                  ),
+                );
+              }
+            });
           });
+
           _onRefresh();
           _onLoading();
           return jsonDecode(respuesta.body);
@@ -1095,6 +1136,7 @@ class DownloadItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: EdgeInsets.only(left: 5, right: 5),
       child: InkWell(
         onTap: data.task.status == DownloadTaskStatus.complete
             ? () {
@@ -1104,56 +1146,14 @@ class DownloadItem extends StatelessWidget {
         child: Stack(
           children: <Widget>[
             Container(
-              height: 70,
-              child: Card(
-                // RoundedRectangleBorder para proporcionarle esquinas circulares al Card
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                  side: BorderSide(color: Color.fromRGBO(9, 46, 116, 1.0)),
-                ),
-
-                // margen para el Card
-                margin: EdgeInsets.only(
-                  left: 10,
-                  right: 10,
-                  bottom: 8,
-                ),
-                // La sombra que tiene el Card aumentará
-                elevation: 0,
-                //Colocamos una fila en dentro del card
-                color: Colors.transparent,
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Expanded(
-                        flex: 3,
-                        child: Padding(
-                            padding: EdgeInsets.all(10.0),
-                            child: Text(data.name,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: Color.fromRGBO(9, 46, 116, 1.0),
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 15,
-                                )))),
-                    Expanded(
-                      //columna fecha
-                      flex: 2,
-                      child: Text(fecha.toString(),
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Color.fromRGBO(9, 46, 116, 1.0),
-                            fontWeight: FontWeight.w400,
-                            fontSize: 15,
-                          )),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: _buildActionForTask(data.task),
-                    )
-                  ],
-                ),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: _buildActionForTask(data.task),
+                  )
+                ],
               ),
             ),
             data.task.status == DownloadTaskStatus.running ||
