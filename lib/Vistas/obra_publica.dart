@@ -357,7 +357,7 @@ class _ObrasView extends State<Obras> {
         'name': 'Acta de Priorización de Obras',
         'posicion': 2,
         'link':
-            'http://sistema.mrcorporativo.com/archivos/$clave_municipio/$anio/acta_priorizaicion.pdf'
+            'http://sistema.mrcorporativo.com/archivos/$clave_municipio/$anio/acta_priorizacion.pdf'
       },
       {
         'name': 'Acta de Adendum a la Priorización de Obras',
