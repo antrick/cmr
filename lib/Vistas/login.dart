@@ -62,231 +62,233 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    print(MediaQuery.of(context).size.height);
+    //print(MediaQuery.of(context).size.height);
     //_returnValue(context).toString();
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Container(
-        constraints: BoxConstraints.expand(),
-        decoration: BoxDecoration(
-          color: const Color(0xff7c94b6),
-          image: DecorationImage(
-            image: AssetImage("images/Fondo06.png"),
-            fit: BoxFit.cover,
+    return SafeArea(
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: Container(
+          constraints: BoxConstraints.expand(),
+          decoration: BoxDecoration(
+            color: const Color(0xff7c94b6),
+            image: DecorationImage(
+              image: AssetImage("images/Fondo06.png"),
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        padding: EdgeInsets.all(50.0),
-        child: Form(
-          key: formkey,
-          child: Column(
-            children: [
-              SizedBox(height: 20.0),
-              Flexible(
-                child: ClipOval(
-                  child: Image.asset(
-                    'images/cmr.png',
-                    width: 130,
-                    height: 130,
-                    fit: BoxFit.cover,
+          padding: EdgeInsets.all(50.0),
+          child: Form(
+            key: formkey,
+            child: Column(
+              children: [
+                SizedBox(height: 20.0),
+                Flexible(
+                  child: ClipOval(
+                    child: Image.asset(
+                      'images/cmr.png',
+                      width: 130,
+                      height: 130,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(height: 40.0),
-              TextFormField(
-                autocorrect: false,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w300,
-                    fontSize: 20),
-                cursorColor: Colors.white,
-                cursorRadius: Radius.circular(1.0),
-                cursorWidth: 2.0,
-                decoration: const InputDecoration(
-                  prefixIcon: const Icon(
-                    Icons.person,
-                    color: Colors.white,
-                  ),
-                  fillColor: Color.fromRGBO(9, 46, 116, 1.0),
-                  filled: true,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(
-                      color: Colors.blue,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(
-                      color: Colors.blue,
-                    ),
-                  ),
-                  hintText: 'USUARIO',
-                  hintStyle: TextStyle(color: Colors.white),
-                ),
-                onSaved: (text) {
-                  _usuario = text;
-                },
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return "Este campo es necesario";
-                  }
-                },
-              ),
-              SizedBox(height: 25.0),
-              TextFormField(
-                keyboardType: TextInputType.text,
-                autocorrect: false,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w300,
-                    fontSize: 20),
-                enableSuggestions: false,
-                obscureText: !this._isHidden,
-                cursorHeight: 20,
-                cursorColor: Colors.white,
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(
-                    Icons.lock,
-                    color: Colors.white,
-                  ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      Icons.remove_red_eye,
-                      color: this._isHidden ? Colors.white : Colors.blue,
-                    ),
-                    onPressed: () {
-                      setState(() => this._isHidden = !this._isHidden);
-                    },
-                  ),
-                  fillColor: Color.fromRGBO(9, 46, 116, 1.0),
-                  filled: true,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(
-                      color: Colors.blue,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(
-                      color: Colors.blue,
-                    ),
-                  ),
-                  hintText: 'CONTRASEÑA',
-                  hintStyle: TextStyle(color: Colors.white),
-                ),
-                onSaved: (text) {
-                  _password = text;
-                },
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return "Este campo es necesario";
-                  }
-                },
-              ),
-              SizedBox(height: 25.0),
-              ElevatedButton(
-                onPressed: () {
-                  //metodo para cambiar de pantalla
-                  //Navigator.pushNamed(context, '/inicio');
-                  id_cliente = 0;
-                  counter.increment();
-                  _showSecondPage(context);
-                },
-                child: const Text(
-                  'INICIAR SESIÓN',
+                SizedBox(height: 40.0),
+                TextFormField(
+                  autocorrect: false,
                   style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w400,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w300,
+                      fontSize: 20),
+                  cursorColor: Colors.white,
+                  cursorRadius: Radius.circular(1.0),
+                  cursorWidth: 2.0,
+                  decoration: const InputDecoration(
+                    prefixIcon: const Icon(
+                      Icons.person,
+                      color: Colors.white,
+                    ),
+                    fillColor: Color.fromRGBO(9, 46, 116, 1.0),
+                    filled: true,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      borderSide: BorderSide(
+                        color: Colors.blue,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      borderSide: BorderSide(
+                        color: Colors.blue,
+                      ),
+                    ),
+                    hintText: 'USUARIO',
+                    hintStyle: TextStyle(color: Colors.white),
+                  ),
+                  onSaved: (text) {
+                    _usuario = text;
+                  },
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return "Este campo es necesario";
+                    }
+                  },
+                ),
+                SizedBox(height: 25.0),
+                TextFormField(
+                  keyboardType: TextInputType.text,
+                  autocorrect: false,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w300,
+                      fontSize: 20),
+                  enableSuggestions: false,
+                  obscureText: !this._isHidden,
+                  cursorHeight: 20,
+                  cursorColor: Colors.white,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(
+                      Icons.lock,
+                      color: Colors.white,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        Icons.remove_red_eye,
+                        color: this._isHidden ? Colors.white : Colors.blue,
+                      ),
+                      onPressed: () {
+                        setState(() => this._isHidden = !this._isHidden);
+                      },
+                    ),
+                    fillColor: Color.fromRGBO(9, 46, 116, 1.0),
+                    filled: true,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      borderSide: BorderSide(
+                        color: Colors.blue,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      borderSide: BorderSide(
+                        color: Colors.blue,
+                      ),
+                    ),
+                    hintText: 'CONTRASEÑA',
+                    hintStyle: TextStyle(color: Colors.white),
+                  ),
+                  onSaved: (text) {
+                    _password = text;
+                  },
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return "Este campo es necesario";
+                    }
+                  },
+                ),
+                SizedBox(height: 25.0),
+                ElevatedButton(
+                  onPressed: () {
+                    //metodo para cambiar de pantalla
+                    //Navigator.pushNamed(context, '/inicio');
+                    id_cliente = 0;
+                    counter.increment();
+                    _showSecondPage(context);
+                  },
+                  child: const Text(
+                    'INICIAR SESIÓN',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    //Color de fondo del boton
+                    primary: Colors.orange[800],
+                    shape: RoundedRectangleBorder(
+                      //borde del boton
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    elevation: 9.0,
                   ),
                 ),
-                style: ElevatedButton.styleFrom(
-                  //Color de fondo del boton
-                  primary: Colors.orange[800],
-                  shape: RoundedRectangleBorder(
-                    //borde del boton
-                    borderRadius: BorderRadius.circular(10.0),
+                /*SizedBox(height: 10.0),
+                TextButton(
+                  onPressed: () => _showAlertDialog(context),
+                  child: Text(
+                    'OLVIDE MI CONTRASEÑA',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 15,
+                      decoration: TextDecoration.underline,
+                      decorationThickness: 2,
+                      fontWeight: FontWeight.w300,
+                    ),
                   ),
-                  elevation: 9.0,
-                ),
-              ),
-              /*SizedBox(height: 10.0),
-              TextButton(
-                onPressed: () => _showAlertDialog(context),
-                child: Text(
-                  'OLVIDE MI CONTRASEÑA',
+                ),*/
+                /*SizedBox(height: 80.0),
+                Text(
+                  'CREAMOS GESTIONES\nEXITOSAS',
                   style: TextStyle(
                     color: Colors.black,
-                    fontSize: 15,
-                    decoration: TextDecoration.underline,
+                    fontSize: 35,
                     decorationThickness: 2,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-              ),*/
-              /*SizedBox(height: 80.0),
-              Text(
-                'CREAMOS GESTIONES\nEXITOSAS',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 35,
-                  decorationThickness: 2,
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
-              ),*/
-
-              Container(
-                height: MediaQuery.of(context).size.height - 535,
-                child: Center(
-                  child: Text(
-                    'CREAMOS GESTIONES EXITOSAS',
-                    style: TextStyle(
-                      color: Color.fromRGBO(179, 179, 179, 1.0),
-                      fontSize: 25,
-                      decorationThickness: 2,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: Container(
-        height: 25,
-        decoration: BoxDecoration(
-          color: Color.fromRGBO(9, 46, 116, 1.0),
-        ),
-        child: Center(
-          child: new RichText(
-            text: new TextSpan(
-              children: [
-                new TextSpan(
-                  text: 'Desarrollado por ',
-                  style: new TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-                new TextSpan(
-                  text: 'INGENINN 360',
-                  style: new TextStyle(
-                    color: Colors.white,
-                    decoration: TextDecoration.underline,
-                    decorationThickness: 2,
-                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
-                  recognizer: new TapGestureRecognizer()
-                    ..onTap = () {
-                      launch('https://www.ingeninn360.com/');
-                    },
+                  textAlign: TextAlign.center,
+                ),*/
+    
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.20,
+                  child: Center(
+                    child: Text(
+                      'CREAMOS GESTIONES EXITOSAS',
+                      style: TextStyle(
+                        color: Color.fromRGBO(179, 179, 179, 1.0),
+                        fontSize: 25,
+                        decorationThickness: 2,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 ),
               ],
+            ),
+          ),
+        ),
+        bottomNavigationBar: Container(
+          height: 25,
+          decoration: BoxDecoration(
+            color: Color.fromRGBO(9, 46, 116, 1.0),
+          ),
+          child: Center(
+            child: new RichText(
+              text: new TextSpan(
+                children: [
+                  new TextSpan(
+                    text: 'Desarrollado por ',
+                    style: new TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                  new TextSpan(
+                    text: 'INGENINN 360',
+                    style: new TextStyle(
+                      color: Colors.white,
+                      decoration: TextDecoration.underline,
+                      decorationThickness: 2,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    recognizer: new TapGestureRecognizer()
+                      ..onTap = () {
+                        launch('https://www.ingeninn360.com/');
+                      },
+                  ),
+                ],
+              ),
             ),
           ),
         ),
