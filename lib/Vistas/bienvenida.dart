@@ -186,6 +186,24 @@ class _AnimacionView extends State<Animacion> {
     } catch (e) {
       print("ERROR");
       print(e);
+      Timer(Duration(seconds: 4), () {
+        if (!accedio) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            PageTransition(
+              alignment: Alignment.bottomCenter,
+              curve: Curves.easeInOut,
+              duration: Duration(milliseconds: 1000),
+              reverseDuration: Duration(milliseconds: 1000),
+              type: PageTransitionType.rightToLeftJoined,
+              child: LoginForm(),
+              childCurrent: new Container(),
+            ),
+            (Route<dynamic> route) => false,
+          );
+        }
+        accedio = true;
+      });
       /*EasyLoading.instance
         ..displayDuration = const Duration(milliseconds: 2000)
         ..indicatorType = EasyLoadingIndicatorType.fadingCircle
