@@ -77,7 +77,11 @@ class _LoginFormState extends State<LoginForm> {
               fit: BoxFit.cover,
             ),
           ),
-          padding: EdgeInsets.all(50.0),
+          padding: EdgeInsets.only(
+            top: 40.0,
+            left: 50.0,
+            right: 50.0,
+          ),
           child: Form(
             key: formkey,
             child: Column(
@@ -244,7 +248,7 @@ class _LoginFormState extends State<LoginForm> {
                 ),*/
 
                 Container(
-                  height: MediaQuery.of(context).size.height * 0.20,
+                  height: MediaQuery.of(context).size.height - 510,
                   child: Center(
                     child: Text(
                       'CREAMOS GESTIONES EXITOSAS',
