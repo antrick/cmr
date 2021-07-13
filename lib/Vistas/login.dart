@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Vistas/counter.dart';
 import 'package:flutter_app/Vistas/principal.dart';
+import 'package:flutter_app/Vistas/sizes_helpers.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'dart:convert';
@@ -82,13 +83,18 @@ class _LoginFormState extends State<LoginForm> {
             child: Column(
               children: [
                 SizedBox(height: 20.0),
-                Flexible(
-                  child: ClipOval(
-                    child: Image.asset(
-                      'images/cmr.png',
-                      width: 130,
-                      height: 130,
-                      fit: BoxFit.cover,
+                Container(
+                  width: 130.0,
+                  height: 130.0,
+                  decoration: new BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Color.fromRGBO(9, 46, 116, 1.0),
+                    ),
+                    image: DecorationImage(
+                      image: AssetImage(
+                        'images/cmr.png',
+                      ),
                     ),
                   ),
                 ),
@@ -236,7 +242,7 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                   textAlign: TextAlign.center,
                 ),*/
-    
+
                 Container(
                   height: MediaQuery.of(context).size.height * 0.20,
                   child: Center(

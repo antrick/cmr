@@ -70,6 +70,7 @@ class _ObrasView extends State<Obras_admin> {
   String observaciones = '';
   int clave_municipio;
   String nombre_archivo;
+  String fecha_actualizacion;
 
   //DOWNLOAD ARCHIVOS
   List<_TaskInfo> _tasks;
@@ -639,6 +640,36 @@ class _ObrasView extends State<Obras_admin> {
         ),
       );
     }
+    send.add(
+      SizedBox(
+        height: 20,
+      ),
+    );
+    send.add(
+      Container(
+        margin: EdgeInsets.only(left: 15, right: 15),
+        child: Row(
+          children: [
+            Text(
+              'Última modificación: ',
+              style: TextStyle(
+                color: Color.fromRGBO(9, 46, 116, 1.0),
+                fontWeight: FontWeight.w400,
+                fontSize: 17,
+              ),
+            ),
+            Text(
+              '$fecha_actualizacion',
+              style: TextStyle(
+                color: Color.fromRGBO(9, 46, 116, 1.0),
+                fontWeight: FontWeight.w700,
+                fontSize: 17,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
     send.add(SizedBox(
       height: 30,
     ));
@@ -1877,6 +1908,7 @@ class _ObrasView extends State<Obras_admin> {
                 avance_economico =
                     int.parse(i['avance_economico'].toStringAsFixed(0))
                         .toDouble();
+                fecha_actualizacion = i['fecha_actualizacion'];
                 avance_tecnico =
                     int.parse(i['avance_tecnico'].toStringAsFixed(0))
                         .toDouble();

@@ -848,7 +848,7 @@ class _ObrasView extends State<Obras> {
 // ------------- Cards Listado de obras -------------------
 
   Widget cards_listado(BuildContext context, nombre, monto, avance, id_obra,
-      modalidad, nombre_archivo, archivos) {
+      modalidad, nombre_archivo, archivos, fecha_actualizacion) {
     int avance_1 = avance.toInt();
     return Container(
       height: 70,
@@ -1041,6 +1041,7 @@ class _ObrasView extends State<Obras> {
                     i['modalidad_ejecucion'],
                     i['nombre_archivo'],
                     pagos,
+                    i['fecha_actualziacion'],
                   ),
                 );
               }

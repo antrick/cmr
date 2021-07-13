@@ -102,6 +102,7 @@ class _ObrasContrato extends State<Obras_contrato> {
   String nombre_archivo;
   String rfc_contratista;
   String nombre_contratista;
+  String fecha_actualizacion;
 
   //DOWNLOAD ARCHIVOS
   List<_TaskInfo> _tasks;
@@ -597,7 +598,7 @@ class _ObrasContrato extends State<Obras_contrato> {
       String montoT = fondo[i];
       send.add(
         Container(
-          margin: EdgeInsets.only(left: 15, right: 15, bottom: 20, top: 0),
+          margin: EdgeInsets.only(left: 15, right: 15),
           child: Row(
             mainAxisSize: MainAxisSize.max,
             children: [
@@ -626,6 +627,37 @@ class _ObrasContrato extends State<Obras_contrato> {
         ),
       );
     }
+    send.add(
+      SizedBox(
+        height: 20,
+      ),
+    );
+    send.add(
+      Container(
+        margin: EdgeInsets.only(left: 15, right: 15),
+        child: Row(
+          children: [
+            Text(
+              'Última modificación: ',
+              style: TextStyle(
+                color: Color.fromRGBO(9, 46, 116, 1.0),
+                fontWeight: FontWeight.w400,
+                fontSize: 17,
+              ),
+            ),
+            Text(
+              '$fecha_actualizacion',
+              style: TextStyle(
+                color: Color.fromRGBO(9, 46, 116, 1.0),
+                fontWeight: FontWeight.w700,
+                fontSize: 17,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
     send.add(
       SizedBox(
         height: 30,
@@ -2600,6 +2632,7 @@ class _ObrasContrato extends State<Obras_contrato> {
                 avance_tecnico =
                     int.parse(i['avance_tecnico'].toStringAsFixed(0))
                         .toDouble();
+                fecha_actualizacion = i['fecha_actualizacion'];
                 if (i['anticipo_porcentaje'] != 0) {
                   anticipo = 1;
                 } else {
