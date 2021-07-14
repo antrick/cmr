@@ -20,8 +20,8 @@ class Animacion extends StatefulWidget {
 
 class _AnimacionView extends State<Animacion> {
   String url;
-  int id_cliente = 0;
-  String token_t;
+  int idCliente = 0;
+  String tokenT;
   bool accedio = false;
   @override
   Widget build(BuildContext context) {
@@ -91,8 +91,6 @@ class _AnimacionView extends State<Animacion> {
   Future<String> _returnValue(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final token = await prefs.getString("token");
-    print("hola mundo");
-    print(token);
     if (token != null) {
       Timer(Duration(seconds: 2), () {
         _showSecondToken(context, token);
@@ -128,8 +126,6 @@ class _AnimacionView extends State<Animacion> {
     return token;
   }
 
-  void cambiar_estado() {}
-
   void timeOutCallBack() {}
 
   void _showSecondToken(BuildContext context, token) {
@@ -148,16 +144,15 @@ class _AnimacionView extends State<Animacion> {
       final respuesta = await http.get(Uri.parse(url));
 
       if (respuesta.statusCode == 200) {
-        bool resp = respuesta.body == "";
         if (respuesta.body != "") {
           final data = json.decode(respuesta.body);
           data.forEach((e) {
             print(e['id_cliente']);
-            id_cliente = e['id_cliente'];
-            token_t = e['remember_token'];
+            idCliente = e['id_cliente'];
+            tokenT = e['remember_token'];
           });
-          _saveValue(token_t);
-          _login(id_cliente, context);
+          _saveValue(tokenT);
+          _login(idCliente, context);
           return jsonDecode(respuesta.body);
         } else {
           Timer(Duration(seconds: 4), () {
@@ -204,33 +199,14 @@ class _AnimacionView extends State<Animacion> {
         }
         accedio = true;
       });
-      /*EasyLoading.instance
-        ..displayDuration = const Duration(milliseconds: 2000)
-        ..indicatorType = EasyLoadingIndicatorType.fadingCircle
-        ..loadingStyle = EasyLoadingStyle.dark
-        ..indicatorSize = 45.0
-        ..radius = 10.0
-        ..progressColor = Colors.white
-        ..backgroundColor = Colors.red[900]
-        ..indicatorColor = Colors.white
-        ..textColor = Colors.white
-        ..maskColor = Colors.black.withOpacity(0.88)
-        ..userInteractions = false
-        ..dismissOnTap = true;
-      EasyLoading.dismiss();
-      EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
-      EasyLoading.showError(
-        'EJEMPLO DE MENSAJE',
-        maskType: EasyLoadingMaskType.custom,
-      );*/
       return null;
     }
   }
 
-  void _login(id_cliente, context) {
+  void _login(idCliente, context) {
     EasyLoading.dismiss();
     print("id_cliente");
-    print(id_cliente);
+    print(idCliente);
 
     if (!accedio) {
       Navigator.pushAndRemoveUntil(
@@ -245,7 +221,7 @@ class _AnimacionView extends State<Animacion> {
           childCurrent: new Container(),
           settings: RouteSettings(
             arguments: Welcome(
-              id_cliente: id_cliente,
+              cliente: idCliente,
             ),
           ),
         ),

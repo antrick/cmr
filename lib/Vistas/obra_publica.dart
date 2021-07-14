@@ -1,4 +1,3 @@
-import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -28,33 +27,33 @@ const debug = true;
 
 class Obras extends StatefulWidget with WidgetsBindingObserver {
   final TargetPlatform platform;
-  @override
-  int id_cliente;
-  int anio;
-  int clave;
+
+  final int idCliente;
+  final int anio;
+  final int clave;
   Obras({
     Key key,
-    this.id_cliente,
+    this.idCliente,
     this.anio,
     this.platform,
     this.clave,
   }) : super(key: key);
   _ObrasView createState() => _ObrasView(
-        id_cliente: id_cliente,
+        idCliente: idCliente,
         anio: anio,
-        clave_municipio: clave,
+        claveMunicipio: clave,
       );
 }
 
 class _ObrasView extends State<Obras> {
-  String fecha_integracion = '';
-  String fecha_priorizacion = '';
-  String fecha_adendum = '';
+  String fechaIntegracion = '';
+  String fechaPriorizacion = '';
+  String fechaAdendum = '';
   String url;
   bool inicio = false;
-  int id_cliente;
+  int idCliente;
   int anio;
-  List<Widget> lista_obras = [];
+  List<Widget> listaObras = [];
   List<Widget> send = [];
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
@@ -68,12 +67,12 @@ class _ObrasView extends State<Obras> {
   bool _permissionReady;
   String _localPath;
   ReceivePort _port = ReceivePort();
-  int clave_municipio = 0;
+  int claveMunicipio = 0;
 
   _ObrasView({
-    this.id_cliente,
+    this.idCliente,
     this.anio,
-    this.clave_municipio,
+    this.claveMunicipio,
   });
 
   void _onRefresh() async {
@@ -155,11 +154,11 @@ class _ObrasView extends State<Obras> {
   @override
   Widget build(BuildContext context) {
     final Obras args = ModalRoute.of(context).settings.arguments;
-    id_cliente = args.id_cliente;
+    idCliente = args.idCliente;
     anio = args.anio;
-    clave_municipio = args.clave;
+    claveMunicipio = args.clave;
 
-    if (!lista_obras.isEmpty && inicio) {
+    if (listaObras.isNotEmpty && inicio) {
       _options();
     }
     if (send.isEmpty && !inicio) {
@@ -219,15 +218,6 @@ class _ObrasView extends State<Obras> {
             ),
           ), //menu(context), //menu(context),
         ),
-      ) /*,*/
-      ;
-  Widget _buildListSection(String title) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        child: Text(
-          title,
-          style: TextStyle(
-              fontWeight: FontWeight.bold, color: Colors.blue, fontSize: 18.0),
-        ),
       );
 
   Widget _buildNoPermissionWarning() => Container(
@@ -247,18 +237,22 @@ class _ObrasView extends State<Obras> {
               SizedBox(
                 height: 32.0,
               ),
-              FlatButton(
+              ElevatedButton(
                 onPressed: () {
                   _retryRequestPermission();
                 },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.transparent,
+                  elevation: 0,
+                ),
                 child: Text(
-                  'Aceptar',
+                  'Retry',
                   style: TextStyle(
                       color: Colors.blue,
                       fontWeight: FontWeight.bold,
                       fontSize: 20.0),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -290,9 +284,9 @@ class _ObrasView extends State<Obras> {
         openFileFromNotification: true);
   }
 
-  void _cancelDownload(_TaskInfo task) async {
+  /*void _cancelDownload(_TaskInfo task) async {
     await FlutterDownloader.cancel(taskId: task.taskId);
-  }
+  }*/
 
   void _pauseDownload(_TaskInfo task) async {
     await FlutterDownloader.pause(taskId: task.taskId);
@@ -352,19 +346,19 @@ class _ObrasView extends State<Obras> {
         'name': 'Acta de Integración del Consejo de Desarrollo Municipal',
         'posicion': 1,
         'link':
-            'http://sistema.mrcorporativo.com/archivos/$clave_municipio/$anio/acta_consejo.pdf'
+            'http://sistema.mrcorporativo.com/archivos/$claveMunicipio/$anio/acta_consejo.pdf'
       },
       {
         'name': 'Acta de Priorización de Obras',
         'posicion': 2,
         'link':
-            'http://sistema.mrcorporativo.com/archivos/$clave_municipio/$anio/acta_priorizacion.pdf'
+            'http://sistema.mrcorporativo.com/archivos/$claveMunicipio/$anio/acta_priorizacion.pdf'
       },
       {
         'name': 'Acta de Adendum a la Priorización de Obras',
         'posicion': 3,
         'link':
-            'http://sistema.mrcorporativo.com/archivos/$clave_municipio/$anio/acta_adendum.pdf'
+            'http://sistema.mrcorporativo.com/archivos/$claveMunicipio/$anio/acta_adendum.pdf'
       },
     ];
 
@@ -441,15 +435,15 @@ class _ObrasView extends State<Obras> {
     ));
     send.add(
       cards(context, 'Acta de Integración del Consejo de Desarrollo Municipal',
-          fecha_integracion, 0),
+          fechaIntegracion, 0),
     );
     send.add(
-      cards(context, 'Acta de Priorización de Obras', fecha_priorizacion, 1),
+      cards(context, 'Acta de Priorización de Obras', fechaPriorizacion, 1),
     );
 
     send.add(
-      cards(context, 'Acta de Adendum a la Priorización de Obras',
-          fecha_adendum, 2),
+      cards(context, 'Acta de Adendum a la Priorización de Obras', fechaAdendum,
+          2),
     );
 
     send.add(Container(
@@ -523,7 +517,7 @@ class _ObrasView extends State<Obras> {
     ));
     send.add(Container(
       child: Column(
-        children: lista_obras,
+        children: listaObras,
       ),
     ));
     send.add(SizedBox(
@@ -574,7 +568,7 @@ class _ObrasView extends State<Obras> {
           Navigator.of(context).pushNamedAndRemoveUntil(
               '/inicio', (Route<dynamic> route) => false,
               arguments: Welcome(
-                id_cliente: id_cliente,
+                cliente: idCliente,
               ));
           return false;
         }
@@ -584,8 +578,8 @@ class _ObrasView extends State<Obras> {
             '/anio',
             arguments: Anio(
               anio: anio,
-              id_cliente: id_cliente,
-              clave: clave_municipio,
+              cliente: idCliente,
+              clave: claveMunicipio,
             ),
           );
           return false;
@@ -597,174 +591,81 @@ class _ObrasView extends State<Obras> {
 
   void _showAlertDialog() {
     showDialog(
-      context: context,
-      builder: (buildcontext) {
-        return AlertDialog(
-          title: Text(
-            "¿Está seguro de que desea salir?",
-            style: TextStyle(
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-              fontWeight: FontWeight.w500,
-              fontSize: 17,
-            ),
-          ),
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-            side: BorderSide(
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-            ),
-          ),
-          actions: <Widget>[
-            RaisedButton(
-              child: Text(
-                "ACEPTAR",
-                style: TextStyle(
-                  color: Color.fromRGBO(9, 46, 116, 1.0),
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
+        context: context,
+        builder: (buildcontext) {
+          return AlertDialog(
+            title: Text(
+              "¿Está seguro de que desea salir?",
+              style: TextStyle(
+                color: Color.fromRGBO(9, 46, 116, 1.0),
+                fontWeight: FontWeight.w500,
+                fontSize: 17,
               ),
-              color: Colors.transparent,
-              elevation: 0,
-              highlightColor: Colors.transparent,
-              highlightElevation: 0,
-              onPressed: () {
-                Navigator.of(context).pop();
-                _saveValue(null);
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  PageTransition(
-                    alignment: Alignment.bottomCenter,
-                    curve: Curves.easeInOut,
-                    duration: Duration(milliseconds: 1000),
-                    reverseDuration: Duration(milliseconds: 1000),
-                    type: PageTransitionType.rightToLeftJoined,
-                    child: LoginForm(),
-                    childCurrent: new Container(),
+            ),
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+              side: BorderSide(
+                color: Color.fromRGBO(9, 46, 116, 1.0),
+              ),
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                child: Text(
+                  "ACEPTAR",
+                  style: TextStyle(
+                    color: Color.fromRGBO(9, 46, 116, 1.0),
+                    fontWeight: FontWeight.w500,
                   ),
-                  (Route<dynamic> route) => false,
-                );
-              },
-            ),
-            RaisedButton(
-              child: Text(
-                "CERRAR",
-                style: TextStyle(
-                  color: Color.fromRGBO(9, 46, 116, 1.0),
-                  fontWeight: FontWeight.w500,
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.transparent,
+                  elevation: 0,
+                ),
+                /*color: Colors.transparent,
+                elevation: 0,
+                highlightColor: Colors.transparent,
+                highlightElevation: 0,*/
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _saveValue(null);
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    PageTransition(
+                      alignment: Alignment.bottomCenter,
+                      curve: Curves.easeInOut,
+                      duration: Duration(milliseconds: 1000),
+                      reverseDuration: Duration(milliseconds: 1000),
+                      type: PageTransitionType.rightToLeftJoined,
+                      child: LoginForm(),
+                      childCurrent: new Container(),
+                    ),
+                    (Route<dynamic> route) => false,
+                  );
+                },
               ),
-              color: Colors.transparent,
-              elevation: 0,
-              highlightColor: Colors.transparent,
-              highlightElevation: 0,
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            )
-          ],
-        );
-      },
-    );
+              ElevatedButton(
+                child: Text(
+                  "CANCELAR",
+                  style: TextStyle(
+                    color: Color.fromRGBO(9, 46, 116, 1.0),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.transparent,
+                  elevation: 0,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        });
   }
-  /*Widget _menuInferior(BuildContext context) {
-    return ConvexAppBar(
-      backgroundColor: Color.fromRGBO(9, 46, 116, 1.0),
-      style: TabStyle.react,
-      disableDefaultTabController: false,
-      items: [
-        TabItem(
-          icon: CupertinoIcons.house,
-          title: 'Inio',
-          activeIcon: Padding(
-            padding: EdgeInsets.only(bottom: 100),
-            child: Icon(
-              CupertinoIcons.house,
-              color: Colors.white,
-              size: 30,
-            ),
-          ),
-        ),
-        TabItem(
-          icon: CupertinoIcons.calendar,
-          title: 'Ejercicio $anio',
-          activeIcon: Padding(
-            padding: EdgeInsets.only(bottom: 1000),
-            child: Icon(
-              CupertinoIcons.calendar,
-              color: Colors.white,
-              size: 30,
-            ),
-          ),
-        ),
-        TabItem(
-          icon: CupertinoIcons.hammer,
-          title: 'Obras',
-          activeIcon: Padding(
-            padding: EdgeInsets.only(bottom: 1000),
-            child: Icon(
-              CupertinoIcons.hammer,
-              color: Colors.white,
-              size: 30,
-            ),
-          ),
-        ),
-        TabItem(
-          icon: CupertinoIcons.square_arrow_left,
-          title: 'Cerrar Sesión ',
-          activeIcon: Padding(
-            padding: EdgeInsets.only(bottom: 1000),
-            child: Icon(
-              CupertinoIcons.square_arrow_left,
-              color: Colors.white,
-              size: 30,
-            ),
-          ),
-        ),
-      ],
-
-      initialActiveIndex: 2, //optional, default as 0
-      onTap: (int i) {
-        if (i == 0) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-              '/inicio', (Route<dynamic> route) => false,
-              arguments: Welcome(
-                id_cliente: id_cliente,
-              ));
-        }
-        if (i == 1) {
-          print("hola mundo");
-          Navigator.pushNamed(
-            context,
-            '/anio',
-            arguments: Anio(
-              anio: anio,
-              id_cliente: id_cliente,
-              clave: clave_municipio,
-            ),
-          );
-        }
-        if (i == 3) {
-          _saveValue(null);
-          Navigator.pushAndRemoveUntil(
-            context,
-            PageTransition(
-              alignment: Alignment.bottomCenter,
-              curve: Curves.easeInOut,
-              duration: Duration(milliseconds: 1000),
-              reverseDuration: Duration(milliseconds: 1000),
-              type: PageTransitionType.rightToLeftJoined,
-              child: LoginForm(),
-              childCurrent: new Container(),
-            ),
-            (Route<dynamic> route) => false,
-          );
-        }
-      },
-    );
-  }*/
 
 //-----------Cards de Actas preliminares------------
   Widget cards(BuildContext context, nombre, fecha, posicion) {
@@ -820,8 +721,26 @@ class _ObrasView extends State<Obras> {
                 onItemClick: (task) {
                   _openDownloadedFile(task).then((success) {
                     if (!success) {
-                      Scaffold.of(context).showSnackBar(
-                          SnackBar(content: Text('Cannot open this file')));
+                      EasyLoading.instance
+                        ..displayDuration = const Duration(milliseconds: 2000)
+                        ..indicatorType = EasyLoadingIndicatorType.fadingCircle
+                        ..loadingStyle = EasyLoadingStyle.dark
+                        ..indicatorSize = 45.0
+                        ..radius = 10.0
+                        ..progressColor = Colors.white
+                        ..backgroundColor = Colors.red[900]
+                        ..indicatorColor = Colors.white
+                        ..textColor = Colors.white
+                        ..maskColor = Colors.black.withOpacity(0.88)
+                        ..userInteractions = false
+                        ..dismissOnTap = true;
+                      EasyLoading.dismiss();
+                      EasyLoading.instance.loadingStyle =
+                          EasyLoadingStyle.custom;
+                      EasyLoading.showError(
+                        'No se puede abrir este archivo.',
+                        maskType: EasyLoadingMaskType.custom,
+                      );
                     }
                   });
                 },
@@ -847,8 +766,8 @@ class _ObrasView extends State<Obras> {
   }
 // ------------- Cards Listado de obras -------------------
 
-  Widget cards_listado(BuildContext context, nombre, monto, avance, id_obra,
-      modalidad, nombre_archivo, archivos, fecha_actualizacion) {
+  Widget cardsListado(BuildContext context, nombre, monto, avance, idObra,
+      modalidad, nombreArchivo, archivos, fechaActualizacion) {
     int avance_1 = avance.toInt();
     return Container(
       height: 70,
@@ -856,26 +775,26 @@ class _ObrasView extends State<Obras> {
         onTap: () {
           if (modalidad == 1) {
             Navigator.pushNamed(context, '/admin',
-                arguments: Obras_admin(
-                  id_obra: id_obra,
-                  id_cliente: id_cliente,
+                arguments: ObrasAdmin(
+                  idObra: idObra,
+                  idCliente: idCliente,
                   anio: anio,
-                  clave: clave_municipio,
+                  clave: claveMunicipio,
                   nombre: nombre,
-                  nombre_archivo: nombre_archivo,
+                  nombreArchivo: nombreArchivo,
                 ));
           }
           if (modalidad > 1) {
             Navigator.pushNamed(
               context,
               '/contrato',
-              arguments: Obras_contrato(
-                id_obra: id_obra,
-                id_cliente: id_cliente,
+              arguments: ObrasContrato(
+                idObra: idObra,
+                idCliente: idCliente,
                 anio: anio,
-                clave: clave_municipio,
+                clave: claveMunicipio,
                 nombre: nombre,
-                nombre_archivo: nombre_archivo,
+                nombreArchivo: nombreArchivo,
                 archivos: archivos,
               ),
             );
@@ -950,22 +869,18 @@ class _ObrasView extends State<Obras> {
     );
   }
 
-  void _showSecondPage(BuildContext context) {
-    _getListado(context);
-  }
-
   List<Widget> listado(List<dynamic> info) {
     List<Widget> lista = [];
     info.forEach((elemento) {
-      int elemento_cliente = elemento['id_cliente'];
-      lista.add(Text("$elemento_cliente"));
+      int elementoCliente = elemento['id_cliente'];
+      lista.add(Text("$elementoCliente"));
     });
     return lista;
   }
 
   Future<dynamic> _getListado(BuildContext context) async {
     send.clear();
-    lista_obras.clear();
+    listaObras.clear();
     EasyLoading.instance
       ..displayDuration = const Duration(milliseconds: 2000)
       ..indicatorType = EasyLoadingIndicatorType.fadingCircle
@@ -1004,13 +919,11 @@ class _ObrasView extends State<Obras> {
       maskType: EasyLoadingMaskType.custom,
     );
     url =
-        "http://sistema.mrcorporativo.com/api/getObrasCliente/$id_cliente,$anio";
-    print('$id_cliente $anio');
+        "http://sistema.mrcorporativo.com/api/getObrasCliente/$idCliente,$anio";
+    print('$idCliente $anio');
     try {
       final respuesta = await http.get(Uri.parse(url));
       if (respuesta.statusCode == 200) {
-        bool resp = respuesta.body == "";
-
         if (respuesta.body != "") {
           final data = json.decode(respuesta.body);
           data.forEach((e) {
@@ -1018,11 +931,11 @@ class _ObrasView extends State<Obras> {
             final data1 = json.decode(desglose);
             data1.forEach((i) {
               if (i != null) {
-                fecha_integracion = i['acta_integracion_consejo'];
-                fecha_priorizacion = i['acta_priorizacion'];
-                fecha_adendum = i['adendum_priorizacion'];
+                fechaIntegracion = i['acta_integracion_consejo'];
+                fechaPriorizacion = i['acta_priorizacion'];
+                fechaAdendum = i['adendum_priorizacion'];
                 double avance = int.parse(i['avance_tecnico']).toDouble();
-                double monto_contratado = i['monto_contratado'].toDouble();
+                double montoContratado = i['monto_contratado'].toDouble();
                 String nombre = i['nombre_obra'];
                 int pagos = 0;
                 var des = json.encode(e['desglose']);
@@ -1031,11 +944,11 @@ class _ObrasView extends State<Obras> {
                   if (i['id_obra'] == x['id_obra']) pagos = x['pagos_count'];
                 });
 
-                lista_obras.add(
-                  cards_listado(
+                listaObras.add(
+                  cardsListado(
                     context,
                     nombre,
-                    numberFormat(monto_contratado),
+                    numberFormat(montoContratado),
                     avance,
                     i['id_obra'],
                     i['modalidad_ejecucion'],

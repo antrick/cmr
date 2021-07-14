@@ -2,7 +2,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Vistas/counter.dart';
 import 'package:flutter_app/Vistas/principal.dart';
-import 'package:flutter_app/Vistas/sizes_helpers.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'dart:convert';
@@ -44,10 +43,10 @@ class _LoginFormState extends State<LoginForm> {
   bool _isHidden = true;
   String _usuario;
   String _password;
-  int id_cliente = 0;
+  int idCliente = 0;
   String url;
   final formkey = GlobalKey<FormState>();
-  String token_t;
+  String tokenT;
   final counter = Counter();
   String _debugLabelString = "";
   String _emailAddress = 'tirado1294@gmail.com';
@@ -55,16 +54,17 @@ class _LoginFormState extends State<LoginForm> {
   bool _enableConsentButton = false;
   bool _requireConsent = true;
   String _idOneSignal = "";
+  bool visibility = false;
+
   @override
   void initState() {
     _handleConsent();
     initPlatformState();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    //print(MediaQuery.of(context).size.height);
-    //_returnValue(context).toString();
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -139,8 +139,10 @@ class _LoginFormState extends State<LoginForm> {
                   },
                   validator: (value) {
                     if (value.isEmpty) {
+                      _changed(visibility);
                       return "Este campo es necesario";
                     }
+                    return null;
                   },
                 ),
                 SizedBox(height: 25.0),
@@ -191,8 +193,10 @@ class _LoginFormState extends State<LoginForm> {
                   },
                   validator: (value) {
                     if (value.isEmpty) {
+                      _changed(visibility);
                       return "Este campo es necesario";
                     }
+                    return null;
                   },
                 ),
                 SizedBox(height: 25.0),
@@ -200,7 +204,7 @@ class _LoginFormState extends State<LoginForm> {
                   onPressed: () {
                     //metodo para cambiar de pantalla
                     //Navigator.pushNamed(context, '/inicio');
-                    id_cliente = 0;
+                    idCliente = 0;
                     counter.increment();
                     _showSecondPage(context);
                   },
@@ -221,34 +225,10 @@ class _LoginFormState extends State<LoginForm> {
                     elevation: 9.0,
                   ),
                 ),
-                /*SizedBox(height: 10.0),
-                TextButton(
-                  onPressed: () => _showAlertDialog(context),
-                  child: Text(
-                    'OLVIDE MI CONTRASEÑA',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 15,
-                      decoration: TextDecoration.underline,
-                      decorationThickness: 2,
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                ),*/
-                /*SizedBox(height: 80.0),
-                Text(
-                  'CREAMOS GESTIONES\nEXITOSAS',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 35,
-                    decorationThickness: 2,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  textAlign: TextAlign.center,
-                ),*/
-
                 Container(
-                  height: MediaQuery.of(context).size.height - 510,
+                  height: visibility
+                      ? MediaQuery.of(context).size.height - 510
+                      : MediaQuery.of(context).size.height - 560,
                   child: Center(
                     child: Text(
                       'CREAMOS GESTIONES EXITOSAS',
@@ -306,41 +286,13 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 
-  //metodo de prueba
-  void _showAlertDialog(BuildContext context) {
-    showDialog(
-        context: context,
-        builder: (buildcontext) {
-          return AlertDialog(
-            title: Text("Titulo del alert"),
-            content: Text("contenido del alert"),
-            actions: <Widget>[
-              /* RaisedButton(
-                child: Text(
-                  "CERRAR",
-                  style: TextStyle(color: Colors.white),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              )*/
-            ],
-          );
-        });
-  }
-
   //metodo para cambiar pantalla
   void _showSecondPage(BuildContext context) {
     MediaQueryData _mediaQueryData;
     double screenWidth;
     _mediaQueryData = MediaQuery.of(context);
     screenWidth = _mediaQueryData.size.width;
-    (MediaQuery.of(context).size.width / MediaQuery.of(context).size.height) *
-        20;
     print(screenWidth);
-    print((MediaQuery.of(context).size.width /
-            MediaQuery.of(context).size.height) *
-        20);
     EasyLoading.instance
       ..displayDuration = const Duration(milliseconds: 2000)
       ..indicatorType = EasyLoadingIndicatorType.fadingCircle
@@ -386,53 +338,12 @@ class _LoginFormState extends State<LoginForm> {
     }
   }
 
-  void _showSecondToken(BuildContext context, token) {
-    EasyLoading.instance
-      ..displayDuration = const Duration(milliseconds: 2000)
-      ..indicatorType = EasyLoadingIndicatorType.fadingCircle
-      ..loadingStyle = EasyLoadingStyle.dark
-      ..indicatorSize = 45.0
-      ..radius = 10.0
-      ..progressColor = Colors.white
-      ..backgroundColor = Colors.transparent
-      ..indicatorColor = Colors.white
-      ..textColor = Colors.white
-      ..maskColor = Colors.black.withOpacity(0.88)
-      ..userInteractions = false
-      ..dismissOnTap = true;
-    url = "https://sistema.mrcorporativo.com/api/getUsuarioToken/$token";
-    EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
-    EasyLoading.show(
-      indicator: Container(
-        height: 100,
-        width: 120,
-        child: SpinKitCubeGrid(
-          size: 90,
-          duration: Duration(milliseconds: 900),
-          itemBuilder: (BuildContext context, int index) {
-            int i = index + 1;
-            return DecoratedBox(
-              decoration: BoxDecoration(
-                /*color: index.isEven ? Colors.red : Colors.green,*/
-                image: DecorationImage(
-                  image: AssetImage("images/icono$i.png"),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-      maskType: EasyLoadingMaskType.custom,
-    );
-    _getListado();
-  }
-
   List<Widget> listado(List<dynamic> info) {
     List<Widget> lista = [];
     info.forEach((elemento) {
-      int elemento_cliente = elemento['id_cliente'];
-      print("elemento $elemento_cliente");
-      lista.add(Text("$elemento_cliente"));
+      int elementoCliente = elemento['id_cliente'];
+      print("elemento $elementoCliente");
+      lista.add(Text("$elementoCliente"));
     });
     return lista;
   }
@@ -444,15 +355,14 @@ class _LoginFormState extends State<LoginForm> {
       final respuesta = await http.get(Uri.parse(url));
 
       if (respuesta.statusCode == 200) {
-        bool resp = respuesta.body == "";
         if (respuesta.body != "") {
           final data = json.decode(respuesta.body);
           data.forEach((e) {
-            id_cliente = e['id_cliente'];
-            token_t = e['remember_token'];
+            idCliente = e['id_cliente'];
+            tokenT = e['remember_token'];
           });
-          _saveValue(token_t);
-          _login(id_cliente);
+          _saveValue(tokenT);
+          _login(idCliente);
           return jsonDecode(respuesta.body);
         } else {
           EasyLoading.instance
@@ -505,86 +415,28 @@ class _LoginFormState extends State<LoginForm> {
     }
   }
 
+  void _changed(bool visibility) {
+    setState(
+      () {
+        visibility = !visibility;
+      },
+    );
+  }
+
   void _login(
-    id_cliente,
+    idCliente,
   ) {
     EasyLoading.dismiss();
     Navigator.pushReplacementNamed(context, '/inicio',
         arguments: Welcome(
-          id_cliente: id_cliente,
+          cliente: idCliente,
         ));
-  }
-
-  Widget _menuInferior(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: 0, // this will be set when a new tab is tapped
-      type: BottomNavigationBarType.fixed,
-      onTap: (int index) {
-        if (index == 0) {
-          Navigator.pushReplacementNamed(context, '/');
-        }
-      },
-      items: [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.logout),
-          label: 'Salir',
-        ),
-      ],
-    );
-  }
-
-  Future<void> _showMyDialog() async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // user must tap button!
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Datos incorrectos'),
-          titleTextStyle: TextStyle(
-              color: Colors.red[800],
-              fontWeight: FontWeight.w500,
-              fontSize: 20),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text('El nombre de usuario o contraseña son incorrectos.'),
-              ],
-            ),
-          ),
-          contentTextStyle: TextStyle(
-              color: Colors.black, fontWeight: FontWeight.w300, fontSize: 20),
-          actions: <Widget>[
-            TextButton(
-              child: Text(
-                'Aceptar',
-                style: TextStyle(
-                    color: Colors.blue,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 20),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   _saveValue(String token) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     print(token);
     await prefs.setString('token', token);
-  }
-
-  Future<String> _returnValue(BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final token = await prefs.getString("token");
-    if (token != null) {
-      _showSecondToken(context, token);
-    }
-    return token;
   }
 
   Future<void> initPlatformState() async {
@@ -674,7 +526,7 @@ class _LoginFormState extends State<LoginForm> {
 
   Future<void> initPlatformState1() async {
     var status = await OneSignal.shared.getPermissionSubscriptionState();
-    print("hola");
+
     _idOneSignal = status.subscriptionStatus.userId;
     if (status.permissionStatus.hasPrompted)
     // we know that the user was prompted for push permission

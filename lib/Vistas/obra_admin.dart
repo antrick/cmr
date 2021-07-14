@@ -1,4 +1,3 @@
-import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -25,42 +24,42 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class Obras_admin extends StatefulWidget with WidgetsBindingObserver {
+class ObrasAdmin extends StatefulWidget with WidgetsBindingObserver {
   final TargetPlatform platform;
   @override
   _ObrasView createState() => _ObrasView();
-  int id_obra;
-  int id_cliente;
-  int anio;
-  int clave;
-  String nombre;
-  String nombre_archivo;
-  Obras_admin({
+  final int idObra;
+  final int idCliente;
+  final int anio;
+  final int clave;
+  final String nombre;
+  final String nombreArchivo;
+  ObrasAdmin({
     Key key,
-    this.id_obra,
-    this.id_cliente,
+    this.idObra,
+    this.idCliente,
     this.anio,
     this.platform,
     this.clave,
     this.nombre,
-    this.nombre_archivo,
+    this.nombreArchivo,
   }) : super(key: key);
 }
 
-class _ObrasView extends State<Obras_admin> {
-  String nombre_obra = 'Ejemplo de nombre de obra';
-  String nombre_corto = 'Ejemplo de nombre de obra';
+class _ObrasView extends State<ObrasAdmin> {
+  String nombreObra = 'Ejemplo de nombre de obra';
+  String nombreCorto = 'Ejemplo de nombre de obra';
   String monto = '10,000';
-  double avance_fisico = 20.0;
-  double avance_tecnico = 20.0;
-  double avance_economico = 20.0;
+  double avanceFisico = 20.0;
+  double avanceTecnico = 20.0;
+  double avanceEconomico = 20.0;
   String url;
   bool inicio = false;
-  int id_cliente;
+  int idCliente;
   int anio;
   int modalidad = 2;
-  int id_obra;
-  List<Widget> lista_obras = [];
+  int idObra;
+  List<Widget> listaObras = [];
   List<Widget> send = [];
   List<int> exp = [];
   List<String> fondo = [];
@@ -68,9 +67,9 @@ class _ObrasView extends State<Obras_admin> {
   List<Widget> listas = [];
   List<Widget> arrendamientos = [];
   String observaciones = '';
-  int clave_municipio;
-  String nombre_archivo;
-  String fecha_actualizacion;
+  int claveMunicipio;
+  String nombreArchivo;
+  String fechaActualizacion;
 
   //DOWNLOAD ARCHIVOS
   List<_TaskInfo> _tasks;
@@ -79,7 +78,7 @@ class _ObrasView extends State<Obras_admin> {
   bool _permissionReady;
   String _localPath;
   ReceivePort _port = ReceivePort();
-  bool visibility_obj = false;
+  bool visibilityObj = false;
 
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
@@ -102,15 +101,15 @@ class _ObrasView extends State<Obras_admin> {
 
   @override
   Widget build(BuildContext context) {
-    final Obras_admin args = ModalRoute.of(context).settings.arguments;
-    id_obra = args.id_obra;
-    id_cliente = args.id_cliente;
+    final ObrasAdmin args = ModalRoute.of(context).settings.arguments;
+    idObra = args.idObra;
+    idCliente = args.idCliente;
     anio = args.anio;
-    clave_municipio = args.clave;
-    nombre_corto = args.nombre;
-    nombre_archivo = args.nombre_archivo;
+    claveMunicipio = args.clave;
+    nombreCorto = args.nombre;
+    nombreArchivo = args.nombreArchivo;
     /*_getListado(context);*/
-    if (!exp.isEmpty && inicio) {
+    if (exp.isNotEmpty && inicio) {
       _options();
     }
     if (send.isEmpty && !inicio) {
@@ -280,62 +279,27 @@ class _ObrasView extends State<Obras_admin> {
                 : _permissionReady
                     ? _buildDownloadList()
                     : _buildNoPermissionWarning()),
-        /*Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("images/fondo.jpg.png"),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: NestedScrollView(
-            // Setting floatHeaderSlivers to true is required in order to float
-            // the outer slivers over the inner scrollable.
-            floatHeaderSlivers: false,
-            headerSliverBuilder:
-                (BuildContext context, bool innerBoxIsScrolled) {
-              return <Widget>[
-                SliverAppBar(
-                  toolbarHeight: 1,
-                  title: const Text(''),
-                  floating: false,
-                  centerTitle: true,
-                  forceElevated: innerBoxIsScrolled,
-                  backgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
-                ),
-              ];
-            },
-            body: SmartRefresher(
-              enablePullDown: false,
-              enablePullUp: false,
-              controller: _refreshController,
-              child: ListView.builder(
-                itemBuilder: (c, i) => send[i],
-                itemCount: send.length,
-              ),
-            ), //menu(context), //menu(context),
-          ),
-        ),*/
       ),
     );
   }
 
   void _options() {
     send.clear();
-    int avance_fisico_1 = avance_fisico.toInt();
-    int avance_economico_1 = avance_economico.toInt();
-    int avance_tecnico_1 = avance_tecnico.toInt();
-    bool nombre = nombre_corto == nombre_obra;
+    int avanceFisico1 = avanceFisico.toInt();
+    int avanceEconomico1 = avanceEconomico.toInt();
+    int avanceTecnico1 = avanceTecnico.toInt();
+    bool nombre = nombreCorto == nombreObra;
     print(nombre);
     send.add(SizedBox(
       height: 30,
     ));
 
-    send.add(visibility_obj
+    send.add(visibilityObj
         ? new Container()
         : Container(
             margin: EdgeInsets.only(left: 15, right: 15),
             child: Text(
-              nombre_corto.toUpperCase(),
+              nombreCorto.toUpperCase(),
               style: TextStyle(
                 color: Color.fromRGBO(9, 46, 116, 1.0),
                 fontWeight: FontWeight.w500,
@@ -345,11 +309,11 @@ class _ObrasView extends State<Obras_admin> {
             ),
           ));
     send.add(
-      visibility_obj
+      visibilityObj
           ? Container(
               margin: EdgeInsets.only(left: 15, right: 15),
               child: Text(
-                nombre_obra.toUpperCase(),
+                nombreObra.toUpperCase(),
                 style: TextStyle(
                   color: Color.fromRGBO(9, 46, 116, 1.0),
                   fontWeight: FontWeight.w500,
@@ -365,7 +329,7 @@ class _ObrasView extends State<Obras_admin> {
         margin: EdgeInsets.only(left: 15, right: 15),
         child: InkWell(
           onTap: () {
-            _changed(visibility_obj);
+            _changed(visibilityObj);
           },
           child: Card(
             // RoundedRectangleBorder para proporcionarle esquinas circulares al Card
@@ -392,7 +356,7 @@ class _ObrasView extends State<Obras_admin> {
                       ? new Container()
                       : Container(
                           child: Text(
-                            visibility_obj ? "Ver menos" : "Ver más",
+                            visibilityObj ? "Ver menos" : "Ver más",
                             style: TextStyle(
                               color: Colors.blue,
                               fontWeight: FontWeight.w300,
@@ -414,10 +378,30 @@ class _ObrasView extends State<Obras_admin> {
                                   onItemClick: (task) {
                                     _openDownloadedFile(task).then((success) {
                                       if (!success) {
-                                        Scaffold.of(context).showSnackBar(
-                                            SnackBar(
-                                                content: Text(
-                                                    'Cannot open this file')));
+                                        EasyLoading.instance
+                                          ..displayDuration =
+                                              const Duration(milliseconds: 2000)
+                                          ..indicatorType =
+                                              EasyLoadingIndicatorType
+                                                  .fadingCircle
+                                          ..loadingStyle = EasyLoadingStyle.dark
+                                          ..indicatorSize = 45.0
+                                          ..radius = 10.0
+                                          ..progressColor = Colors.white
+                                          ..backgroundColor = Colors.red[900]
+                                          ..indicatorColor = Colors.white
+                                          ..textColor = Colors.white
+                                          ..maskColor =
+                                              Colors.black.withOpacity(0.88)
+                                          ..userInteractions = false
+                                          ..dismissOnTap = true;
+                                        EasyLoading.dismiss();
+                                        EasyLoading.instance.loadingStyle =
+                                            EasyLoadingStyle.custom;
+                                        EasyLoading.showError(
+                                          'No se puede abrir este archivo.',
+                                          maskType: EasyLoadingMaskType.custom,
+                                        );
                                       }
                                     });
                                   },
@@ -450,65 +434,7 @@ class _ObrasView extends State<Obras_admin> {
         ),
       ),
     );
-    /*send.add(Column(
-      children: _items
-          .map(
-            (item) => item.task == null
-                ? _buildListSection(item.name)
-                : DownloadItem(
-                    data: item,
-                    nombre: nombre_obra,
-                    onItemClick: (task) {
-                      _openDownloadedFile(task).then((success) {
-                        if (!success) {
-                          Scaffold.of(context).showSnackBar(
-                              SnackBar(content: Text('Cannot open this file')));
-                        }
-                      });
-                    },
-                    onActionClick: (task) {
-                      if (task.status == DownloadTaskStatus.undefined) {
-                        _requestDownload(task);
-                      } else if (task.status == DownloadTaskStatus.running) {
-                        _pauseDownload(task);
-                      } else if (task.status == DownloadTaskStatus.paused) {
-                        _resumeDownload(task);
-                      } else if (task.status == DownloadTaskStatus.complete) {
-                        _delete(task);
-                      } else if (task.status == DownloadTaskStatus.failed) {
-                        _retryDownload(task);
-                      }
-                    },
-                  ),
-          )
-          .toList(),
-    ));*/
-    /*send.add(
-      Container(
-        margin: EdgeInsets.only(left: 15, right: 15, bottom: 20),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Expanded(
-                flex: 3,
-                child: Text(nombre_obra.toUpperCase(),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 18,
-                    ))),
-            Expanded(
-              flex: 1,
-              child: Icon(
-                Icons.get_app_rounded,
-                color: Colors.green,
-                size: 25,
-              ),
-            )
-          ],
-        ),
-      ),
-    );*/
+
     send.add(SizedBox(
       height: 10,
     ));
@@ -525,52 +451,6 @@ class _ObrasView extends State<Obras_admin> {
         ),
       ),
     );
-
-    /*if (modalidad == 2) {
-      send.add(
-        Container(
-          margin: EdgeInsets.only(left: 15, right: 15),
-          child: Text(
-            'Modalidad de asignación: Licitación publica',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w300,
-              fontSize: 18,
-            ),
-          ),
-        ),
-      );
-    }
-    if (modalidad == 3) {
-      send.add(
-        Container(
-          margin: EdgeInsets.only(left: 15, right: 15),
-          child: Text(
-            'Modalidad de asignación: Invitación a tres',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w300,
-              fontSize: 18,
-            ),
-          ),
-        ),
-      );
-    }
-    if (modalidad == 4) {
-      send.add(
-        Container(
-          margin: EdgeInsets.only(left: 15, right: 15),
-          child: Text(
-            'Modalidad de asignación: Adjudicación directa',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w300,
-              fontSize: 18,
-            ),
-          ),
-        ),
-      );
-    }*/
 
     send.add(SizedBox(
       height: 10,
@@ -659,7 +539,7 @@ class _ObrasView extends State<Obras_admin> {
               ),
             ),
             Text(
-              '$fecha_actualizacion',
+              '$fechaActualizacion',
               style: TextStyle(
                 color: Color.fromRGBO(9, 46, 116, 1.0),
                 fontWeight: FontWeight.w700,
@@ -711,10 +591,10 @@ class _ObrasView extends State<Obras_admin> {
                 radius: 80.0,
                 animation: true,
                 animationDuration: 1000,
-                percent: avance_fisico_1 * 0.01,
+                percent: avanceFisico1 * 0.01,
                 circularStrokeCap: CircularStrokeCap.round,
                 center: Text(
-                  "$avance_fisico_1%",
+                  "$avanceFisico1%",
                   style: TextStyle(
                     color: Color.fromRGBO(9, 46, 116, 1.0),
                     fontWeight: FontWeight.w400,
@@ -747,10 +627,10 @@ class _ObrasView extends State<Obras_admin> {
                 radius: 80.0,
                 animation: true,
                 animationDuration: 1000,
-                percent: avance_economico * 0.01,
+                percent: avanceEconomico * 0.01,
                 circularStrokeCap: CircularStrokeCap.round,
                 center: Text(
-                  "$avance_economico_1%",
+                  "$avanceEconomico1%",
                   style: TextStyle(
                     color: Color.fromRGBO(9, 46, 116, 1.0),
                     fontWeight: FontWeight.w400,
@@ -783,10 +663,10 @@ class _ObrasView extends State<Obras_admin> {
                 radius: 80.0,
                 animation: true,
                 animationDuration: 1000,
-                percent: avance_tecnico_1 * 0.01,
+                percent: avanceTecnico1 * 0.01,
                 circularStrokeCap: CircularStrokeCap.round,
                 center: Text(
-                  '$avance_tecnico_1%',
+                  '$avanceTecnico1%',
                   style: TextStyle(
                     color: Color.fromRGBO(9, 46, 116, 1.0),
                     fontWeight: FontWeight.w400,
@@ -1321,7 +1201,7 @@ class _ObrasView extends State<Obras_admin> {
           Navigator.of(context).pushNamedAndRemoveUntil(
               '/inicio', (Route<dynamic> route) => false,
               arguments: Welcome(
-                id_cliente: id_cliente,
+                cliente: idCliente,
               ));
           return false;
         }
@@ -1331,8 +1211,8 @@ class _ObrasView extends State<Obras_admin> {
             '/anio',
             arguments: Anio(
               anio: anio,
-              id_cliente: id_cliente,
-              clave: clave_municipio,
+              cliente: idCliente,
+              clave: claveMunicipio,
             ),
           );
           return false;
@@ -1344,204 +1224,107 @@ class _ObrasView extends State<Obras_admin> {
 
   void _showAlertDialog() {
     showDialog(
-      context: context,
-      builder: (buildcontext) {
-        return AlertDialog(
-          title: Text(
-            "¿Está seguro de que desea salir?",
-            style: TextStyle(
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-              fontWeight: FontWeight.w500,
-              fontSize: 17,
-            ),
-          ),
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-            side: BorderSide(
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-            ),
-          ),
-          actions: <Widget>[
-            RaisedButton(
-              child: Text(
-                "ACEPTAR",
-                style: TextStyle(
-                  color: Color.fromRGBO(9, 46, 116, 1.0),
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
+        context: context,
+        builder: (buildcontext) {
+          return AlertDialog(
+            title: Text(
+              "¿Está seguro de que desea salir?",
+              style: TextStyle(
+                color: Color.fromRGBO(9, 46, 116, 1.0),
+                fontWeight: FontWeight.w500,
+                fontSize: 17,
               ),
-              color: Colors.transparent,
-              elevation: 0,
-              highlightColor: Colors.transparent,
-              highlightElevation: 0,
-              onPressed: () {
-                Navigator.of(context).pop();
-                _saveValue(null);
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  PageTransition(
-                    alignment: Alignment.bottomCenter,
-                    curve: Curves.easeInOut,
-                    duration: Duration(milliseconds: 1000),
-                    reverseDuration: Duration(milliseconds: 1000),
-                    type: PageTransitionType.rightToLeftJoined,
-                    child: LoginForm(),
-                    childCurrent: new Container(),
+            ),
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+              side: BorderSide(
+                color: Color.fromRGBO(9, 46, 116, 1.0),
+              ),
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                child: Text(
+                  "ACEPTAR",
+                  style: TextStyle(
+                    color: Color.fromRGBO(9, 46, 116, 1.0),
+                    fontWeight: FontWeight.w500,
                   ),
-                  (Route<dynamic> route) => false,
-                );
-              },
-            ),
-            RaisedButton(
-              child: Text(
-                "CERRAR",
-                style: TextStyle(
-                  color: Color.fromRGBO(9, 46, 116, 1.0),
-                  fontWeight: FontWeight.w500,
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.transparent,
+                  elevation: 0,
+                ),
+                /*color: Colors.transparent,
+                elevation: 0,
+                highlightColor: Colors.transparent,
+                highlightElevation: 0,*/
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _saveValue(null);
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    PageTransition(
+                      alignment: Alignment.bottomCenter,
+                      curve: Curves.easeInOut,
+                      duration: Duration(milliseconds: 1000),
+                      reverseDuration: Duration(milliseconds: 1000),
+                      type: PageTransitionType.rightToLeftJoined,
+                      child: LoginForm(),
+                      childCurrent: new Container(),
+                    ),
+                    (Route<dynamic> route) => false,
+                  );
+                },
               ),
-              color: Colors.transparent,
-              elevation: 0,
-              highlightColor: Colors.transparent,
-              highlightElevation: 0,
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            )
-          ],
-        );
-      },
-    );
+              ElevatedButton(
+                child: Text(
+                  "CANCELAR",
+                  style: TextStyle(
+                    color: Color.fromRGBO(9, 46, 116, 1.0),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.transparent,
+                  elevation: 0,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        });
   }
-  /*Widget _menuInferior(BuildContext context) {
-    return ConvexAppBar(
-      backgroundColor: Color.fromRGBO(9, 46, 116, 1.0),
-      style: TabStyle.react,
-      disableDefaultTabController: false,
-      items: [
-        TabItem(
-          icon: CupertinoIcons.house,
-          title: 'Inio',
-          activeIcon: Padding(
-            padding: EdgeInsets.only(bottom: 100),
-            child: Icon(
-              CupertinoIcons.house,
-              color: Colors.white,
-              size: 30,
-            ),
-          ),
-        ),
-        TabItem(
-          icon: CupertinoIcons.calendar,
-          title: 'Ejercicio $anio',
-          activeIcon: Padding(
-            padding: EdgeInsets.only(bottom: 1000),
-            child: Icon(
-              CupertinoIcons.calendar,
-              color: Colors.white,
-              size: 30,
-            ),
-          ),
-        ),
-        TabItem(
-          icon: CupertinoIcons.book,
-          title: 'Expediente',
-          activeIcon: Padding(
-            padding: EdgeInsets.only(bottom: 1000),
-            child: Icon(
-              CupertinoIcons.book,
-              color: Colors.white,
-              size: 30,
-            ),
-          ),
-        ),
-        TabItem(
-          icon: CupertinoIcons.square_arrow_left,
-          title: 'Cerrar Sesión ',
-          activeIcon: Padding(
-            padding: EdgeInsets.only(bottom: 1000),
-            child: Icon(
-              CupertinoIcons.square_arrow_left,
-              color: Colors.white,
-              size: 30,
-            ),
-          ),
-        ),
-      ],
-
-      initialActiveIndex: 2, //optional, default as 0
-      onTap: (int i) {
-        if (i == 0) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-              '/inicio', (Route<dynamic> route) => false,
-              arguments: Welcome(
-                id_cliente: id_cliente,
-              ));
-        }
-        if (i == 1) {
-          print("hola mundo");
-          Navigator.pushNamed(
-            context,
-            '/anio',
-            arguments: Anio(
-              anio: anio,
-              id_cliente: id_cliente,
-              clave: clave_municipio,
-            ),
-          );
-        }
-        if (i == 3) {
-          _saveValue(null);
-          Navigator.pushAndRemoveUntil(
-            context,
-            PageTransition(
-              alignment: Alignment.bottomCenter,
-              curve: Curves.easeInOut,
-              duration: Duration(milliseconds: 1000),
-              reverseDuration: Duration(milliseconds: 1000),
-              type: PageTransitionType.rightToLeftJoined,
-              child: LoginForm(),
-              childCurrent: new Container(),
-            ),
-            (Route<dynamic> route) => false,
-          );
-        }
-      },
-    );
-  }*/
 
   void _changed(bool visibility) {
     setState(() {
-      visibility_obj = !visibility;
-      print(visibility_obj);
+      visibilityObj = !visibility;
+      print(visibilityObj);
     });
   }
 
 //-----------Cards de Actas preliminares------------
   Widget cards(BuildContext context, nombre, estado) {
-    IconData estado_icon;
+    IconData estadoIcon;
     Color color;
-    Color color_barra;
     Widget ret;
 
     if (estado == 1) {
-      estado_icon = Icons.check_circle_rounded;
+      estadoIcon = Icons.check_circle_rounded;
       color = Colors.blue;
-      color_barra = const Color.fromRGBO(9, 46, 116, 1.0);
     }
     if (estado == 2) {
-      estado_icon = Icons.cancel /*check_circle_rounded*/;
+      estadoIcon = Icons.cancel /*check_circle_rounded*/;
       color = Colors.red;
-      color_barra = const Color.fromRGBO(9, 46, 116, 1.0);
     }
 
     if (estado == 3) {
-      estado_icon = Icons.remove_circle;
+      estadoIcon = Icons.remove_circle;
       color = Colors.yellow;
-      color_barra = Colors.grey[500];
     }
     bool estado_2 = estado == 3;
     estado_2
@@ -1582,7 +1365,7 @@ class _ObrasView extends State<Obras_admin> {
                   Expanded(
                     flex: 1,
                     child: Icon(
-                      estado_icon,
+                      estadoIcon,
                       color: color,
                     ),
                   ),
@@ -1593,7 +1376,7 @@ class _ObrasView extends State<Obras_admin> {
     return ret;
   }
 
-  Widget cards_facturas(BuildContext context, folio, monto) {
+  Widget cardsFacturas(BuildContext context, folio, monto) {
     return Container(
       height: 65,
       child: Card(
@@ -1643,11 +1426,7 @@ class _ObrasView extends State<Obras_admin> {
     );
   }
 
-  Widget cards_lista(BuildContext context, fecha_inicio, fecha_fin, monto) {
-    IconData estado_icon;
-    Color color;
-    Color color_barra;
-
+  Widget cardsLista(BuildContext context, fechaInicio, fechaFin, monto) {
     return Container(
       height: 65,
       child: Card(
@@ -1676,7 +1455,7 @@ class _ObrasView extends State<Obras_admin> {
               child: Padding(
                 padding: EdgeInsets.all(10.0),
                 child: Text(
-                  fecha_inicio,
+                  fechaInicio,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Color.fromRGBO(9, 46, 116, 1.0),
@@ -1691,7 +1470,7 @@ class _ObrasView extends State<Obras_admin> {
               child: Padding(
                 padding: EdgeInsets.all(10.0),
                 child: Text(
-                  fecha_fin,
+                  fechaFin,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Color.fromRGBO(9, 46, 116, 1.0),
@@ -1722,8 +1501,8 @@ class _ObrasView extends State<Obras_admin> {
   }
 // ------------- Cards Listado de obras -------------------
 
-  Widget cards_listado(
-      BuildContext context, nombre, monto, avance, id_obra, modalidad) {
+  Widget cardsListado(
+      BuildContext context, nombre, monto, avance, idObra, modalidad) {
     send.clear();
 
     return Container(
@@ -1790,22 +1569,18 @@ class _ObrasView extends State<Obras_admin> {
         ));
   }
 
-  void _showSecondPage(BuildContext context) {
-    _getListado(context);
-  }
-
   List<Widget> listado(List<dynamic> info) {
     List<Widget> lista = [];
     info.forEach((elemento) {
-      int elemento_cliente = elemento['id_cliente'];
-      lista.add(Text("$elemento_cliente"));
+      int elementoCliente = elemento['id_cliente'];
+      lista.add(Text("$elementoCliente"));
     });
     return lista;
   }
 
   Future<dynamic> _getListado(BuildContext context) async {
     send.clear();
-    lista_obras.clear();
+    listaObras.clear();
     EasyLoading.instance
       ..displayDuration = const Duration(milliseconds: 2000)
       ..indicatorType = EasyLoadingIndicatorType.fadingCircle
@@ -1843,19 +1618,18 @@ class _ObrasView extends State<Obras_admin> {
       ),
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://sistema.mrcorporativo.com/api/getObraExpediente/$id_obra";
+    url = "http://sistema.mrcorporativo.com/api/getObraExpediente/$idObra";
     try {
       final respuesta = await http.get(Uri.parse(url));
       if (respuesta.statusCode == 200) {
-        bool resp = respuesta.body == "";
         if (respuesta.body != "") {
           final data = json.decode(respuesta.body);
           /*final parte_social = json.encode(data['parte_social']);
           final data1 = json.decode(parte_social);*/
           data.forEach((e) {
-            final parte_social = json.encode(e['parte_social']);
+            final parteSocial = json.encode(e['parte_social']);
 
-            dynamic data1 = json.decode(parte_social);
+            dynamic data1 = json.decode(parteSocial);
             data1.forEach((i) {
               if (i != null) {
                 exp.add(i['acta_integreacion_consejo']);
@@ -1884,8 +1658,8 @@ class _ObrasView extends State<Obras_admin> {
                 exp.add(i['croquis_micro']);
               }
             });
-            final parte_admin = json.encode(e['obra_exp']);
-            data1 = json.decode(parte_admin);
+            final parteAdmin = json.encode(e['obra_exp']);
+            data1 = json.decode(parteAdmin);
             data1.forEach((i) {
               if (i != null) {
                 exp.add(i['inventario_maquinaria_construccion']);
@@ -1896,67 +1670,67 @@ class _ObrasView extends State<Obras_admin> {
                 exp.add(i['cedula_detallada_facturacion']);
               }
             });
-            final parte_obra = json.encode(e['obra']);
-            data1 = json.decode('[' + parte_obra + ']');
+            final parteObra = json.encode(e['obra']);
+            data1 = json.decode('[' + parteObra + ']');
             data1.forEach((i) {
               if (i != null) {
-                nombre_obra = i['nombre_obra'];
-                nombre_corto = i['nombre_corto'];
+                nombreObra = i['nombre_obra'];
+                nombreCorto = i['nombre_corto'];
                 monto = numberFormat(i['monto_contratado'].toDouble());
-                avance_fisico =
+                avanceFisico =
                     int.parse(i['avance_fisico'].toStringAsFixed(0)).toDouble();
-                avance_economico =
+                avanceEconomico =
                     int.parse(i['avance_economico'].toStringAsFixed(0))
                         .toDouble();
-                fecha_actualizacion = i['fecha_actualizacion'];
-                avance_tecnico =
+                fechaActualizacion = i['fecha_actualizacion'];
+                avanceTecnico =
                     int.parse(i['avance_tecnico'].toStringAsFixed(0))
                         .toDouble();
               }
             });
-            final parte_fondo = json.encode(e['fondo']);
-            data1 = json.decode(parte_fondo);
+            final parteFondo = json.encode(e['fondo']);
+            data1 = json.decode(parteFondo);
             data1.forEach((i) {
               if (i != null) {
                 fondo.add(i['nombre_corto']);
                 fondo.add(numberFormat(i['monto'].toDouble()));
               }
             });
-            final parte_lista = json.encode(e['obra_lista']);
-            data1 = json.decode(parte_lista);
+            final parteLista = json.encode(e['obra_lista']);
+            data1 = json.decode(parteLista);
             data1.forEach((i) {
               if (i != null) {
                 String monto = numberFormat(i['total'].toDouble());
                 listas.add(
-                  cards_lista(context, i['fecha_inicio'], i['fecha_fin'],
+                  cardsLista(context, i['fecha_inicio'], i['fecha_fin'],
                       '\u0024 $monto'),
                 );
               }
             });
-            final parte_facturas = json.encode(e['obra_facturas']);
-            data1 = json.decode(parte_facturas);
+            final parteFacturas = json.encode(e['obra_facturas']);
+            data1 = json.decode(parteFacturas);
             data1.forEach((i) {
               if (i != null) {
                 String monto = numberFormat(i['total'].toDouble());
                 facturas.add(
-                  cards_facturas(context, i['folio_fiscal'], '\u0024 $monto'),
+                  cardsFacturas(context, i['folio_fiscal'], '\u0024 $monto'),
                 );
               }
             });
-            final parte_arre = json.encode(e['arrendamientos']);
-            data1 = json.decode(parte_arre);
+            final parteArre = json.encode(e['arrendamientos']);
+            data1 = json.decode(parteArre);
             data1.forEach((i) {
               if (i != null) {
                 String monto = numberFormat(i['monto_contratado'].toDouble());
                 arrendamientos.add(
-                  cards_lista(context, i['fecha_inicio'], i['fecha_fin'],
+                  cardsLista(context, i['fecha_inicio'], i['fecha_fin'],
                       '\u0024 $monto'),
                 );
               }
             });
 
-            final parte_obs = json.encode(e['observaciones']);
-            data1 = json.decode(parte_obs);
+            final parteObs = json.encode(e['observaciones']);
+            data1 = json.decode(parteObs);
             data1.forEach((i) {
               if (i != null) {
                 observaciones =
@@ -2153,17 +1927,22 @@ class _ObrasView extends State<Obras_admin> {
               SizedBox(
                 height: 32.0,
               ),
-              FlatButton(
-                  onPressed: () {
-                    _retryRequestPermission();
-                  },
-                  child: Text(
-                    'Retry',
-                    style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20.0),
-                  ))
+              ElevatedButton(
+                onPressed: () {
+                  _retryRequestPermission();
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.transparent,
+                  elevation: 0,
+                ),
+                child: Text(
+                  'Retry',
+                  style: TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20.0),
+                ),
+              ),
             ],
           ),
         ),
@@ -2195,9 +1974,9 @@ class _ObrasView extends State<Obras_admin> {
         openFileFromNotification: true);
   }
 
-  void _cancelDownload(_TaskInfo task) async {
+  /*void _cancelDownload(_TaskInfo task) async {
     await FlutterDownloader.cancel(taskId: task.taskId);
-  }
+  }*/
 
   void _pauseDownload(_TaskInfo task) async {
     await FlutterDownloader.pause(taskId: task.taskId);
@@ -2253,10 +2032,10 @@ class _ObrasView extends State<Obras_admin> {
     _items = [];
     final _documents = [
       {
-        'name': nombre_corto,
+        'name': nombreCorto,
         'posicion': 1,
         'link':
-            'http://sistema.mrcorporativo.com/archivos/$clave_municipio/$anio/obras/$id_obra/$nombre_archivo.pdf'
+            'http://sistema.mrcorporativo.com/archivos/$claveMunicipio/$anio/obras/$idObra/$nombreArchivo.pdf'
       },
     ];
 

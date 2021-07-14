@@ -1,41 +1,39 @@
-import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Vistas/anio.dart';
-import 'package:flutter_app/Vistas/counter.dart';
 import 'package:flutter_app/Vistas/login.dart';
 import 'package:flutter_app/Vistas/sizes_helpers.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
-import 'package:loading_animations/loading_animations.dart';
 import 'package:page_transition/page_transition.dart';
 import 'dart:convert';
+import 'dart:ui';
+import 'dart:async';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
 class Welcome extends StatefulWidget {
   @override
   _WelcomeView createState() => _WelcomeView();
-  int id_cliente;
+  final int cliente;
   Welcome({
-    this.id_cliente,
+    this.cliente,
   });
 }
 
 class _WelcomeView extends State<Welcome> {
-  int id_cliente;
-  String nombre_municipio = "Ejemplo 1";
-  String nombre_distrito = "Ejemplo 1";
+  int idCliente;
+  String nombreMunicipio = "Ejemplo 1";
+  String nombreDistrito = "Ejemplo 1";
   String email = "Ejemplo 1";
   String direccion = "Ejemplo q";
   String rfc = "Ejemplo 1";
-  int anio_inicio = 2020;
-  int anio_fin = 2022;
+  int anioInicio = 2020;
+  int anioFin = 2022;
   bool inicio = false;
   String logo =
       'https://raw.githubusercontent.com/tirado12/CMRInicio/master/logo_rojas.png';
@@ -45,7 +43,7 @@ class _WelcomeView extends State<Welcome> {
   int activeIndex = 0;
   String url;
   final formkey = GlobalKey<FormState>();
-  int clave_municipio;
+  int claveMunicipio;
 
   List<Widget> send = [];
 
@@ -73,7 +71,7 @@ class _WelcomeView extends State<Welcome> {
   Widget build(BuildContext context) {
     _returnValue(context);
     final Welcome args = ModalRoute.of(context).settings.arguments;
-    id_cliente = args.id_cliente;
+    idCliente = args.cliente;
     if (inicio) {
       _options();
     }
@@ -206,7 +204,7 @@ class _WelcomeView extends State<Welcome> {
               ),
             ),
             actions: <Widget>[
-              RaisedButton(
+              ElevatedButton(
                 child: Text(
                   "ACEPTAR",
                   style: TextStyle(
@@ -215,10 +213,14 @@ class _WelcomeView extends State<Welcome> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                color: Colors.transparent,
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.transparent,
+                  elevation: 0,
+                ),
+                /*color: Colors.transparent,
                 elevation: 0,
                 highlightColor: Colors.transparent,
-                highlightElevation: 0,
+                highlightElevation: 0,*/
                 onPressed: () {
                   Navigator.of(context).pop();
                   _saveValue(null);
@@ -237,7 +239,7 @@ class _WelcomeView extends State<Welcome> {
                   );
                 },
               ),
-              RaisedButton(
+              ElevatedButton(
                 child: Text(
                   "CANCELAR",
                   style: TextStyle(
@@ -246,10 +248,10 @@ class _WelcomeView extends State<Welcome> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                color: Colors.transparent,
-                elevation: 0,
-                highlightColor: Colors.transparent,
-                highlightElevation: 0,
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.transparent,
+                  elevation: 0,
+                ),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -294,7 +296,7 @@ class _WelcomeView extends State<Welcome> {
         "H. Ayuntamiento Constitucional de",
         style: TextStyle(
           color: Color.fromRGBO(9, 46, 116, 1.0),
-          fontWeight: FontWeight.w300,
+          fontWeight: FontWeight.w400,
           fontSize: 20,
         ),
         textAlign: TextAlign.center,
@@ -302,7 +304,7 @@ class _WelcomeView extends State<Welcome> {
     );
     send.add(
       Text(
-        nombre_municipio,
+        nombreMunicipio,
         style: TextStyle(
           color: Color.fromRGBO(9, 46, 116, 1.0),
           fontWeight: FontWeight.w500,
@@ -313,10 +315,10 @@ class _WelcomeView extends State<Welcome> {
     );
     send.add(
       Text(
-        "$nombre_distrito, Oaxaca.",
+        "$nombreDistrito, Oaxaca.",
         style: TextStyle(
           color: Color.fromRGBO(9, 46, 116, 1.0),
-          fontWeight: FontWeight.w300,
+          fontWeight: FontWeight.w400,
           fontSize: 20,
         ),
         textAlign: TextAlign.center,
@@ -332,12 +334,13 @@ class _WelcomeView extends State<Welcome> {
         "RFC: $rfc",
         style: TextStyle(
           color: Color.fromRGBO(9, 46, 116, 1.0),
-          fontWeight: FontWeight.w300,
+          fontWeight: FontWeight.w400,
           fontSize: 20,
         ),
         textAlign: TextAlign.center,
       ),
     );
+
     send.add(
       SizedBox(
         height: displayHeight(context) * 0.02,
@@ -349,7 +352,7 @@ class _WelcomeView extends State<Welcome> {
           "$direccion",
           style: TextStyle(
             color: Color.fromRGBO(9, 46, 116, 1.0),
-            fontWeight: FontWeight.w300,
+            fontWeight: FontWeight.w400,
             fontSize: 20,
           ),
           textAlign: TextAlign.center,
@@ -380,11 +383,11 @@ class _WelcomeView extends State<Welcome> {
       ),
     );
     DateTime date = DateTime.now();
-    int anio_actual = date.year;
-    if (anio_actual + 1 > anio_fin) {
-      anio_actual = anio_fin;
+    int anioActual = date.year;
+    if (anioActual + 1 > anioFin) {
+      anioActual = anioFin;
     }
-    for (var i = anio_inicio; i < anio_actual + 1; i++) {
+    for (var i = anioInicio; i < anioActual + 1; i++) {
       send.add(
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -409,8 +412,8 @@ class _WelcomeView extends State<Welcome> {
                       '/anio',
                       arguments: Anio(
                         anio: i,
-                        id_cliente: id_cliente,
-                        clave: clave_municipio,
+                        cliente: idCliente,
+                        clave: claveMunicipio,
                       ),
                     );
                   },
@@ -430,7 +433,7 @@ class _WelcomeView extends State<Welcome> {
         ),
       );
     }
-    for (var i = anio_actual + 1; i < anio_fin + 1; i++) {
+    for (var i = anioActual + 1; i < anioFin + 1; i++) {
       send.add(
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -465,19 +468,14 @@ class _WelcomeView extends State<Welcome> {
           ],
         ),
       );
-      
     }
-  }
-
-  void _showSecondPage(BuildContext context) {
-    _getListado();
   }
 
   List<Widget> listado(List<dynamic> info) {
     List<Widget> lista = [];
     info.forEach((elemento) {
-      int elemento_cliente = elemento['id_cliente'];
-      lista.add(Text("$elemento_cliente"));
+      int elementoCliente = elemento['id_cliente'];
+      lista.add(Text("$elementoCliente"));
     });
     return lista;
   }
@@ -520,7 +518,7 @@ class _WelcomeView extends State<Welcome> {
       ),
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://sistema.mrcorporativo.com/api/getCliente/$id_cliente";
+    url = "http://sistema.mrcorporativo.com/api/getCliente/$idCliente";
     try {
       final respuesta = await http.get(Uri.parse(url));
       if (respuesta.statusCode == 200) {
@@ -528,15 +526,15 @@ class _WelcomeView extends State<Welcome> {
           print(respuesta.body);
           final data = json.decode(respuesta.body);
           data.forEach((e) {
-            id_cliente = e['id_cliente'];
-            clave_municipio = e['clave'];
-            nombre_municipio = e['nombre_municipio'];
-            nombre_distrito = e['nombre_distrito'];
+            idCliente = e['id_cliente'];
+            claveMunicipio = e['clave'];
+            nombreMunicipio = e['nombre_municipio'];
+            nombreDistrito = e['nombre_distrito'];
             email = e['rfc'];
             direccion = e['direccion'];
             rfc = e['rfc'];
-            anio_inicio = int.parse(e['anio_inicio']);
-            anio_fin = int.parse(e['anio_fin']);
+            anioInicio = int.parse(e['anio_inicio']);
+            anioFin = int.parse(e['anio_fin']);
             logo = e['logo'];
           });
           _onRefresh();
@@ -580,13 +578,6 @@ class _WelcomeView extends State<Welcome> {
   Future<String> _returnValue(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final token = await prefs.getString("token");
-    print(token);
-    /*if (token != null) {
-      Navigator.pushReplacementNamed(context, '/inicio',
-          arguments: Welcome(
-            id_cliente: 1,
-          ));
-    }*/
     return token;
   }
 }

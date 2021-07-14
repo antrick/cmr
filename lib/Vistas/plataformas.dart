@@ -1,11 +1,8 @@
-import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Vistas/anio.dart';
 import 'package:flutter_app/Vistas/login.dart';
-import 'package:flutter_app/Vistas/obra_admin.dart';
-import 'package:flutter_app/Vistas/obra_contrato.dart';
 import 'package:flutter_app/Vistas/obra_publica.dart';
 import 'package:flutter_app/Vistas/principal.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -31,52 +28,52 @@ class Plataformas extends StatefulWidget with WidgetsBindingObserver {
   final TargetPlatform platform;
   @override
   _PlataformasView createState() => _PlataformasView();
-  int id_cliente;
-  int anio;
-  int clave;
-  bool prodimb;
-  bool gib;
-  List<int> id_obras_list;
-  List<String> nombre_obras_list;
+  final int cliente;
+  final int anio;
+  final int clave;
+  final bool prodimb;
+  final bool gib;
+  final List<int> idObrasList;
+  final List<String> nombreObrasList;
   Plataformas({
     Key key,
-    this.id_cliente,
+    this.cliente,
     this.platform,
     this.anio,
     this.clave,
     this.gib,
     this.prodimb,
-    this.id_obras_list,
-    this.nombre_obras_list,
+    this.idObrasList,
+    this.nombreObrasList,
   }) : super(key: key);
 }
 
 class _PlataformasView extends State<Plataformas> {
-  String fecha_integracion = '';
-  String fecha_priorizacion = '';
-  String fecha_adendum = '';
+  String fechaIntegracion = '';
+  String fechaPriorizacion = '';
+  String fechaAdendum = '';
   String url;
   bool inicio = false;
-  int id_cliente;
+  int idCliente;
   int anio;
-  List<Widget> lista_obras = [];
+  List<Widget> listaObras = [];
   List<Widget> send = [];
-  int firma_electronica;
+  int firmaElectronica;
   int convenio;
   int validado;
   int revisado;
   bool prodim;
   bool gi;
-  int clave_municipio;
+  int claveMunicipio;
   List<Widget> gastos = [];
   List<Widget> mids = [];
   List<Widget> sisplade = [];
   List<Widget> rft = [];
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
-  List<Object> _documents = [];
-  List<int> list_id_obras = [];
-  List<String> list_nombre_obras = [];
+
+  List<int> listIdObras = [];
+  List<String> listNombreObras = [];
 
   //DOWNLOAD ARCHIVOS
   List<_TaskInfo> _tasks;
@@ -106,14 +103,14 @@ class _PlataformasView extends State<Plataformas> {
   @override
   Widget build(BuildContext context) {
     final Plataformas args = ModalRoute.of(context).settings.arguments;
-    id_cliente = args.id_cliente;
+    idCliente = args.cliente;
     anio = args.anio;
     prodim = args.prodimb;
     gi = args.gib;
-    clave_municipio = args.clave;
-    list_id_obras = args.id_obras_list;
-    list_nombre_obras = args.nombre_obras_list;
-    if (!listObras.isEmpty && inicio) {
+    claveMunicipio = args.clave;
+    listIdObras = args.idObrasList;
+    listNombreObras = args.nombreObrasList;
+    if (listObras.isNotEmpty && inicio) {
       _options();
     }
     if (send.isEmpty && !inicio) {
@@ -138,41 +135,6 @@ class _PlataformasView extends State<Plataformas> {
                     : _buildNoPermissionWarning()),
       ),
     );
-    /*Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage("images/Fondo03.png"),
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: NestedScrollView(
-              // Setting floatHeaderSlivers to true is required in order to float
-              // the outer slivers over the inner scrollable.
-              floatHeaderSlivers: false,
-              headerSliverBuilder:
-                  (BuildContext context, bool innerBoxIsScrolled) {
-                return <Widget>[
-                  SliverAppBar(
-                    toolbarHeight: 1,
-                    title: const Text(''),
-                    floating: false,
-                    centerTitle: true,
-                    forceElevated: innerBoxIsScrolled,
-                    backgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
-                  ),
-                ];
-              },
-              body: SmartRefresher(
-                enablePullDown: false,
-                enablePullUp: false,
-                controller: _refreshController,
-                child: ListView.builder(
-                  itemBuilder: (c, i) => send[i],
-                  itemCount: send.length,
-                ),
-              ), //menu(context), //menu(context),
-            ),
-          )*/
   }
 
   void _options() {
@@ -226,32 +188,6 @@ class _PlataformasView extends State<Plataformas> {
         height: 30,
       ),
     );
-    /*send.add(
-      DownloadItem(
-        data: _items[0],
-        onItemClick: (task) {
-          _openDownloadedFile(task).then((success) {
-            if (!success) {
-              Scaffold.of(context).showSnackBar(
-                  SnackBar(content: Text('Cannot open this file')));
-            }
-          });
-        },
-        onActionClick: (task) {
-          if (task.status == DownloadTaskStatus.undefined) {
-            _requestDownload(task);
-          } else if (task.status == DownloadTaskStatus.running) {
-            _pauseDownload(task);
-          } else if (task.status == DownloadTaskStatus.paused) {
-            _resumeDownload(task);
-          } else if (task.status == DownloadTaskStatus.complete) {
-            _delete(task);
-          } else if (task.status == DownloadTaskStatus.failed) {
-            _retryDownload(task);
-          }
-        },
-      ),
-    );*/
     send.add(
       Center(
         child: Padding(
@@ -401,7 +337,7 @@ class _PlataformasView extends State<Plataformas> {
                             /*Text((category['nombre_obra'] != null)
                                 ? category['nombre_obra']
                                 : ''),*/
-                            cards_listado(
+                            cardsListado(
                                 context,
                                 i['nombre'],
                                 i['primero'],
@@ -522,8 +458,28 @@ class _PlataformasView extends State<Plataformas> {
                       onItemClick: (task) {
                         _openDownloadedFile(task).then((success) {
                           if (!success) {
-                            Scaffold.of(context).showSnackBar(SnackBar(
-                                content: Text('Cannot open this file')));
+                            EasyLoading.instance
+                              ..displayDuration =
+                                  const Duration(milliseconds: 2000)
+                              ..indicatorType =
+                                  EasyLoadingIndicatorType.fadingCircle
+                              ..loadingStyle = EasyLoadingStyle.dark
+                              ..indicatorSize = 45.0
+                              ..radius = 10.0
+                              ..progressColor = Colors.white
+                              ..backgroundColor = Colors.red[900]
+                              ..indicatorColor = Colors.white
+                              ..textColor = Colors.white
+                              ..maskColor = Colors.black.withOpacity(0.88)
+                              ..userInteractions = false
+                              ..dismissOnTap = true;
+                            EasyLoading.dismiss();
+                            EasyLoading.instance.loadingStyle =
+                                EasyLoadingStyle.custom;
+                            EasyLoading.showError(
+                              'No se puede abrir este archivo.',
+                              maskType: EasyLoadingMaskType.custom,
+                            );
                           }
                         });
                       },
@@ -553,15 +509,15 @@ class _PlataformasView extends State<Plataformas> {
                         top: 10, left: 10, right: 10, bottom: 8),
                     titlePadding:
                         EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
-                    titleChild: cards_comprometido_prodim(
-                        context, 'Comprometido', firma_electronica),
+                    titleChild: cardsComprometidoProdim(
+                        context, 'Comprometido', firmaElectronica),
                     expandedTitleBackgroundColor: Colors.transparent,
                     collapsedTitleBackgroundColor: Colors.transparent,
                     contentBackgroundColor: Color.fromRGBO(204, 204, 204, 0.3),
                     titleBorderRadius: BorderRadius.circular(6),
                     contentChild: Container(
                       child: Column(
-                        children: lista_obras,
+                        children: listaObras,
                       ),
                     ),
                     collapsedIcon: Icon(
@@ -574,10 +530,10 @@ class _PlataformasView extends State<Plataformas> {
                     ),
                   ),
                 ),
-                cards_prodim(context, 'Presentado', firma_electronica),
-                cards_prodim(context, 'Revisado', revisado),
-                cards_prodim(context, 'Aprobado', validado),
-                cards_prodim(context, 'Firma de convenio', convenio),
+                cardProdim(context, 'Presentado', firmaElectronica),
+                cardProdim(context, 'Revisado', revisado),
+                cardProdim(context, 'Aprobado', validado),
+                cardProdim(context, 'Firma de convenio', convenio),
               ],
             ),
           ),
@@ -648,7 +604,7 @@ class _PlataformasView extends State<Plataformas> {
           Navigator.of(context).pushNamedAndRemoveUntil(
               '/inicio', (Route<dynamic> route) => false,
               arguments: Welcome(
-                id_cliente: id_cliente,
+                cliente: idCliente,
               ));
           return false;
         }
@@ -658,8 +614,8 @@ class _PlataformasView extends State<Plataformas> {
             '/anio',
             arguments: Anio(
               anio: anio,
-              id_cliente: id_cliente,
-              clave: clave_municipio,
+              cliente: idCliente,
+              clave: claveMunicipio,
             ),
           );
           return false;
@@ -671,194 +627,97 @@ class _PlataformasView extends State<Plataformas> {
 
   void _showAlertDialog() {
     showDialog(
-      context: context,
-      builder: (buildcontext) {
-        return AlertDialog(
-          title: Text(
-            "¿Está seguro de que desea salir?",
-            style: TextStyle(
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-              fontWeight: FontWeight.w500,
-              fontSize: 17,
-            ),
-          ),
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-            side: BorderSide(
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-            ),
-          ),
-          actions: <Widget>[
-            RaisedButton(
-              child: Text(
-                "ACEPTAR",
-                style: TextStyle(
-                  color: Color.fromRGBO(9, 46, 116, 1.0),
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
+        context: context,
+        builder: (buildcontext) {
+          return AlertDialog(
+            title: Text(
+              "¿Está seguro de que desea salir?",
+              style: TextStyle(
+                color: Color.fromRGBO(9, 46, 116, 1.0),
+                fontWeight: FontWeight.w500,
+                fontSize: 17,
               ),
-              color: Colors.transparent,
-              elevation: 0,
-              highlightColor: Colors.transparent,
-              highlightElevation: 0,
-              onPressed: () {
-                Navigator.of(context).pop();
-                _saveValue(null);
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  PageTransition(
-                    alignment: Alignment.bottomCenter,
-                    curve: Curves.easeInOut,
-                    duration: Duration(milliseconds: 1000),
-                    reverseDuration: Duration(milliseconds: 1000),
-                    type: PageTransitionType.rightToLeftJoined,
-                    child: LoginForm(),
-                    childCurrent: new Container(),
+            ),
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+              side: BorderSide(
+                color: Color.fromRGBO(9, 46, 116, 1.0),
+              ),
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                child: Text(
+                  "ACEPTAR",
+                  style: TextStyle(
+                    color: Color.fromRGBO(9, 46, 116, 1.0),
+                    fontWeight: FontWeight.w500,
                   ),
-                  (Route<dynamic> route) => false,
-                );
-              },
-            ),
-            RaisedButton(
-              child: Text(
-                "CERRAR",
-                style: TextStyle(
-                  color: Color.fromRGBO(9, 46, 116, 1.0),
-                  fontWeight: FontWeight.w500,
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.transparent,
+                  elevation: 0,
+                ),
+                /*color: Colors.transparent,
+                elevation: 0,
+                highlightColor: Colors.transparent,
+                highlightElevation: 0,*/
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _saveValue(null);
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    PageTransition(
+                      alignment: Alignment.bottomCenter,
+                      curve: Curves.easeInOut,
+                      duration: Duration(milliseconds: 1000),
+                      reverseDuration: Duration(milliseconds: 1000),
+                      type: PageTransitionType.rightToLeftJoined,
+                      child: LoginForm(),
+                      childCurrent: new Container(),
+                    ),
+                    (Route<dynamic> route) => false,
+                  );
+                },
               ),
-              color: Colors.transparent,
-              elevation: 0,
-              highlightColor: Colors.transparent,
-              highlightElevation: 0,
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            )
-          ],
-        );
-      },
-    );
+              ElevatedButton(
+                child: Text(
+                  "CANCELAR",
+                  style: TextStyle(
+                    color: Color.fromRGBO(9, 46, 116, 1.0),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.transparent,
+                  elevation: 0,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        });
   }
 
-  /*Widget _menuInferior(BuildContext context) {
-    return ConvexAppBar(
-      backgroundColor: Color.fromRGBO(9, 46, 116, 1.0),
-      style: TabStyle.react,
-      disableDefaultTabController: false,
-      items: [
-        TabItem(
-          icon: CupertinoIcons.house,
-          title: 'Inio',
-          activeIcon: Padding(
-            padding: EdgeInsets.only(bottom: 100),
-            child: Icon(
-              CupertinoIcons.house,
-              color: Colors.white,
-              size: 30,
-            ),
-          ),
-        ),
-        TabItem(
-          icon: CupertinoIcons.calendar,
-          title: 'Ejercicio $anio',
-          activeIcon: Padding(
-            padding: EdgeInsets.only(bottom: 1000),
-            child: Icon(
-              CupertinoIcons.calendar,
-              color: Colors.white,
-              size: 30,
-            ),
-          ),
-        ),
-        TabItem(
-          icon: CupertinoIcons.device_laptop,
-          title: 'Plataformas',
-          activeIcon: Padding(
-            padding: EdgeInsets.only(bottom: 1000),
-            child: Icon(
-              CupertinoIcons.device_laptop,
-              color: Colors.white,
-              size: 30,
-            ),
-          ),
-        ),
-        TabItem(
-          icon: CupertinoIcons.square_arrow_left,
-          title: 'Cerrar Sesión ',
-          activeIcon: Padding(
-            padding: EdgeInsets.only(bottom: 1000),
-            child: Icon(
-              CupertinoIcons.square_arrow_left,
-              color: Colors.white,
-              size: 30,
-            ),
-          ),
-        ),
-      ],
-
-      initialActiveIndex: 2, //optional, default as 0
-      onTap: (int i) {
-        if (i == 0) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-              '/inicio', (Route<dynamic> route) => false,
-              arguments: Welcome(
-                id_cliente: id_cliente,
-              ));
-        }
-        if (i == 1) {
-          Navigator.pushNamed(
-            context,
-            '/anio',
-            arguments: Anio(
-              anio: anio,
-              id_cliente: id_cliente,
-              clave: clave_municipio,
-            ),
-          );
-        }
-        if (i == 3) {
-          _saveValue(null);
-          Navigator.pushAndRemoveUntil(
-            context,
-            PageTransition(
-              alignment: Alignment.bottomCenter,
-              curve: Curves.easeInOut,
-              duration: Duration(milliseconds: 1000),
-              reverseDuration: Duration(milliseconds: 1000),
-              type: PageTransitionType.rightToLeftJoined,
-              child: LoginForm(),
-              childCurrent: new Container(),
-            ),
-            (Route<dynamic> route) => false,
-          );
-        }
-      },
-    );
-  }*/
-
-  Widget cards_prodim(BuildContext context, nombre, estado) {
-    IconData estado_icon;
+  Widget cardProdim(BuildContext context, nombre, estado) {
+    IconData estadoIcon;
     Color color;
-    Color color_barra;
     if (estado == 1) {
-      estado_icon = Icons.check_circle_rounded;
+      estadoIcon = Icons.check_circle_rounded;
       color = Colors.blue;
-      color_barra = const Color.fromRGBO(9, 46, 116, 1.0);
     }
     if (estado == 2) {
-      estado_icon = Icons.cancel /*check_circle_rounded*/;
+      estadoIcon = Icons.cancel /*check_circle_rounded*/;
       color = Colors.red;
-      color_barra = const Color.fromRGBO(9, 46, 116, 1.0);
     }
 
     if (estado == 3) {
-      estado_icon = Icons.remove_circle;
+      estadoIcon = Icons.remove_circle;
       color = Colors.yellow;
-      color_barra = Colors.grey[500];
     }
     return Container(
       height: 65,
@@ -900,7 +759,7 @@ class _PlataformasView extends State<Plataformas> {
             Expanded(
               flex: 1,
               child: Icon(
-                estado_icon,
+                estadoIcon,
                 color: color,
               ),
             ),
@@ -910,7 +769,7 @@ class _PlataformasView extends State<Plataformas> {
     );
   }
 
-  Widget cards_listado(
+  Widget cardsListado(
       BuildContext context,
       nombre,
       primero,
@@ -918,33 +777,33 @@ class _PlataformasView extends State<Plataformas> {
       tercero,
       cuarto,
       planeado,
-      fecha_planeado,
+      fechaPlaneado,
       validado,
-      fecha_validado,
+      fechaValidado,
       firmado,
-      fecha_firmado,
-      id_obra,
+      fechaFirmado,
+      idObra,
       index) {
-    String estado_mid;
-    String estado_rft;
-    if (planeado == 0) estado_mid = "Sin información";
-    if (planeado == 1 || validado == 1) estado_mid = "En proceso";
-    if (firmado == 1) estado_mid = "Presentado";
-    if (primero == 0) estado_rft = "Sin información";
-    if (primero > 0) estado_rft = "En proceso";
-    if (primero == 100) estado_rft = "Presentado";
-    if (segundo > 0) estado_rft = "En proceso";
-    if (segundo == 100) estado_rft = "Presentadoo";
-    if (tercero > 0) estado_rft = "En proceso";
-    if (tercero == 100) estado_rft = "Presentadoo";
-    if (cuarto > 0) estado_rft = "En proceso";
-    if (cuarto == 100) estado_rft = "Presentado";
-    int index_mids = (index * 2) - 2;
-    int index_rft = (index * 2) - 1;
-    bool mid_final = false;
-    bool rft_final = false;
-    if (estado_mid == "Presentado") mid_final = true;
-    if (estado_rft == "Presentado") rft_final = true;
+    String estadoMid;
+    String estadoRft;
+    if (planeado == 0) estadoMid = "Sin información";
+    if (planeado == 1 || validado == 1) estadoMid = "En proceso";
+    if (firmado == 1) estadoMid = "Presentado";
+    if (primero == 0) estadoRft = "Sin información";
+    if (primero > 0) estadoRft = "En proceso";
+    if (primero == 100) estadoRft = "Presentado";
+    if (segundo > 0) estadoRft = "En proceso";
+    if (segundo == 100) estadoRft = "Presentadoo";
+    if (tercero > 0) estadoRft = "En proceso";
+    if (tercero == 100) estadoRft = "Presentadoo";
+    if (cuarto > 0) estadoRft = "En proceso";
+    if (cuarto == 100) estadoRft = "Presentado";
+    int indexMids = (index * 2) - 2;
+    int indexRft = (index * 2) - 1;
+    bool midFinal = false;
+    bool rftFinal = false;
+    if (estadoMid == "Presentado") midFinal = true;
+    if (estadoRft == "Presentado") rftFinal = true;
 
     return Container(
       child: GFAccordion(
@@ -954,7 +813,7 @@ class _PlataformasView extends State<Plataformas> {
         ),
         margin: EdgeInsets.only(top: 10, left: 10, right: 10),
         titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
-        titleChild: cards_comprometido(context, nombre, estado_mid, estado_rft),
+        titleChild: cardsComprometido(context, nombre, estadoMid, estadoRft),
         expandedTitleBackgroundColor: Colors.transparent,
         collapsedTitleBackgroundColor: Colors.transparent,
         contentBackgroundColor: Color.fromRGBO(204, 204, 204, 0.3),
@@ -977,17 +836,37 @@ class _PlataformasView extends State<Plataformas> {
                 ),
               ),
             ),
-            mid_final
+            midFinal
                 ? Column(children: [
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: DownloadItem(
-                        data: _items[index_mids],
+                        data: _items[indexMids],
                         onItemClick: (task) {
                           _openDownloadedFile(task).then((success) {
                             if (!success) {
-                              Scaffold.of(context).showSnackBar(SnackBar(
-                                  content: Text('Cannot open this file')));
+                              EasyLoading.instance
+                                ..displayDuration =
+                                    const Duration(milliseconds: 2000)
+                                ..indicatorType =
+                                    EasyLoadingIndicatorType.fadingCircle
+                                ..loadingStyle = EasyLoadingStyle.dark
+                                ..indicatorSize = 45.0
+                                ..radius = 10.0
+                                ..progressColor = Colors.white
+                                ..backgroundColor = Colors.red[900]
+                                ..indicatorColor = Colors.white
+                                ..textColor = Colors.white
+                                ..maskColor = Colors.black.withOpacity(0.88)
+                                ..userInteractions = false
+                                ..dismissOnTap = true;
+                              EasyLoading.dismiss();
+                              EasyLoading.instance.loadingStyle =
+                                  EasyLoadingStyle.custom;
+                              EasyLoading.showError(
+                                'No se puede abrir este archivo.',
+                                maskType: EasyLoadingMaskType.custom,
+                              );
                             }
                           });
                         },
@@ -1010,9 +889,9 @@ class _PlataformasView extends State<Plataformas> {
                     ),
                   ])
                 : new Container(),
-            cards(context, "Planeado", fecha_planeado, planeado, 50.0),
-            cards(context, "Validado", fecha_validado, validado, 50.0),
-            cards(context, "Firmado", fecha_firmado, firmado, 50.0),
+            cards(context, "Planeado", fechaPlaneado, planeado, 50.0),
+            cards(context, "Validado", fechaValidado, validado, 50.0),
+            cards(context, "Firmado", fechaFirmado, firmado, 50.0),
             SizedBox(
               height: 20,
             ),
@@ -1031,17 +910,37 @@ class _PlataformasView extends State<Plataformas> {
                 ),
               ),
             ),
-            rft_final
+            rftFinal
                 ? Column(children: [
                     Padding(
                       padding: const EdgeInsets.only(bottom: 0),
                       child: DownloadItem(
-                        data: _items[index_rft],
+                        data: _items[indexRft],
                         onItemClick: (task) {
                           _openDownloadedFile(task).then((success) {
                             if (!success) {
-                              Scaffold.of(context).showSnackBar(SnackBar(
-                                  content: Text('Cannot open this file')));
+                              EasyLoading.instance
+                                ..displayDuration =
+                                    const Duration(milliseconds: 2000)
+                                ..indicatorType =
+                                    EasyLoadingIndicatorType.fadingCircle
+                                ..loadingStyle = EasyLoadingStyle.dark
+                                ..indicatorSize = 45.0
+                                ..radius = 10.0
+                                ..progressColor = Colors.white
+                                ..backgroundColor = Colors.red[900]
+                                ..indicatorColor = Colors.white
+                                ..textColor = Colors.white
+                                ..maskColor = Colors.black.withOpacity(0.88)
+                                ..userInteractions = false
+                                ..dismissOnTap = true;
+                              EasyLoading.dismiss();
+                              EasyLoading.instance.loadingStyle =
+                                  EasyLoadingStyle.custom;
+                              EasyLoading.showError(
+                                'No se puede abrir este archivo.',
+                                maskType: EasyLoadingMaskType.custom,
+                              );
                             }
                           });
                         },
@@ -1079,7 +978,7 @@ class _PlataformasView extends State<Plataformas> {
                 ),
               ),
             ),
-            cards__rft(context, primero, segundo, tercero, cuarto),
+            cardsRft(context, primero, segundo, tercero, cuarto),
           ]),
         ),
         collapsedIcon: Icon(
@@ -1094,7 +993,7 @@ class _PlataformasView extends State<Plataformas> {
     );
   }
 
-  Widget cards_listado_prodim(BuildContext context, nombre, monto) {
+  Widget cardsListadoProdim(BuildContext context, nombre, monto) {
     return Container(
       height: 60,
       child: InkWell(
@@ -1152,7 +1051,7 @@ class _PlataformasView extends State<Plataformas> {
     );
   }
 
-  Widget cards_desglose(BuildContext context, nombre, monto) {
+  Widget cardsDesglose(BuildContext context, nombre, monto) {
     return Container(
       height: 65,
       child: Card(
@@ -1206,11 +1105,8 @@ class _PlataformasView extends State<Plataformas> {
     return true;
   }
 
-  Widget cards_comprometido(
-      BuildContext context, nombre, estado_mids, estado_rft) {
-    IconData estado_icon;
-    Color color;
-    Color color_barra = const Color.fromRGBO(9, 46, 116, 1.0);
+  Widget cardsComprometido(
+      BuildContext context, nombre, estadoMids, estadoRft) {
     return Container(
       height: 65,
       child: Card(
@@ -1248,7 +1144,7 @@ class _PlataformasView extends State<Plataformas> {
               child: Padding(
                 padding: EdgeInsets.all(10.0),
                 child: Text(
-                  estado_mids,
+                  estadoMids,
                   style: TextStyle(
                     color: const Color.fromRGBO(9, 46, 116, 1.0),
                     fontWeight: FontWeight.w400,
@@ -1263,7 +1159,7 @@ class _PlataformasView extends State<Plataformas> {
               child: Padding(
                 padding: EdgeInsets.all(10.0),
                 child: Text(
-                  estado_rft,
+                  estadoRft,
                   style: TextStyle(
                     color: const Color.fromRGBO(9, 46, 116, 1.0),
                     fontWeight: FontWeight.w400,
@@ -1279,25 +1175,21 @@ class _PlataformasView extends State<Plataformas> {
     );
   }
 
-  Widget cards_comprometido_prodim(BuildContext context, nombre, estado) {
-    IconData estado_icon;
+  Widget cardsComprometidoProdim(BuildContext context, nombre, estado) {
+    IconData estadoIcon;
     Color color;
-    Color color_barra;
     if (estado == 1) {
-      estado_icon = Icons.check_circle_rounded;
+      estadoIcon = Icons.check_circle_rounded;
       color = Colors.blue;
-      color_barra = const Color.fromRGBO(9, 46, 116, 1.0);
     }
     if (estado == 2) {
-      estado_icon = Icons.cancel /*check_circle_rounded*/;
+      estadoIcon = Icons.cancel /*check_circle_rounded*/;
       color = Colors.red;
-      color_barra = const Color.fromRGBO(9, 46, 116, 1.0);
     }
 
     if (estado == 3) {
-      estado_icon = Icons.remove_circle;
+      estadoIcon = Icons.remove_circle;
       color = Colors.yellow;
-      color_barra = Colors.grey[500];
     }
     return Container(
       height: 55,
@@ -1336,7 +1228,7 @@ class _PlataformasView extends State<Plataformas> {
             Expanded(
               flex: 1,
               child: Icon(
-                estado_icon,
+                estadoIcon,
                 color: color,
               ),
             ),
@@ -1347,26 +1239,23 @@ class _PlataformasView extends State<Plataformas> {
   }
 
   Widget cards(BuildContext context, nombre, fecha, estado, tamanio) {
-    IconData estado_icon;
+    IconData estadoIcon;
     Color color;
-    Color color_barra;
+
     int estado_1 = estado.toInt();
 
     if (estado_1 == 1) {
-      estado_icon = Icons.check_circle_rounded;
+      estadoIcon = Icons.check_circle_rounded;
       color = Colors.blue;
-      color_barra = const Color.fromRGBO(9, 46, 116, 1.0);
     }
     if (estado_1 == 2) {
-      estado_icon = Icons.cancel /*check_circle_rounded*/;
+      estadoIcon = Icons.cancel /*check_circle_rounded*/;
       color = Colors.red;
-      color_barra = const Color.fromRGBO(9, 46, 116, 1.0);
     }
 
     if (estado_1 == 3) {
-      estado_icon = Icons.remove_circle;
+      estadoIcon = Icons.remove_circle;
       color = Colors.yellow;
-      color_barra = Colors.grey[500];
     }
 
     return Container(
@@ -1420,7 +1309,7 @@ class _PlataformasView extends State<Plataformas> {
             Expanded(
               flex: 1,
               child: Icon(
-                estado_icon,
+                estadoIcon,
                 color: color,
               ),
             ),
@@ -1430,10 +1319,7 @@ class _PlataformasView extends State<Plataformas> {
     );
   }
 
-  Widget cards__rft(BuildContext context, primero, segundo, tercero, cuarto) {
-    IconData estado_icon;
-    Color color;
-    Color color_barra = const Color.fromRGBO(9, 46, 116, 1.0);
+  Widget cardsRft(BuildContext context, primero, segundo, tercero, cuarto) {
     return Container(
       height: 100,
       child: Card(
@@ -1598,15 +1484,11 @@ class _PlataformasView extends State<Plataformas> {
     );
   }
 
-  void _showSecondPage(BuildContext context) {
-    _getListado(context);
-  }
-
   List<Widget> listado(List<dynamic> info) {
     List<Widget> lista = [];
     info.forEach((elemento) {
-      int elemento_cliente = elemento['id_cliente'];
-      lista.add(Text("$elemento_cliente"));
+      int elementoCliente = elemento['id_cliente'];
+      lista.add(Text("$elementoCliente"));
     });
     return lista;
   }
@@ -1653,7 +1535,7 @@ class _PlataformasView extends State<Plataformas> {
       ),
       maskType: EasyLoadingMaskType.custom,
     );
-    url = "http://sistema.mrcorporativo.com/api/getRFT/$id_cliente,$anio";
+    url = "http://sistema.mrcorporativo.com/api/getRFT/$idCliente,$anio";
     try {
       final respuesta = await http.get(Uri.parse(url));
       //final tasks = await FlutterDownloader.loadTasks();
@@ -1662,7 +1544,6 @@ class _PlataformasView extends State<Plataformas> {
         await _prepareSaveDir();
       }
       if (respuesta.statusCode == 200) {
-        bool resp = respuesta.body == "";
         if (respuesta.body != "") {
           final data = json.decode(respuesta.body);
           data.forEach(
@@ -1683,44 +1564,7 @@ class _PlataformasView extends State<Plataformas> {
 
               final comprometido = json.encode(e['rft']);
               dynamic comprometido_1 = json.decode(comprometido);
-              /**/
 
-              /*_tasks = [];
-              int cont = 0;
-              comprometido_1.forEach((i) {
-                int id_obra = i["id_obra"];
-                print(id_obra);
-                _tasks.add(
-                  _TaskInfo(
-                      name: i['nombre_obra'],
-                      posicion: id_obra,
-                      link:
-                          'http://sistema.mrcorporativo.com/archivos/$clave_municipio/$anio/obras/$id_obra/mids-$id_obra.pdf'),
-                );
-              });
-
-              int count = 0;
-              for (int i = count; i < _tasks.length; i++) {
-                _items.add(_ItemHolder(
-                    name: _tasks[i].name,
-                    posicion: _tasks[i].posicion,
-                    task: _tasks[i]));
-                count++;
-              }
-
-              tasks.forEach((task) {
-                for (_TaskInfo info in _tasks) {
-                  if (info.link == task.url) {
-                    info.taskId = task.taskId;
-                    info.status = task.status;
-                    info.progress = task.progress;
-                  }
-                }
-              });
-
-              setState(() {
-                _isLoading = false;
-              });*/
               int cont = 1;
 
               comprometido_1.forEach(
@@ -1749,7 +1593,7 @@ class _PlataformasView extends State<Plataformas> {
               dynamic prodim_1 = json.decode(prodim);
 
               prodim_1.forEach((i) {
-                firma_electronica = i['firma_electronica'];
+                firmaElectronica = i['firma_electronica'];
                 revisado = i['revisado'];
                 validado = i['validado'];
                 convenio = i['convenio'];
@@ -1760,14 +1604,14 @@ class _PlataformasView extends State<Plataformas> {
 
               comprometido_3.forEach(
                 (i) {
-                  lista_obras.add(cards_listado_prodim(context, i['nombre'],
+                  listaObras.add(cardsListadoProdim(context, i['nombre'],
                       numberFormat(i['monto'].toDouble())));
                   final desglose = json.encode(e['desglose']);
                   dynamic desglose_1 = json.decode(desglose);
                   desglose_1.forEach(
                     (a) {
                       if (i['nombre'] == a['nombre']) {
-                        lista_obras.add(cards_desglose(context, a['concepto'],
+                        listaObras.add(cardsDesglose(context, a['concepto'],
                             numberFormat(a['monto'].toDouble())));
                       }
                     },
@@ -1775,12 +1619,12 @@ class _PlataformasView extends State<Plataformas> {
                 },
               );
 
-              final gastos_indirectos = json.encode(e['gastos']);
-              dynamic indirectos_1 = json.decode(gastos_indirectos);
+              final gastosIndirectos = json.encode(e['gastos']);
+              dynamic indirectos_1 = json.decode(gastosIndirectos);
 
               indirectos_1.forEach((i) {
                 gastos.add(
-                  cards_listado_prodim(
+                  cardsListadoProdim(
                     context,
                     i['nombre'],
                     numberFormat(i['monto'].toDouble()),
@@ -1934,15 +1778,6 @@ class _PlataformasView extends State<Plataformas> {
             ),
           ), //menu(context), //menu(context),
         ),
-      ) /*,*/
-      ;
-  Widget _buildListSection(String title) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        child: Text(
-          title,
-          style: TextStyle(
-              fontWeight: FontWeight.bold, color: Colors.blue, fontSize: 17.0),
-        ),
       );
 
   Widget _buildNoPermissionWarning() => Container(
@@ -1962,17 +1797,22 @@ class _PlataformasView extends State<Plataformas> {
               SizedBox(
                 height: 25.0,
               ),
-              FlatButton(
-                  onPressed: () {
-                    _retryRequestPermission();
-                  },
-                  child: Text(
-                    'Retry',
-                    style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20.0),
-                  ))
+              ElevatedButton(
+                onPressed: () {
+                  _retryRequestPermission();
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.transparent,
+                  elevation: 0,
+                ),
+                child: Text(
+                  'Retry',
+                  style: TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20.0),
+                ),
+              ),
             ],
           ),
         ),
@@ -2004,9 +1844,9 @@ class _PlataformasView extends State<Plataformas> {
         openFileFromNotification: true);
   }
 
-  void _cancelDownload(_TaskInfo task) async {
+  /*void _cancelDownload(_TaskInfo task) async {
     await FlutterDownloader.cancel(taskId: task.taskId);
-  }
+  }*/
 
   void _pauseDownload(_TaskInfo task) async {
     await FlutterDownloader.pause(taskId: task.taskId);
@@ -2061,32 +1901,32 @@ class _PlataformasView extends State<Plataformas> {
     _items = [];
     _tasks = [];
     var _documents = [];
-    for (int i = 0; i < list_id_obras.length; i++) {
-      int id_obra = list_id_obras[i];
+    for (int i = 0; i < listIdObras.length; i++) {
+      int idObra = listIdObras[i];
       _documents.add(
         {
-          'name': list_nombre_obras[i],
-          'posicion': id_obra,
+          'name': listNombreObras[i],
+          'posicion': idObra,
           'link':
-              'http://sistema.mrcorporativo.com/archivos/$clave_municipio/$anio/obras/$id_obra/mids-$id_obra.pdf'
+              'http://sistema.mrcorporativo.com/archivos/$claveMunicipio/$anio/obras/$idObra/mids-$idObra.pdf'
         },
       );
       _documents.add(
         {
-          'name': list_nombre_obras[i],
-          'posicion': id_obra,
+          'name': listNombreObras[i],
+          'posicion': idObra,
           'link':
-              'http://sistema.mrcorporativo.com/archivos/$clave_municipio/$anio/obras/$id_obra/rft-$id_obra.pdf'
+              'http://sistema.mrcorporativo.com/archivos/$claveMunicipio/$anio/obras/$idObra/rft-$idObra.pdf'
         },
       );
     }
 
     _documents.add(
       {
-        'name': "Prodim $clave_municipio",
+        'name': "Prodim $claveMunicipio",
         'posicion': 19,
         'link':
-            'http://sistema.mrcorporativo.com/archivos/$clave_municipio/$anio/prodim-$clave_municipio.pdf'
+            'http://sistema.mrcorporativo.com/archivos/$claveMunicipio/$anio/prodim-$claveMunicipio.pdf'
       },
     );
 
