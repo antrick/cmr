@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/home',
+      initialRoute: '/',
       routes: {
         '/home': (context) => Animacion(),
         '/': (context) => LoginForm(),

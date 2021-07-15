@@ -344,12 +344,27 @@ class _ObrasContrato extends State<ObrasContrato> {
     send.add(
       Container(
         margin: EdgeInsets.only(left: 15, right: 15),
-        child: Text(
-          'Modalidad de ejecucion: Contrato',
-          style: TextStyle(
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-            fontWeight: FontWeight.w400,
-            fontSize: 17,
+        child: RichText(
+          text: new TextSpan(
+            children: [
+              new TextSpan(
+                text: 'Modalidad de ejecución: ',
+                style: new TextStyle(
+                  color: Color.fromRGBO(9, 46, 116, 1.0),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              new TextSpan(
+                text: 'Contrato',
+                style: new TextStyle(
+                  color: Color.fromRGBO(9, 46, 116, 1.0),
+                  decorationThickness: 2,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -357,12 +372,27 @@ class _ObrasContrato extends State<ObrasContrato> {
     send.add(
       Container(
         margin: EdgeInsets.only(left: 15, right: 15),
-        child: Text(
-          'Modalidad de asignación: $nModa',
-          style: TextStyle(
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-            fontWeight: FontWeight.w400,
-            fontSize: 17,
+        child: RichText(
+          text: new TextSpan(
+            children: [
+              new TextSpan(
+                text: 'Modalidad de asignación: ',
+                style: new TextStyle(
+                  color: Color.fromRGBO(9, 46, 116, 1.0),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              new TextSpan(
+                text: '$nModa',
+                style: new TextStyle(
+                  color: Color.fromRGBO(9, 46, 116, 1.0),
+                  decorationThickness: 2,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -390,25 +420,28 @@ class _ObrasContrato extends State<ObrasContrato> {
     send.add(
       Container(
         margin: EdgeInsets.only(left: 15, right: 15),
-        child: Row(
-          children: [
-            Text(
-              'Razón Social: ',
-              style: TextStyle(
-                color: Color.fromRGBO(9, 46, 116, 1.0),
-                fontWeight: FontWeight.w400,
-                fontSize: 17,
+        child: RichText(
+          text: new TextSpan(
+            children: [
+              new TextSpan(
+                text: 'Razón Social: ',
+                style: new TextStyle(
+                  color: Color.fromRGBO(9, 46, 116, 1.0),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
-            ),
-            Text(
-              '$nombreContratista',
-              style: TextStyle(
-                color: Color.fromRGBO(9, 46, 116, 1.0),
-                fontWeight: FontWeight.w700,
-                fontSize: 17,
+              new TextSpan(
+                text: '$nombreContratista',
+                style: new TextStyle(
+                  color: Color.fromRGBO(9, 46, 116, 1.0),
+                  decorationThickness: 2,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -416,25 +449,28 @@ class _ObrasContrato extends State<ObrasContrato> {
     send.add(
       Container(
         margin: EdgeInsets.only(left: 15, right: 15),
-        child: Row(
-          children: [
-            Text(
-              'RFC: ',
-              style: TextStyle(
-                color: Color.fromRGBO(9, 46, 116, 1.0),
-                fontWeight: FontWeight.w400,
-                fontSize: 17,
+        child: RichText(
+          text: new TextSpan(
+            children: [
+              new TextSpan(
+                text: 'RFC: ',
+                style: new TextStyle(
+                  color: Color.fromRGBO(9, 46, 116, 1.0),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
-            ),
-            Text(
-              '$rfcContratista',
-              style: TextStyle(
-                color: Color.fromRGBO(9, 46, 116, 1.0),
-                fontWeight: FontWeight.w700,
-                fontSize: 17,
+              new TextSpan(
+                text: '$rfcContratista',
+                style: new TextStyle(
+                  color: Color.fromRGBO(9, 46, 116, 1.0),
+                  decorationThickness: 2,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
