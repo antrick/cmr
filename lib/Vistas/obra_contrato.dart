@@ -1,14 +1,15 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Vistas/anio.dart';
 import 'package:flutter_app/Vistas/expediente_contrato.dart';
 import 'package:flutter_app/Vistas/login.dart';
-import 'package:flutter_app/Vistas/obra_publica.dart';
 import 'package:flutter_app/Vistas/principal.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:getwidget/components/accordian/gf_accordian.dart';
+import 'package:ndialog/ndialog.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -16,15 +17,14 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'dart:isolate';
 import 'dart:ui';
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:timelines/timelines.dart';
 
 const completeColor = const Color.fromRGBO(9, 46, 116, 1.0);
@@ -43,6 +43,7 @@ class ObrasContrato extends StatefulWidget with WidgetsBindingObserver {
   final String nombre;
   final String nombreArchivo;
   final int archivos;
+  final String path;
   ObrasContrato({
     Key key,
     this.idObra,
@@ -53,6 +54,7 @@ class ObrasContrato extends StatefulWidget with WidgetsBindingObserver {
     this.nombre,
     this.nombreArchivo,
     this.archivos,
+    this.path,
   }) : super(key: key);
 }
 
@@ -75,7 +77,7 @@ class _ObrasContrato extends State<ObrasContrato> {
   bool inicio = false;
   int idCliente;
   int anio;
-  int modalidad = 2;
+  int modalidad = 1;
   int idObra;
   List<Widget> listaObras = [];
   List<Widget> send = [];
@@ -101,13 +103,6 @@ class _ObrasContrato extends State<ObrasContrato> {
   String nombreContratista;
   String fechaActualizacion;
 
-  //DOWNLOAD ARCHIVOS
-  List<_TaskInfo> _tasks;
-  List<_ItemHolder> _items;
-  bool _isLoading;
-  bool _permissionReady;
-  String _localPath;
-  ReceivePort _port = ReceivePort();
   Widget anticipoProceso;
   bool anticipoFin = false;
   Widget anticipoFechas;
@@ -121,6 +116,16 @@ class _ObrasContrato extends State<ObrasContrato> {
 
   int _processIndex = 2;
   var _nombreProceso = [];
+
+  //Variables descargar archivos
+  bool isLoading;
+  bool _allowWriteFile = false;
+  String ruta;
+
+  String progress = "";
+  Dio dio;
+  Course s;
+  String _localPath;
 
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
@@ -151,6 +156,7 @@ class _ObrasContrato extends State<ObrasContrato> {
     nombreCorto = args.nombre;
     nombreArchivo = args.nombreArchivo;
     archivos = args.archivos;
+    _localPath = args.path;
     /*_getListado(context);*/
     if (inicio) {
       _options();
@@ -167,14 +173,41 @@ class _ObrasContrato extends State<ObrasContrato> {
           title: Text("EXPEDIENTE TÉCNICO"),
         ),
         bottomNavigationBar: _menuInferior(context),
-        body: Builder(
-            builder: (context) => _isLoading
-                ? new Center(
-                    child: new CircularProgressIndicator(),
-                  )
-                : _permissionReady
-                    ? _buildDownloadList()
-                    : _buildNoPermissionWarning()),
+        body: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("images/Fondo06.png"),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: NestedScrollView(
+            // Setting floatHeaderSlivers to true is required in order to float
+            // the outer slivers over the inner scrollable.
+            floatHeaderSlivers: false,
+            headerSliverBuilder:
+                (BuildContext context, bool innerBoxIsScrolled) {
+              return <Widget>[
+                SliverAppBar(
+                  toolbarHeight: 1,
+                  title: const Text(''),
+                  floating: false,
+                  centerTitle: true,
+                  forceElevated: innerBoxIsScrolled,
+                  backgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
+                ),
+              ];
+            },
+            body: SmartRefresher(
+              enablePullDown: false,
+              enablePullUp: false,
+              controller: _refreshController,
+              child: ListView.builder(
+                itemBuilder: (c, i) => send[i],
+                itemCount: send.length,
+              ),
+            ), //menu(context), //menu(context),
+          ),
+        ),
       ),
     );
   }
@@ -185,12 +218,18 @@ class _ObrasContrato extends State<ObrasContrato> {
     int avanceEconomico1 = avanceEconomico.toInt();
     int avanceTecnico1 = avanceTecnico.toInt();
     bool nombre = nombreCorto == nombreObra;
-    print(modalidad);
-    if (modalidad == 3) {
-      print('hola');
+    Course object = Course(
+        title: "CHECKLIST OBRA",
+        path:
+            'http://sistema.mrcorporativo.com/archivos/$claveMunicipio/$anio/obras/$idObra/checklist/$nombreArchivo.pdf');
+    String url = object.path;
+    String title = object.title;
+    String extension = url.substring(url.lastIndexOf("/"));
+    File f = File(_localPath + "$extension");
+    if (modalidad == 2) {
       nModa = 'Invitación a cuando menos tres contratistas';
     }
-    if (modalidad == 4) {
+    if (modalidad == 3) {
       nModa = 'Adjudicación directa';
     }
     send.clear();
@@ -278,59 +317,69 @@ class _ObrasContrato extends State<ObrasContrato> {
                 ),
                 Expanded(
                   flex: 5,
-                  child: Column(
+                  child: Row(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 0),
-                        child: DownloadItem(
-                          data: _items[0],
-                          onItemClick: (task) {
-                            _openDownloadedFile(task).then((success) {
-                              if (!success) {
-                                EasyLoading.instance
-                                  ..displayDuration =
-                                      const Duration(milliseconds: 2000)
-                                  ..indicatorType =
-                                      EasyLoadingIndicatorType.fadingCircle
-                                  ..loadingStyle = EasyLoadingStyle.dark
-                                  ..indicatorSize = 45.0
-                                  ..radius = 10.0
-                                  ..progressColor = Colors.white
-                                  ..backgroundColor = Colors.red[900]
-                                  ..indicatorColor = Colors.white
-                                  ..textColor = Colors.white
-                                  ..maskColor = Colors.black.withOpacity(0.88)
-                                  ..userInteractions = false
-                                  ..dismissOnTap = true;
-                                EasyLoading.dismiss();
-                                EasyLoading.instance.loadingStyle =
-                                    EasyLoadingStyle.custom;
-                                EasyLoading.showError(
-                                  'No se puede abrir este archivo.',
-                                  maskType: EasyLoadingMaskType.custom,
+                      Expanded(
+                        flex: 2,
+                        child: RawMaterialButton(
+                          onPressed: () {
+                            if (f.existsSync()) {
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) {
+                                return PDFScreen(
+                                  pathPDF: f.path,
+                                  nombre: title,
                                 );
-                              }
-                            });
-                          },
-                          onActionClick: (task) {
-                            if (task.status == DownloadTaskStatus.undefined) {
-                              _requestDownload(task);
-                            } else if (task.status ==
-                                DownloadTaskStatus.running) {
-                              _pauseDownload(task);
-                            } else if (task.status ==
-                                DownloadTaskStatus.paused) {
-                              _resumeDownload(task);
-                            } else if (task.status ==
-                                DownloadTaskStatus.complete) {
-                              _delete(task);
-                            } else if (task.status ==
-                                DownloadTaskStatus.failed) {
-                              _retryDownload(task);
+                              }));
+                              return;
                             }
+                            
+                            downloadFile(url, "$_localPath/$extension");
                           },
+                          child: f.existsSync()
+                              ? Align(
+                                  alignment: Alignment.topRight,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(right: 5),
+                                    child: new Icon(
+                                      Icons.remove_red_eye,
+                                      color: Colors.green,
+                                    ),
+                                  ),
+                                )
+                              : Text(
+                                  'Descargar checklist',
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: 16,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
                         ),
                       ),
+                      Expanded(
+                        flex: f.existsSync() ? 2 : 0,
+                        child: f.existsSync()
+                            ? RawMaterialButton(
+                                onPressed: () {
+                                  delete("$_localPath/$extension");
+                                },
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(left: 5),
+                                    child: new Icon(
+                                      Icons.delete_forever,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : new Container(
+                                height: 0,
+                              ),
+                      )
                     ],
                   ),
                 ),
@@ -550,6 +599,7 @@ class _ObrasContrato extends State<ObrasContrato> {
         ),
       ),
     );
+    
     for (var i = 0; i < fondo.length; i++) {
       String fondoT = fondo[i];
       i++;
@@ -774,6 +824,7 @@ class _ObrasContrato extends State<ObrasContrato> {
     );
 
     if (anticipoProceso != null) {
+      
       send.add(
         Container(
           child: GFAccordion(
@@ -798,65 +849,6 @@ class _ObrasContrato extends State<ObrasContrato> {
             contentBackgroundColor: Colors.transparent,
             contentChild: Container(
               child: Column(children: [
-                anticipoFin
-                    ? Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 0),
-                            child: DownloadItem(
-                              data: _items[1],
-                              onItemClick: (task) {
-                                _openDownloadedFile(task).then((success) {
-                                  if (!success) {
-                                    EasyLoading.instance
-                                      ..displayDuration =
-                                          const Duration(milliseconds: 2000)
-                                      ..indicatorType =
-                                          EasyLoadingIndicatorType.fadingCircle
-                                      ..loadingStyle = EasyLoadingStyle.dark
-                                      ..indicatorSize = 45.0
-                                      ..radius = 10.0
-                                      ..progressColor = Colors.white
-                                      ..backgroundColor = Colors.red[900]
-                                      ..indicatorColor = Colors.white
-                                      ..textColor = Colors.white
-                                      ..maskColor =
-                                          Colors.black.withOpacity(0.88)
-                                      ..userInteractions = false
-                                      ..dismissOnTap = true;
-                                    EasyLoading.dismiss();
-                                    EasyLoading.instance.loadingStyle =
-                                        EasyLoadingStyle.custom;
-                                    EasyLoading.showError(
-                                      'No se puede abrir este archivo.',
-                                      maskType: EasyLoadingMaskType.custom,
-                                    );
-                                  }
-                                });
-                              },
-                              onActionClick: (task) {
-                                if (task.status ==
-                                    DownloadTaskStatus.undefined) {
-                                  _requestDownload(task);
-                                } else if (task.status ==
-                                    DownloadTaskStatus.running) {
-                                  _pauseDownload(task);
-                                } else if (task.status ==
-                                    DownloadTaskStatus.paused) {
-                                  _resumeDownload(task);
-                                } else if (task.status ==
-                                    DownloadTaskStatus.complete) {
-                                  _delete(task);
-                                } else if (task.status ==
-                                    DownloadTaskStatus.failed) {
-                                  _retryDownload(task);
-                                }
-                              },
-                            ),
-                          ),
-                        ],
-                      )
-                    : new Container(),
                 anticipoProceso,
                 SizedBox(
                   height: 10,
@@ -918,6 +910,7 @@ class _ObrasContrato extends State<ObrasContrato> {
     }
 
     if (finiquitoProceso != null) {
+      
       send.add(
         Container(
           child: GFAccordion(
@@ -941,65 +934,6 @@ class _ObrasContrato extends State<ObrasContrato> {
             contentBackgroundColor: Colors.transparent,
             contentChild: Container(
               child: Column(children: [
-                finiquitoFin
-                    ? Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 0),
-                            child: DownloadItem(
-                              data: _items[2],
-                              onItemClick: (task) {
-                                _openDownloadedFile(task).then((success) {
-                                  if (!success) {
-                                    EasyLoading.instance
-                                      ..displayDuration =
-                                          const Duration(milliseconds: 2000)
-                                      ..indicatorType =
-                                          EasyLoadingIndicatorType.fadingCircle
-                                      ..loadingStyle = EasyLoadingStyle.dark
-                                      ..indicatorSize = 45.0
-                                      ..radius = 10.0
-                                      ..progressColor = Colors.white
-                                      ..backgroundColor = Colors.red[900]
-                                      ..indicatorColor = Colors.white
-                                      ..textColor = Colors.white
-                                      ..maskColor =
-                                          Colors.black.withOpacity(0.88)
-                                      ..userInteractions = false
-                                      ..dismissOnTap = true;
-                                    EasyLoading.dismiss();
-                                    EasyLoading.instance.loadingStyle =
-                                        EasyLoadingStyle.custom;
-                                    EasyLoading.showError(
-                                      'No se puede abrir este archivo.',
-                                      maskType: EasyLoadingMaskType.custom,
-                                    );
-                                  }
-                                });
-                              },
-                              onActionClick: (task) {
-                                if (task.status ==
-                                    DownloadTaskStatus.undefined) {
-                                  _requestDownload(task);
-                                } else if (task.status ==
-                                    DownloadTaskStatus.running) {
-                                  _pauseDownload(task);
-                                } else if (task.status ==
-                                    DownloadTaskStatus.paused) {
-                                  _resumeDownload(task);
-                                } else if (task.status ==
-                                    DownloadTaskStatus.complete) {
-                                  _delete(task);
-                                } else if (task.status ==
-                                    DownloadTaskStatus.failed) {
-                                  _retryDownload(task);
-                                }
-                              },
-                            ),
-                          ),
-                        ],
-                      )
-                    : new Container(),
                 finiquitoProceso,
                 SizedBox(
                   height: 10,
@@ -1064,7 +998,6 @@ class _ObrasContrato extends State<ObrasContrato> {
                   ),
                 ),
                 onPressed: () {
-                  print(claveMunicipio);
                   Navigator.pushNamed(
                     context,
                     '/expediente',
@@ -1075,6 +1008,7 @@ class _ObrasContrato extends State<ObrasContrato> {
                       clave: claveMunicipio,
                       nombre: nombreCorto,
                       nombreArchivo: nombreArchivo,
+                      path: _localPath,
                     ),
                   );
                 },
@@ -1095,428 +1029,6 @@ class _ObrasContrato extends State<ObrasContrato> {
         ],
       ),
     );
-
-    /*print("hola 12");
-    send.add(
-      Container(
-        margin: EdgeInsets.only(left: 15, right: 15, top: 5),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Expanded(
-              flex: 3,
-              child: Text(
-                'Expediente Técnico',
-                style: TextStyle(
-                  color: Color.fromRGBO(9, 46, 116, 1.0),
-                  fontWeight: FontWeight.w300,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-            Expanded(
-              //columna fecha
-              flex: 5,
-              child: LinearPercentIndicator(
-                animation: true,
-                animationDuration: 1000,
-                lineHeight: 20.0,
-                percent: avance_tecnico_1 * 0.01,
-                linearStrokeCap: LinearStrokeCap.roundAll,
-                center: Text(
-                  '$avance_tecnico_1%',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
-                  ),
-                ),
-                progressColor: const Color.fromRGBO(0, 153, 51, 1.0),
-                backgroundColor: const Color.fromRGBO(133, 138, 141, 1.0),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );*/
-    /*send.add(SizedBox(
-      height: 10,
-    ));
-    send.add(
-      Container(
-        child: GFAccordion(
-          titleBorder: Border.all(
-            width: 1.0,
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-          ),
-          margin: EdgeInsets.only(top: 10, left: 10, right: 10),
-          titlePadding:
-              EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
-          titleChild: Text(
-            'Parte social',
-            style: TextStyle(
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-              fontWeight: FontWeight.w500,
-              fontSize: 17,
-            ),
-          ),
-          expandedTitleBackgroundColor: Colors.transparent,
-          collapsedTitleBackgroundColor: Colors.transparent,
-          contentBackgroundColor: Color.fromRGBO(204, 204, 204, 0.3),
-          contentChild: Container(
-            child: Column(
-              children: [
-                cards(
-                    context,
-                    "Acta de integración del consejo de desarrollo municipal",
-                    exp[0]),
-                cards(context, "Acta de selección de obras", exp[1]),
-                cards(
-                    context,
-                    "Acta de priorización de obras, acciones sociales básicas e inversión",
-                    exp[2]),
-                cards(context, "Convenio celebrado para mezcla de recursos",
-                    exp[3]),
-                cards(
-                    context, "Acta de integración del comité de obras", exp[4]),
-                cards(context, "Convenio de concertación", exp[5]),
-                cards(
-                    context,
-                    "Acta de aprobación y autorización de obras, acciones sociales e inversiones",
-                    exp[6]),
-                cards(
-                    context,
-                    "Acta de acuerdo excepción a la licitación pública",
-                    exp[7]),
-              ],
-            ),
-          ),
-          collapsedIcon: Icon(
-            Icons.arrow_drop_down_outlined,
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-          ),
-          expandedIcon: Icon(
-            Icons.arrow_drop_up,
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-          ),
-        ),
-      ),
-    );
-    send.add(
-      Container(
-        child: GFAccordion(
-          titleBorder: Border.all(
-            width: 1.0,
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-          ),
-          margin: EdgeInsets.only(top: 10, left: 10, right: 10),
-          titlePadding:
-              EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
-          titleChild: Text(
-            'Proyecto ejecutivo',
-            style: TextStyle(
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-              fontWeight: FontWeight.w500,
-              fontSize: 17,
-            ),
-          ),
-          expandedTitleBackgroundColor: Colors.transparent,
-          collapsedTitleBackgroundColor: Colors.transparent,
-          contentBackgroundColor: Color.fromRGBO(204, 204, 204, 0.3),
-          contentChild: Container(
-            child: Column(
-              children: [
-                cards(
-                    context,
-                    "Estudio de factibilidad técnica exonómica y exológica",
-                    exp[8]),
-                cards(
-                    context,
-                    "Oficio de notificación de aprobación y autorización de obras",
-                    exp[9]),
-                cards(context, "Anexo del oficio de notificación", exp[10]),
-                cards(context, "Cédula de información básica", exp[11]),
-                cards(context, "Generalidades de la inversión", exp[12]),
-                cards(
-                    context,
-                    "Documentos que acrediten la tenecia de la tierra",
-                    exp[13]),
-                cards(context, "Dictamen de impacto ambiental", exp[14]),
-                cards(context, "Presupuesto de obra", exp[15]),
-                cards(context, "Catálogo de conceptos", exp[16]),
-                cards(context, "Explosión de insumos", exp[17]),
-                cards(context, "Generadores de obra programada", exp[18]),
-                cards(context, "Planos del proyecto", exp[19]),
-                cards(context, "Especificaciones generales y particulares",
-                    exp[20]),
-                cards(context, "Firma del director responsable de obra (DRO)",
-                    exp[21]),
-                cards(context, "Programa de obra e inversión", exp[22]),
-                cards(context, "Croquis de macrolocalización", exp[23]),
-                cards(context, "Croquis de microlocalización", exp[24]),
-              ],
-            ),
-          ),
-          collapsedIcon: Icon(
-            Icons.arrow_drop_down_outlined,
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-          ),
-          expandedIcon: Icon(
-            Icons.arrow_drop_up,
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-          ),
-        ),
-      ),
-    );
-
-    send.add(
-      Container(
-        child: GFAccordion(
-          titleBorder: Border.all(
-            width: 1.0,
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-          ),
-          margin: EdgeInsets.only(top: 10, left: 10, right: 10),
-          titlePadding:
-              EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
-          titleChild: Text(
-            'Proceso de contratación',
-            style: TextStyle(
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-              fontWeight: FontWeight.w500,
-              fontSize: 17,
-            ),
-          ),
-          expandedTitleBackgroundColor: Colors.transparent,
-          collapsedTitleBackgroundColor: Colors.transparent,
-          contentBackgroundColor: Color.fromRGBO(204, 204, 204, 0.3),
-          contentChild: Container(
-            child: Column(
-              children: licitacion,
-            ),
-          ),
-          collapsedIcon: Icon(
-            Icons.arrow_drop_down_outlined,
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-          ),
-          expandedIcon: Icon(
-            Icons.arrow_drop_up,
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-          ),
-        ),
-      ),
-    );
-
-    send.add(
-      Container(
-        child: GFAccordion(
-          titleBorder: Border.all(
-            width: 1.0,
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-          ),
-          margin: EdgeInsets.only(top: 10, left: 10, right: 10),
-          titlePadding:
-              EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
-          titleChild: Text(
-            'Ejecución de obra',
-            style: TextStyle(
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-              fontWeight: FontWeight.w500,
-              fontSize: 17,
-            ),
-          ),
-          expandedTitleBackgroundColor: Colors.transparent,
-          collapsedTitleBackgroundColor: Colors.transparent,
-          contentBackgroundColor: Color.fromRGBO(204, 204, 204, 0.3),
-          contentChild: Container(
-            child: Column(
-              children: [
-                cards(context, "Asignación del superintendente (Contratista)",
-                    exp[25]),
-                cards(context, "Asignación del residente de obra (Municipio)",
-                    exp[26]),
-                cards(context, "Oficio para la disposición del inmueble",
-                    exp[27]),
-                cards(context, "Notificación de incio de obra", exp[28]),
-              ],
-            ),
-          ),
-          collapsedIcon: Icon(
-            Icons.arrow_drop_down_outlined,
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-          ),
-          expandedIcon: Icon(
-            Icons.arrow_drop_up,
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-          ),
-        ),
-      ),
-    );
-    print("hola 15");
-    send.add(
-      Container(
-        child: GFAccordion(
-          titleBorder: Border.all(
-            width: 1.0,
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-          ),
-          margin: EdgeInsets.only(top: 10, left: 10, right: 10),
-          titlePadding:
-              EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
-          titleChild: Text(
-            'Documentación comprobatoria',
-            style: TextStyle(
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-              fontWeight: FontWeight.w500,
-              fontSize: 17,
-            ),
-          ),
-          expandedTitleBackgroundColor: Colors.transparent,
-          collapsedTitleBackgroundColor: Colors.transparent,
-          contentBackgroundColor: Color.fromRGBO(204, 204, 204, 0.3),
-          contentChild: Container(
-            child: Column(
-              children: [
-                cards(context, "Factura de anticipo", fact_anticipo),
-                cards(context, "Fianza de anticipo", f_ant),
-                cards(context, "Fianza de cumplimiento", f_cumplimiento),
-                cards(context, "Fianza de vicios ocultos", f_v_o),
-              ],
-            ),
-          ),
-          collapsedIcon: Icon(
-            Icons.arrow_drop_down_outlined,
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-          ),
-          expandedIcon: Icon(
-            Icons.arrow_drop_up,
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-          ),
-        ),
-      ),
-    );
-    for (var i = 0; i < estimacion.length; i++) {
-      send.add(estimacion[i]);
-    }
-    send.add(
-      Container(
-        child: GFAccordion(
-          titleBorder: Border.all(
-            width: 1.0,
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-          ),
-          margin: EdgeInsets.only(top: 10, left: 10, right: 10),
-          titlePadding:
-              EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
-          titleChild: Text(
-            'Terminación de los trabajos',
-            style: TextStyle(
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-              fontWeight: FontWeight.w500,
-              fontSize: 17,
-            ),
-          ),
-          expandedTitleBackgroundColor: Colors.transparent,
-          collapsedTitleBackgroundColor: Colors.transparent,
-          contentBackgroundColor: Color.fromRGBO(204, 204, 204, 0.3),
-          contentChild: Container(
-            child: Column(
-              children: [
-                cards(context, "Aviso de terminación de obra", exp[29]),
-                cards(
-                    context,
-                    "Acta de entrega-recepción contratista a municipio",
-                    exp[30]),
-                cards(
-                    context,
-                    "Acta de entrega-recepción municipio a beneficiarios",
-                    exp[31]),
-                cards(context, "Sabana de finiquito de obra", exp[32]),
-              ],
-            ),
-          ),
-          collapsedIcon: Icon(
-            Icons.arrow_drop_down_outlined,
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-          ),
-          expandedIcon: Icon(
-            Icons.arrow_drop_up,
-            color: Color.fromRGBO(9, 46, 116, 1.0),
-          ),
-        ),
-      ),
-    );
-    print("hola 17");
-    if (observaciones != '') {
-      observaciones = observaciones.substring(0, observaciones.length - 2);
-      send.add(
-        Container(
-          child: GFAccordion(
-            titleBorder: Border.all(
-              width: 1.0,
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-            ),
-            margin: EdgeInsets.only(top: 10, left: 10, right: 10),
-            titlePadding:
-                EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
-            titleChild: Text(
-              'Observaciones',
-              style: TextStyle(
-                color: Color.fromRGBO(9, 46, 116, 1.0),
-                fontWeight: FontWeight.w500,
-                fontSize: 17,
-              ),
-            ),
-            expandedTitleBackgroundColor: Colors.transparent,
-            collapsedTitleBackgroundColor: Colors.transparent,
-            contentBackgroundColor: Color.fromRGBO(204, 204, 204, 0.3),
-            contentChild: Container(
-              child: Column(children: [
-                Container(
-                  width: MediaQuery.of(context).size.height,
-                  child: Card(
-                    // RoundedRectangleBorder para proporcionarle esquinas circulares al Card
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                      side: BorderSide(
-                        color: Color.fromRGBO(9, 46, 116, 1.0),
-                      ),
-                    ),
-                    // margen para el Card
-                    // La sombra que tiene el Card aumentará
-                    elevation: 0,
-                    //Colocamos una fila en dentro del card
-                    color: Colors.transparent,
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        observaciones,
-                        style: TextStyle(
-                          color: Color.fromRGBO(9, 46, 116, 1.0),
-                          fontWeight: FontWeight.w400,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ]),
-            ),
-            collapsedIcon: Icon(
-              Icons.arrow_drop_down_outlined,
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-            ),
-            expandedIcon: Icon(
-              Icons.arrow_drop_up,
-              color: Color.fromRGBO(9, 46, 116, 1.0),
-            ),
-          ),
-        ),
-      );
-    }
-    send.add(SizedBox(
-      height: 35,
-    ));*/
   }
 
 //menu inferior
@@ -1574,6 +1086,7 @@ class _ObrasContrato extends State<ObrasContrato> {
               anio: anio,
               cliente: idCliente,
               clave: claveMunicipio,
+              path: _localPath,
             ),
           );
           return false;
@@ -1623,7 +1136,7 @@ class _ObrasContrato extends State<ObrasContrato> {
                 highlightElevation: 0,*/
                 onPressed: () {
                   Navigator.of(context).pop();
-                  _saveValue(null);
+                  _saveValue("");
                   Navigator.pushAndRemoveUntil(
                     context,
                     PageTransition(
@@ -1688,7 +1201,7 @@ class _ObrasContrato extends State<ObrasContrato> {
                   Expanded(
                     flex: 2,
                     child: Text(
-                      'Revisión',
+                      'Recepción',
                       style: TextStyle(
                         color: Color.fromRGBO(9, 46, 116, 1.0),
                         fontWeight: FontWeight.w300,
@@ -1856,7 +1369,9 @@ class _ObrasContrato extends State<ObrasContrato> {
     );
   }
 
-  Widget estimacionProceso(proceso, fechas, nombre, nombreArchivo) {
+  Widget estimacionProceso(
+      proceso, fechas, nombre, nombreArchivo, idEstimacion) {
+    
     return Container(
       child: GFAccordion(
         titleBorder: Border.all(
@@ -1879,63 +1394,6 @@ class _ObrasContrato extends State<ObrasContrato> {
         contentChild: Container(
           child: Column(
             children: [
-              nombreArchivo
-                  ? Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 0),
-                          child: DownloadItem(
-                            data: _items[estimacionIndex],
-                            onItemClick: (task) {
-                              _openDownloadedFile(task).then((success) {
-                                if (!success) {
-                                  EasyLoading.instance
-                                    ..displayDuration =
-                                        const Duration(milliseconds: 2000)
-                                    ..indicatorType =
-                                        EasyLoadingIndicatorType.fadingCircle
-                                    ..loadingStyle = EasyLoadingStyle.dark
-                                    ..indicatorSize = 45.0
-                                    ..radius = 10.0
-                                    ..progressColor = Colors.white
-                                    ..backgroundColor = Colors.red[900]
-                                    ..indicatorColor = Colors.white
-                                    ..textColor = Colors.white
-                                    ..maskColor = Colors.black.withOpacity(0.88)
-                                    ..userInteractions = false
-                                    ..dismissOnTap = true;
-                                  EasyLoading.dismiss();
-                                  EasyLoading.instance.loadingStyle =
-                                      EasyLoadingStyle.custom;
-                                  EasyLoading.showError(
-                                    'No se puede abrir este archivo.',
-                                    maskType: EasyLoadingMaskType.custom,
-                                  );
-                                }
-                              });
-                            },
-                            onActionClick: (task) {
-                              if (task.status == DownloadTaskStatus.undefined) {
-                                _requestDownload(task);
-                              } else if (task.status ==
-                                  DownloadTaskStatus.running) {
-                                _pauseDownload(task);
-                              } else if (task.status ==
-                                  DownloadTaskStatus.paused) {
-                                _resumeDownload(task);
-                              } else if (task.status ==
-                                  DownloadTaskStatus.complete) {
-                                _delete(task);
-                              } else if (task.status ==
-                                  DownloadTaskStatus.failed) {
-                                _retryDownload(task);
-                              }
-                            },
-                          ),
-                        ),
-                      ],
-                    )
-                  : new Container(),
               proceso,
               SizedBox(
                 height: 10,
@@ -2220,8 +1678,6 @@ class _ObrasContrato extends State<ObrasContrato> {
                   _processes.length,
               contentsBuilder: (context, index) {
                 Widget padding;
-                print(_processes[index]);
-                print(_estado[index]);
                 if (_estado[index] != 3) {
                   padding = Padding(
                     padding: const EdgeInsets.only(top: 15.0),
@@ -2393,6 +1849,7 @@ class _ObrasContrato extends State<ObrasContrato> {
       ..radius = 10.0
       ..progressColor = Colors.white
       ..backgroundColor = Colors.transparent
+      ..boxShadow = [BoxShadow(color: Colors.transparent)]
       ..indicatorColor = Colors.white
       ..textColor = Colors.white
       ..maskColor = Colors.black.withOpacity(0.88)
@@ -2424,16 +1881,11 @@ class _ObrasContrato extends State<ObrasContrato> {
     );
     url = "http://sistema.mrcorporativo.com/api/getObraExpediente/$idObra";
     try {
-      print(url);
       final respuesta = await http.get(Uri.parse(url));
       if (respuesta.statusCode == 200) {
-        print(respuesta.body);
         if (respuesta.body != "") {
           final data = json.decode(respuesta.body);
-          /*final parte_social = json.encode(data['parte_social']);
-          print(respuesta.body);
-          final data1 = json.decode(parte_social);
-          print(data);*/
+
           data.forEach((e) {
             final parteSocial = json.encode(e['parte_social']);
             dynamic data1 = json.decode(parteSocial);
@@ -2467,6 +1919,7 @@ class _ObrasContrato extends State<ObrasContrato> {
                 } else {
                   tipoContrato = 'Precios alzados';
                 }
+                modalidad = i['modalidad_asignacion'];
               }
             });
 
@@ -2498,8 +1951,6 @@ class _ObrasContrato extends State<ObrasContrato> {
                   'Validación',
                   'Pagado',
                 ];
-                var _fechasObs = [];
-                var _fechasSolv = [];
                 var _estado = [];
                 _nombreProceso.add(i['nombre']);
                 String nombreProceso = i['nombre'];
@@ -2512,13 +1963,20 @@ class _ObrasContrato extends State<ObrasContrato> {
                 int estadoSolventacion = 3;
                 int estadoObservaciones = 3;
                 bool nombreArchivo;
+                String fechasSolven = "";
+                String fechasObse = "";
                 final desgloseObs = json.encode(e['desglose_obs']);
                 final data2 = json.decode(desgloseObs);
-                print(data2);
                 data2.forEach((x) {
                   if (x['nombre'] == nombreProceso) {
-                    _fechasObs.add(x['fecha_observaciones']);
-                    _fechasSolv.add(x['fecha_solventacion']);
+                    if (x['fecha_observaciones'] != null)
+                      fechasObse = x['fecha_observaciones'];
+                    else
+                      fechasObse = "--";
+                    if (x['fecha_solventacion'] != null)
+                      fechasSolven = x['fecha_solventacion'];
+                    else
+                      fechasSolven = '--';
                     estadoSolventacion = x['estado_solventacion'];
                     estadoObservaciones = x['estado_observaciones'];
                   }
@@ -2539,41 +1997,43 @@ class _ObrasContrato extends State<ObrasContrato> {
                   estadoPago = 1;
                 }
 
+                if (estadoValidacion == 1) {
+                  estadoObservaciones = 1;
+                  estadoSolventacion = 1;
+                }
+
                 _estado.add(estadoRecepcion);
                 _estado.add(estadoObservaciones);
                 _estado.add(estadoSolventacion);
                 _estado.add(estadoValidacion);
                 _estado.add(estadoPago);
 
-                String fechasObse = "";
-
-                for (int z = 0; z < _fechasObs.length; z++) {
-                  print(_fechasObs[z]);
-                  print(_fechasObs.length - 1);
+                /*for (int z = 0; z < _fechasObs.length; z++) {
                   if (z < _fechasObs.length - 1) {
-                    print("_fechas_obs.length - 1");
                     fechasObse = fechasObse + _fechasObs[z] + '\n';
                   } else
                     fechasObse = fechasObse + _fechasObs[z];
-                }
+                }*/
 
-                String fechasSolven = "";
-                for (int z = 0; z < _fechasSolv.length; z++) {
+                /*for (int z = 0; z < _fechasSolv.length; z++) {
                   if (z < _fechasSolv.length - 1)
                     fechasSolven = fechasSolven + _fechasSolv[z] + '\n';
                   else
                     fechasSolven = fechasSolven + _fechasSolv[z];
-                }
+                }*/
 
                 if (nombreProceso.toLowerCase() == "anticipo") {
                   anticipoProceso = lineaTiempo(
                       _processes, _estado, nombreProceso, 20, 100.0);
                   anticipoFechas = fechas(fechaRecepcion, fechasObse,
                       fechasSolven, fechaValidacion, fechaPago, 80);
+
                   anticipoFin = nombreArchivo;
                 }
                 if (nombreProceso.toLowerCase().contains("estimación") &&
                     !nombreProceso.toLowerCase().contains("finiquito")) {
+                  String numero = nombreProceso
+                      .substring(nombreProceso.lastIndexOf(" ") + 1);
                   procesosEstimacion.add(
                     estimacionProceso(
                         lineaTiempo(
@@ -2581,7 +2041,8 @@ class _ObrasContrato extends State<ObrasContrato> {
                         fechas(fechaRecepcion, fechasObse, fechasSolven,
                             fechaValidacion, fechaPago, 120),
                         nombreProceso,
-                        nombreArchivo),
+                        nombreArchivo,
+                        numero),
                   );
                   if (nombreArchivo) estimacionIndex++;
                 }
@@ -2602,7 +2063,6 @@ class _ObrasContrato extends State<ObrasContrato> {
           return null;
         }
       } else {
-        print(e);
         EasyLoading.instance
           ..displayDuration = const Duration(milliseconds: 2000)
           ..indicatorType = EasyLoadingIndicatorType.fadingCircle
@@ -2610,40 +2070,49 @@ class _ObrasContrato extends State<ObrasContrato> {
           ..indicatorSize = 45.0
           ..radius = 10.0
           ..progressColor = Colors.white
-          ..backgroundColor = Colors.red[900]
-          ..indicatorColor = Colors.white
-          ..textColor = Colors.white
+          ..backgroundColor = Colors.transparent
+          ..boxShadow = [BoxShadow(color: Colors.transparent)]
+          ..indicatorColor = Colors.blue[700]
+          ..indicatorSize = 70
+          ..textStyle = TextStyle(
+              color: Colors.grey[500],
+              fontSize: 20,
+              fontWeight: FontWeight.bold)
           ..maskColor = Colors.black.withOpacity(0.88)
           ..userInteractions = false
           ..dismissOnTap = true;
         EasyLoading.dismiss();
         EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
         EasyLoading.showError(
-          'ERROR DE CONEXIÓN',
+          'Error de conexión',
           maskType: EasyLoadingMaskType.custom,
         );
       }
     } catch (e) {
-      print(e);
       EasyLoading.instance
-        ..displayDuration = const Duration(milliseconds: 2000)
-        ..indicatorType = EasyLoadingIndicatorType.fadingCircle
-        ..loadingStyle = EasyLoadingStyle.dark
-        ..indicatorSize = 45.0
-        ..radius = 10.0
-        ..progressColor = Colors.white
-        ..backgroundColor = Colors.red[900]
-        ..indicatorColor = Colors.white
-        ..textColor = Colors.white
-        ..maskColor = Colors.black.withOpacity(0.88)
-        ..userInteractions = false
-        ..dismissOnTap = true;
-      EasyLoading.dismiss();
-      EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
-      EasyLoading.showError(
-        'ERROR DE CONEXIÓN ',
-        maskType: EasyLoadingMaskType.custom,
-      );
+          ..displayDuration = const Duration(milliseconds: 2000)
+          ..indicatorType = EasyLoadingIndicatorType.fadingCircle
+          ..loadingStyle = EasyLoadingStyle.dark
+          ..indicatorSize = 45.0
+          ..radius = 10.0
+          ..progressColor = Colors.white
+          ..backgroundColor = Colors.transparent
+          ..boxShadow = [BoxShadow(color: Colors.transparent)]
+          ..indicatorColor = Colors.blue[700]
+          ..indicatorSize = 70
+          ..textStyle = TextStyle(
+              color: Colors.grey[500],
+              fontSize: 20,
+              fontWeight: FontWeight.bold)
+          ..maskColor = Colors.black.withOpacity(0.88)
+          ..userInteractions = false
+          ..dismissOnTap = true;
+        EasyLoading.dismiss();
+        EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
+        EasyLoading.showError(
+          'Error de conexión',
+          maskType: EasyLoadingMaskType.custom,
+        );
     }
   }
 
@@ -2665,463 +2134,222 @@ class _ObrasContrato extends State<ObrasContrato> {
     await prefs.setString('token', token);
   }
 
+
   @override
   void initState() {
-    init();
     super.initState();
-    _bindBackgroundIsolate();
-
-    FlutterDownloader.registerCallback(downloadCallback);
-
-    _isLoading = true;
-    _permissionReady = false;
-
-    _prepare();
+    getDirectoryPath();
+    dio = Dio();
   }
 
-  @override
-  void dispose() {
-    _unbindBackgroundIsolate();
-    super.dispose();
-  }
-
-  void _bindBackgroundIsolate() {
-    bool isSuccess = IsolateNameServer.registerPortWithName(
-        _port.sendPort, 'downloader_send_port');
-    if (!isSuccess) {
-      _unbindBackgroundIsolate();
-      _bindBackgroundIsolate();
-      return;
+  requestWritePermission() async {
+    if (await Permission.storage.request().isGranted) {
+      setState(() {
+        _allowWriteFile = true;
+      });
+    } else {
+      // ignore: unused_local_variable
+      Map<Permission, PermissionStatus> statuses = await [
+        Permission.storage,
+      ].request();
     }
-    _port.listen((dynamic data) {
-      if (debug) {
-        print('UI Isolate Callback: $data');
-      }
-      String id = data[0];
-      DownloadTaskStatus status = data[1];
-      int progress = data[2];
-
-      if (_tasks != null && _tasks.isNotEmpty) {
-        final task = _tasks.firstWhere((task) => task.taskId == id);
-        setState(() {
-          task.status = status;
-          task.progress = progress;
-        });
-      }
-    });
   }
 
-  void _unbindBackgroundIsolate() {
-    IsolateNameServer.removePortNameMapping('downloader_send_port');
+  Future<String> getDirectoryPath() async {
+    final appDocDirectory = await getExternalStorageDirectory();
+
+    Directory directory = await new Directory(
+            (appDocDirectory?.path).toString() + Platform.pathSeparator + 'dir')
+        .create(recursive: true);
+    _localPath = directory.path;
+    return directory.path;
   }
 
-  static void downloadCallback(
-      String id, DownloadTaskStatus status, int progress) {
-    if (debug) {
-      print(
-          'Background Isolate Callback: task ($id) is in status ($status) and process ($progress)');
+  Future downloadFile(String url, path) async {
+    if (!_allowWriteFile) {
+      requestWritePermission();
     }
-    final SendPort send =
-        IsolateNameServer.lookupPortByName('downloader_send_port');
-    send.send([id, status, progress]);
-  }
-
-  Widget _buildDownloadList() => Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("images/Fondo06.png"),
-            fit: BoxFit.cover,
-          ),
+    try {
+      ProgressDialog progressDialog = ProgressDialog(
+        context,
+        dialogTransitionType: DialogTransitionType.Bubble,
+        title: Text(
+          'Descargando archivo',
+          style: TextStyle(color: Colors.white),
+          textAlign: TextAlign.center,
         ),
-        child: NestedScrollView(
-          // Setting floatHeaderSlivers to true is required in order to float
-          // the outer slivers over the inner scrollable.
-          floatHeaderSlivers: false,
-          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-            return <Widget>[
-              SliverAppBar(
-                toolbarHeight: 1,
-                title: const Text(''),
-                floating: false,
-                centerTitle: true,
-                forceElevated: innerBoxIsScrolled,
-                backgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
-              ),
-            ];
-          },
-          body: SmartRefresher(
-            enablePullDown: false,
-            enablePullUp: false,
-            controller: _refreshController,
-            child: ListView.builder(
-              itemBuilder: (c, i) => send[i],
-              itemCount: send.length,
-            ),
-          ), //menu(context), //menu(context),
+        message: Text(
+          'Iniciando descarga',
+          style: TextStyle(color: Colors.white),
+          textAlign: TextAlign.center,
+        ),
+        backgroundColor: Colors.black.withOpacity(0.88),
+        dialogStyle: DialogStyle(
+          titleDivider: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
         ),
       );
 
-  Widget _buildNoPermissionWarning() => Container(
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+      progressDialog.show();
+      final client = http.Client();
+      final request = new http.Request('GET', Uri.parse(url))
+        ..followRedirects = false;
+      final response = await client.send(request);
+      
+      if (response.statusCode == 200) {
+        await dio.download(url, path, onReceiveProgress: (rec, total) {
+          setState(() {
+            isLoading = true;
+            progress = ((rec / total) * 100).toStringAsFixed(0) + "%";
+            progressDialog.setMessage(
+              Text(
+                "Descargando $progress",
+                style: TextStyle(color: Colors.white),
+                textAlign: TextAlign.center,
+              ),
+            );
+          });
+        });
+        progressDialog.dismiss();
+      }
+      else{
+        progressDialog.dismiss();
+        EasyLoading.instance
+          ..displayDuration = const Duration(milliseconds: 2000)
+          ..indicatorType = EasyLoadingIndicatorType.fadingCircle
+          ..loadingStyle = EasyLoadingStyle.dark
+          ..indicatorSize = 45.0
+          ..radius = 10.0
+          ..progressColor = Colors.white
+          ..backgroundColor = Colors.transparent
+          ..boxShadow = [BoxShadow(color: Colors.transparent)]
+          ..indicatorColor = Colors.blue[700]
+          ..indicatorSize = 70
+          ..textStyle = TextStyle(color: Colors.grey[500], fontSize: 20, fontWeight: FontWeight.bold )
+          ..maskColor = Colors.black.withOpacity(0.88)
+          ..userInteractions = false
+          ..dismissOnTap = true;
+        EasyLoading.dismiss();
+        EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
+        EasyLoading.showError(
+          'Error de conexión',
+          maskType: EasyLoadingMaskType.custom,
+        );
+
+      }
+    } catch (e) {
+      //print(e.toString());
+    }
+  }
+
+  Future delete(path) async {
+    
+    try {
+      File(path).delete(recursive: true);
+      setState(() {});
+    } catch (e) {
+      //print(e);
+    }
+  }
+
+  Widget download(Course object) {
+    String url = object.path;
+    String title = object.title;
+    String extension = url.substring(url.lastIndexOf("/"));
+    File f = File(ruta + "$extension");
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        elevation: 10,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Text(
-                  'Please grant accessing storage permission to continue -_-',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.blueGrey, fontSize: 17.0),
-                ),
+              Text(
+                "$title",
+                style: TextStyle(
+                    fontSize: 26,
+                    color: Colors.purpleAccent,
+                    fontWeight: FontWeight.bold),
               ),
-              SizedBox(
-                height: 25.0,
-              ),
-              ElevatedButton(
+              RawMaterialButton(
                 onPressed: () {
-                  _retryRequestPermission();
+                  if (f.existsSync()) {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return PDFScreen(pathPDF: f.path, nombre: title);
+                    }));
+                    return;
+                  }
+
+                  downloadFile(url, "$ruta/$extension");
                 },
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.transparent,
-                  elevation: 0,
-                ),
-                child: Text(
-                  'Retry',
-                  style: TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20.0),
-                ),
+                child: f.existsSync()
+                    ? Icon(
+                        Icons.remove_red_eye,
+                        color: Colors.green,
+                      )
+                    : Icon(
+                        Icons.file_download,
+                        color: Colors.blue,
+                      ),
               ),
+              f.existsSync()
+                  ? RawMaterialButton(
+                      onPressed: () {
+                        delete("$ruta/$extension");
+                      },
+                      child: Icon(
+                        Icons.delete_forever,
+                        color: Colors.red,
+                      ),
+                    )
+                  : new Container(
+                      height: 0,
+                    ),
             ],
           ),
-        ),
-      );
-
-  Future<void> _retryRequestPermission() async {
-    final hasGranted = await _checkPermission();
-
-    if (hasGranted) {
-      await _prepareSaveDir();
-    }
-
-    setState(() {
-      _permissionReady = hasGranted;
-    });
-  }
-
-  void init() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    await FlutterDownloader.initialize(debug: debug);
-  }
-
-  void _requestDownload(_TaskInfo task) async {
-    task.taskId = await FlutterDownloader.enqueue(
-        url: task.link,
-        headers: {"auth": "test_for_sql_encoding"},
-        savedDir: _localPath,
-        showNotification: true,
-        openFileFromNotification: true);
-  }
-
-  /*void _cancelDownload(_TaskInfo task) async {
-    await FlutterDownloader.cancel(taskId: task.taskId);
-  }*/
-
-  void _pauseDownload(_TaskInfo task) async {
-    await FlutterDownloader.pause(taskId: task.taskId);
-  }
-
-  void _resumeDownload(_TaskInfo task) async {
-    String newTaskId = await FlutterDownloader.resume(taskId: task.taskId);
-    task.taskId = newTaskId;
-  }
-
-  void _retryDownload(_TaskInfo task) async {
-    String newTaskId = await FlutterDownloader.retry(taskId: task.taskId);
-    task.taskId = newTaskId;
-  }
-
-  Future<bool> _openDownloadedFile(_TaskInfo task) {
-    if (task != null) {
-      return FlutterDownloader.open(taskId: task.taskId);
-    } else {
-      return Future.value(false);
-    }
-  }
-
-  void _delete(_TaskInfo task) async {
-    await FlutterDownloader.remove(
-        taskId: task.taskId, shouldDeleteContent: true);
-    await _prepare();
-    setState(() {});
-  }
-
-  Future<bool> _checkPermission() async {
-    if (widget.platform == TargetPlatform.android) {
-      final status = await Permission.storage.status;
-      if (status != PermissionStatus.granted) {
-        final result = await Permission.storage.request();
-        if (result == PermissionStatus.granted) {
-          return true;
-        }
-      } else {
-        return true;
-      }
-    } else {
-      return true;
-    }
-    return false;
-  }
-
-  Future<Null> _prepare() async {
-    final tasks = await FlutterDownloader.loadTasks();
-
-    int count = 0;
-    _tasks = [];
-    _items = [];
-    var _documents = [
-      {
-        'name': nombreCorto,
-        'posicion': 1,
-        'link':
-            'http://sistema.mrcorporativo.com/archivos/$claveMunicipio/$anio/obras/$idObra/checklist/$nombreArchivo.pdf'
-      },
-      {
-        'name': "Checklist Anticipo",
-        'posicion': 2,
-        'link':
-            'http://sistema.mrcorporativo.com/archivos/$claveMunicipio/$anio/obras/$idObra/checklist/Checklist Anticipo$claveMunicipio$idObra.pdf'
-      },
-      {
-        'name': nombreCorto,
-        'posicion': 1,
-        'link':
-            'http://sistema.mrcorporativo.com/archivos/$claveMunicipio/$anio/obras/$idObra/checklist/Checklist Finiquito$claveMunicipio$idObra.pdf'
-      },
-    ];
-    print("archivos");
-    print(archivos);
-    for (int i = 0; i < archivos; i++) {
-      int idEstimacion = i + 1;
-      _documents.add(
-        {
-          'name': nombreCorto,
-          'posicion': 1,
-          'link':
-              'http://sistema.mrcorporativo.com/archivos/$claveMunicipio/$anio/obras/$idObra/checklist/Checklist Estimación$idEstimacion$claveMunicipio$idObra.pdf'
-        },
-      );
-    }
-    _tasks.addAll(_documents.map((document) => _TaskInfo(
-        name: document['name'],
-        posicion: document['posicion'],
-        link: document['link'])));
-
-    for (int i = count; i < _tasks.length; i++) {
-      _items.add(_ItemHolder(
-          name: _tasks[i].name, posicion: _tasks[i].posicion, task: _tasks[i]));
-      count++;
-    }
-
-    tasks.forEach((task) {
-      for (_TaskInfo info in _tasks) {
-        if (info.link == task.url) {
-          info.taskId = task.taskId;
-          info.status = task.status;
-          info.progress = task.progress;
-        }
-      }
-    });
-
-    _permissionReady = await _checkPermission();
-
-    if (_permissionReady) {
-      await _prepareSaveDir();
-    }
-
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  Future<void> _prepareSaveDir() async {
-    _localPath = (await _findLocalPath()) + Platform.pathSeparator + 'Download';
-    final savedDir = Directory(_localPath);
-    bool hasExisted = await savedDir.exists();
-    if (!hasExisted) {
-      savedDir.create();
-    }
-  }
-
-  Future<String> _findLocalPath() async {
-    final directory = widget.platform == TargetPlatform.android
-        ? await getExternalStorageDirectory()
-        : await getApplicationDocumentsDirectory();
-    return directory?.path;
-  }
-}
-
-class _TaskInfo {
-  final String name;
-  final int posicion;
-  final String link;
-
-  String taskId;
-  int progress = 0;
-  DownloadTaskStatus status = DownloadTaskStatus.undefined;
-
-  _TaskInfo({this.name, this.posicion, this.link});
-}
-
-class _ItemHolder {
-  final String name;
-  final int posicion;
-  final _TaskInfo task;
-
-  _ItemHolder({this.name, this.posicion, this.task});
-}
-
-class DownloadItem extends StatelessWidget {
-  final _ItemHolder data;
-  final Function(_TaskInfo) onItemClick;
-  final Function(_TaskInfo) onActionClick;
-
-  DownloadItem({
-    this.data,
-    this.onItemClick,
-    this.onActionClick,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: InkWell(
-        onTap: data.task.status == DownloadTaskStatus.complete
-            ? () {
-                onItemClick(data.task);
-              }
-            : null,
-        child: Stack(
-          children: <Widget>[
-            Container(
-              margin: EdgeInsets.only(left: 15, right: 15),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: _buildActionForTask(data.task),
-                  )
-                ],
-              ),
-            ),
-            data.task.status == DownloadTaskStatus.running ||
-                    data.task.status == DownloadTaskStatus.paused
-                ? Positioned(
-                    left: 0.0,
-                    right: 0.0,
-                    bottom: 0.0,
-                    child: LinearProgressIndicator(
-                      value: data.task.progress / 100,
-                    ),
-                  )
-                : Container()
-          ].toList(),
         ),
       ),
     );
   }
+}
 
-  Widget _buildActionForTask(_TaskInfo task) {
-    if (task.status == DownloadTaskStatus.undefined) {
-      return RawMaterialButton(
-        onPressed: () {
-          onActionClick(task);
-        },
-        child: Text("Descargar checklist",
-            style: TextStyle(
-              color: Colors.blue,
-              fontWeight: FontWeight.w300,
-              fontSize: 16,
-            )),
-        shape: CircleBorder(),
-        constraints: BoxConstraints(minHeight: 25.0, minWidth: 25.0),
-      );
-    } else if (task.status == DownloadTaskStatus.running) {
-      return RawMaterialButton(
-        onPressed: () {
-          onActionClick(task);
-        },
-        child: Icon(
-          Icons.pause,
-          color: Colors.red,
+// ignore: must_be_immutable
+class PDFScreen extends StatelessWidget {
+  String pathPDF = "";
+  String nombre = "";
+  PDFScreen({this.pathPDF, this.nombre});
+  final GlobalKey<SfPdfViewerState> _pdfViewerKey = GlobalKey();
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: const Color.fromRGBO(9, 46, 116, 1.0),
+          centerTitle: true,
+          title: Text(nombre),
         ),
-        shape: CircleBorder(),
-        constraints: BoxConstraints(minHeight: 25.0, minWidth: 25.0),
-      );
-    } else if (task.status == DownloadTaskStatus.paused) {
-      return RawMaterialButton(
-        onPressed: () {
-          onActionClick(task);
-        },
-        child: Icon(
-          Icons.play_arrow,
-          color: Colors.green,
-        ),
-        shape: CircleBorder(),
-        constraints: BoxConstraints(minHeight: 25.0, minWidth: 25.0),
-      );
-    } else if (task.status == DownloadTaskStatus.complete) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.remove_red_eye,
-            color: Colors.green,
+        body: Container(
+          child: SfPdfViewer.file(
+            File(pathPDF),
+            key: _pdfViewerKey,
           ),
-          RawMaterialButton(
-            onPressed: () {
-              onActionClick(task);
-            },
-            child: Icon(
-              Icons.delete_forever,
-              color: Colors.red,
-            ),
-            shape: CircleBorder(),
-            constraints: BoxConstraints(minHeight: 25.0, minWidth: 25.0),
-          )
-        ],
-      );
-    } else if (task.status == DownloadTaskStatus.canceled) {
-      return Text('Calcelado', style: TextStyle(color: Colors.red));
-    } else if (task.status == DownloadTaskStatus.failed) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('Fallido', style: TextStyle(color: Colors.red)),
-          RawMaterialButton(
-            onPressed: () {
-              onActionClick(task);
-            },
-            child: Icon(
-              Icons.refresh,
-              color: Colors.green,
-            ),
-            shape: CircleBorder(),
-            constraints: BoxConstraints(minHeight: 25.0, minWidth: 25.0),
-          )
-        ],
-      );
-    } else if (task.status == DownloadTaskStatus.enqueued) {
-      return Text('Pendiente', style: TextStyle(color: Colors.orange));
-    } else {
-      return null;
-    }
+        ),
+      ),
+    );
   }
+}
+
+class Course {
+  String title;
+  String path;
+  dynamic existe;
+  Course({this.title, this.path, this.existe});
 }
 
 class _BezierPainter extends CustomPainter {

@@ -90,6 +90,7 @@ class _AnimacionView extends State<Animacion> {
 
   Future<String> _returnValue(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    // ignore: await_only_futures
     final token = await prefs.getString("token");
     if (token != null) {
       Timer(Duration(seconds: 2), () {
@@ -113,14 +114,6 @@ class _AnimacionView extends State<Animacion> {
           );
         }
         accedio = true;
-        /*print("hola mundo");
-        Navigator.pushReplacementNamed(
-          context,
-          '/',
-          arguments: Welcome(
-            id_cliente: id_cliente,
-          ),
-        );*/
       });
     }
     return token;
@@ -135,19 +128,16 @@ class _AnimacionView extends State<Animacion> {
 
   _saveValue(String token) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    print(token);
     await prefs.setString('token', token);
   }
 
   Future<dynamic> _getListado(BuildContext context) async {
     try {
       final respuesta = await http.get(Uri.parse(url));
-
       if (respuesta.statusCode == 200) {
         if (respuesta.body != "") {
           final data = json.decode(respuesta.body);
           data.forEach((e) {
-            print(e['id_cliente']);
             idCliente = e['id_cliente'];
             tokenT = e['remember_token'];
           });
@@ -176,11 +166,26 @@ class _AnimacionView extends State<Animacion> {
           return null;
         }
       } else {
-        print("Error con la respusta");
+        Timer(Duration(seconds: 4), () {
+          if (!accedio) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              PageTransition(
+                alignment: Alignment.bottomCenter,
+                curve: Curves.easeInOut,
+                duration: Duration(milliseconds: 1000),
+                reverseDuration: Duration(milliseconds: 1000),
+                type: PageTransitionType.rightToLeftJoined,
+                child: LoginForm(),
+                childCurrent: new Container(),
+              ),
+              (Route<dynamic> route) => false,
+            );
+          }
+          accedio = true;
+        });
       }
     } catch (e) {
-      print("ERROR");
-      print(e);
       Timer(Duration(seconds: 4), () {
         if (!accedio) {
           Navigator.pushAndRemoveUntil(
@@ -205,8 +210,6 @@ class _AnimacionView extends State<Animacion> {
 
   void _login(idCliente, context) {
     EasyLoading.dismiss();
-    print("id_cliente");
-    print(idCliente);
 
     if (!accedio) {
       Navigator.pushAndRemoveUntil(
@@ -334,7 +337,7 @@ class SecondPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final SecondPage args = ModalRoute.of(context).settings.arguments;
-    print(args);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(args.title),

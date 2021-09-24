@@ -7,7 +7,7 @@ import 'package:flutter_app/Vistas/obra_publica.dart';
 import 'package:flutter_app/Vistas/plataformas.dart';
 import 'package:flutter_app/Vistas/principal.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:loading_animations/loading_animations.dart';
+
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -21,12 +21,14 @@ class Anio extends StatefulWidget {
   final int anio;
   final int cliente;
   final int clave;
+  final String path;
   _AnioView createState() => _AnioView();
 
   Anio({
     this.anio,
     this.cliente,
     this.clave,
+    this.path,
   });
 }
 
@@ -55,6 +57,7 @@ class _AnioView extends State<Anio> {
   List<String> listNombreObras = [];
   int currentIndex = 2;
   GlobalKey _bottomNavigationKey = GlobalKey();
+  String localPath;
 
   List<Widget> send = [];
 
@@ -80,14 +83,11 @@ class _AnioView extends State<Anio> {
 
   @override
   Widget build(BuildContext context) {
-    LoadingFlipping.square(
-      borderColor: Colors.cyan,
-      size: 30.0,
-    );
     final Anio args = ModalRoute.of(context).settings.arguments;
     idCliente = args.cliente;
     anio = args.anio;
     claveMunicipio = args.clave;
+    localPath = args.path;
     _returnValue(context);
     if (inicio) {
       _options();
@@ -211,7 +211,7 @@ class _AnioView extends State<Anio> {
                 highlightElevation: 0,*/
                 onPressed: () {
                   Navigator.of(context).pop();
-                  _saveValue(null);
+                  _saveValue("");
                   Navigator.pushAndRemoveUntil(
                     context,
                     PageTransition(
@@ -302,6 +302,7 @@ class _AnioView extends State<Anio> {
                         anio: anio,
                         idCliente: idCliente,
                         clave: claveMunicipio,
+                        path: localPath,
                       ));
                 },
                 style: ElevatedButton.styleFrom(
@@ -354,7 +355,6 @@ class _AnioView extends State<Anio> {
                   ),
                 ),
                 onPressed: () {
-                  print(claveMunicipio);
                   Navigator.pushNamed(
                     context,
                     '/obras',
@@ -362,6 +362,7 @@ class _AnioView extends State<Anio> {
                       anio: anio,
                       idCliente: idCliente,
                       clave: claveMunicipio,
+                      path: localPath,
                       platform: Theme.of(context).platform,
                     ),
                   );
@@ -482,17 +483,21 @@ class _AnioView extends State<Anio> {
                 onPressed: () {
                   /*Navigator.pushNamed(context, '/fondos');*/
 
-                  Navigator.pushNamed(context, '/plataformas',
-                      arguments: Plataformas(
-                        anio: anio,
-                        cliente: idCliente,
-                        prodimb: prodimdf,
-                        gib: gi,
-                        clave: claveMunicipio,
-                        platform: Theme.of(context).platform,
-                        idObrasList: listIdObras,
-                        nombreObrasList: listNombreObras,
-                      ));
+                  Navigator.pushNamed(
+                    context,
+                    '/plataformas',
+                    arguments: Plataformas(
+                      anio: anio,
+                      cliente: idCliente,
+                      prodimb: prodimdf,
+                      gib: gi,
+                      clave: claveMunicipio,
+                      platform: Theme.of(context).platform,
+                      idObrasList: listIdObras,
+                      nombreObrasList: listNombreObras,
+                      path: localPath,
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   primary: Colors.transparent,
@@ -523,6 +528,7 @@ class _AnioView extends State<Anio> {
   }
 
   Future<dynamic> _getListado() async {
+    
     EasyLoading.instance
       ..displayDuration = const Duration(milliseconds: 2000)
       ..indicatorType = EasyLoadingIndicatorType.squareCircle
@@ -531,6 +537,7 @@ class _AnioView extends State<Anio> {
       ..radius = 10.0
       ..progressColor = Colors.white
       ..backgroundColor = Colors.transparent
+      ..boxShadow = [BoxShadow(color: Colors.transparent)]
       ..indicatorColor = Colors.white
       ..textColor = Colors.white
       ..maskColor = Colors.black.withOpacity(0.88)
@@ -561,13 +568,10 @@ class _AnioView extends State<Anio> {
       maskType: EasyLoadingMaskType.custom,
     );
     url = "http://sistema.mrcorporativo.com/api/getProdim/$idCliente,$anio";
-    print(url);
 
     try {
       final respuesta = await http.get(Uri.parse(url));
-      print(respuesta.body);
       if (respuesta.statusCode == 200) {
-        print(respuesta.body);
         if (respuesta.body != "[]") {
           final data = json.decode(respuesta.body);
           data.forEach((e) {
@@ -592,13 +596,9 @@ class _AnioView extends State<Anio> {
             dynamic obras_2 = json.decode(obras_1);
 
             obras_2.forEach((i) {
-              print(i['id_obra']);
               listIdObras.add(i['id_obra']);
-              print(i['nombre_corto']);
               listNombreObras.add(i['nombre_corto']);
-              print(i['nombre_corto']);
             });
-            print(listNombreObras.length);
           });
           _onRefresh();
           _onLoading();
@@ -608,29 +608,56 @@ class _AnioView extends State<Anio> {
           return null;
         }
       } else {
-        print("Error con la respusta");
+        EasyLoading.instance
+          ..displayDuration = const Duration(milliseconds: 2000)
+          ..indicatorType = EasyLoadingIndicatorType.fadingCircle
+          ..loadingStyle = EasyLoadingStyle.dark
+          ..indicatorSize = 45.0
+          ..radius = 10.0
+          ..progressColor = Colors.white
+          ..backgroundColor = Colors.transparent
+          ..boxShadow = [BoxShadow(color: Colors.transparent)]
+          ..indicatorColor = Colors.blue[700]
+          ..indicatorSize = 70
+          ..textStyle = TextStyle(
+              color: Colors.grey[500],
+              fontSize: 20,
+              fontWeight: FontWeight.bold)
+          ..maskColor = Colors.black.withOpacity(0.88)
+          ..userInteractions = false
+          ..dismissOnTap = true;
         EasyLoading.dismiss();
+        EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
+        EasyLoading.showError(
+          'Error de conexión',
+          maskType: EasyLoadingMaskType.custom,
+        );
       }
     } catch (e) {
       EasyLoading.instance
-        ..displayDuration = const Duration(milliseconds: 2000)
-        ..indicatorType = EasyLoadingIndicatorType.fadingCircle
-        ..loadingStyle = EasyLoadingStyle.dark
-        ..indicatorSize = 45.0
-        ..radius = 10.0
-        ..progressColor = Colors.white
-        ..backgroundColor = Colors.red[900]
-        ..indicatorColor = Colors.white
-        ..textColor = Colors.white
-        ..maskColor = Colors.black.withOpacity(0.88)
-        ..userInteractions = false
-        ..dismissOnTap = true;
-      EasyLoading.dismiss();
-      EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
-      EasyLoading.showError(
-        'ERROR DE CONEXIÓN ',
-        maskType: EasyLoadingMaskType.custom,
-      );
+          ..displayDuration = const Duration(milliseconds: 2000)
+          ..indicatorType = EasyLoadingIndicatorType.fadingCircle
+          ..loadingStyle = EasyLoadingStyle.dark
+          ..indicatorSize = 45.0
+          ..radius = 10.0
+          ..progressColor = Colors.white
+          ..backgroundColor = Colors.transparent
+          ..boxShadow = [BoxShadow(color: Colors.transparent)]
+          ..indicatorColor = Colors.blue[700]
+          ..indicatorSize = 70
+          ..textStyle = TextStyle(
+              color: Colors.grey[500],
+              fontSize: 20,
+              fontWeight: FontWeight.bold)
+          ..maskColor = Colors.black.withOpacity(0.88)
+          ..userInteractions = false
+          ..dismissOnTap = true;
+        EasyLoading.dismiss();
+        EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
+        EasyLoading.showError(
+          'Error de conexión',
+          maskType: EasyLoadingMaskType.custom,
+        );
     }
   }
 
@@ -641,6 +668,7 @@ class _AnioView extends State<Anio> {
 
   Future<String> _returnValue(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    // ignore: await_only_futures
     final token = await prefs.getString("token");
     return token;
   }

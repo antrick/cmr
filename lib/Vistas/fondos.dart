@@ -22,10 +22,12 @@ class Fondos extends StatefulWidget {
   final int idCliente;
   final int anio;
   final int clave;
+  final String path;
   Fondos({
     this.idCliente,
     this.anio,
     this.clave,
+    this.path,
   });
 }
 
@@ -49,6 +51,8 @@ class _FondosView extends State<Fondos> {
   bool inicio = false;
   List<Widget> send = [];
   List<Widget> fondos = [];
+
+  String _localPath;
 
   List<String> items = ["1", "2", "3", "4", "5", "6", "7", "8"];
   RefreshController _refreshController =
@@ -77,6 +81,7 @@ class _FondosView extends State<Fondos> {
     anio = args.anio;
     idCliente = args.idCliente;
     claveMunicipio = args.clave;
+    _localPath = args.path;
     if (inicio) {
       _options();
     }
@@ -167,6 +172,7 @@ class _FondosView extends State<Fondos> {
               anio: anio,
               cliente: idCliente,
               clave: claveMunicipio,
+              path: _localPath,
             ),
           );
           return false;
@@ -216,7 +222,7 @@ class _FondosView extends State<Fondos> {
                 highlightElevation: 0,*/
                 onPressed: () {
                   Navigator.of(context).pop();
-                  _saveValue(null);
+                  _saveValue("");
                   Navigator.pushAndRemoveUntil(
                     context,
                     PageTransition(
@@ -470,6 +476,7 @@ class _FondosView extends State<Fondos> {
       ..radius = 10.0
       ..progressColor = Colors.white
       ..backgroundColor = Colors.transparent
+      ..boxShadow = [BoxShadow(color: Colors.transparent)]
       ..indicatorColor = Colors.white
       ..textColor = Colors.white
       ..maskColor = Colors.black.withOpacity(0.88)
@@ -504,7 +511,6 @@ class _FondosView extends State<Fondos> {
     send.clear();
     try {
       final respuesta = await http.get(Uri.parse(url));
-      print(respuesta.body);
       if (respuesta.statusCode == 200) {
         if (respuesta.body != "") {
           final data = json.decode(respuesta.body);
@@ -539,8 +545,30 @@ class _FondosView extends State<Fondos> {
           return null;
         }
       } else {
+        EasyLoading.instance
+          ..displayDuration = const Duration(milliseconds: 2000)
+          ..indicatorType = EasyLoadingIndicatorType.fadingCircle
+          ..loadingStyle = EasyLoadingStyle.dark
+          ..indicatorSize = 45.0
+          ..radius = 10.0
+          ..progressColor = Colors.white
+          ..backgroundColor = Colors.transparent
+          ..boxShadow = [BoxShadow(color: Colors.transparent)]
+          ..indicatorColor = Colors.blue[700]
+          ..indicatorSize = 70
+          ..textStyle = TextStyle(
+              color: Colors.grey[500],
+              fontSize: 20,
+              fontWeight: FontWeight.bold)
+          ..maskColor = Colors.black.withOpacity(0.88)
+          ..userInteractions = false
+          ..dismissOnTap = true;
         EasyLoading.dismiss();
-        print("Error con la respusta");
+        EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
+        EasyLoading.showError(
+          'Error de conexión',
+          maskType: EasyLoadingMaskType.custom,
+        );
       }
     } catch (e) {
       EasyLoading.instance
@@ -550,16 +578,19 @@ class _FondosView extends State<Fondos> {
         ..indicatorSize = 45.0
         ..radius = 10.0
         ..progressColor = Colors.white
-        ..backgroundColor = Colors.red[900]
-        ..indicatorColor = Colors.white
-        ..textColor = Colors.white
+        ..backgroundColor = Colors.transparent
+        ..boxShadow = [BoxShadow(color: Colors.transparent)]
+        ..indicatorColor = Colors.blue[700]
+        ..indicatorSize = 70
+        ..textStyle = TextStyle(
+            color: Colors.grey[500], fontSize: 20, fontWeight: FontWeight.bold)
         ..maskColor = Colors.black.withOpacity(0.88)
         ..userInteractions = false
         ..dismissOnTap = true;
       EasyLoading.dismiss();
       EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
       EasyLoading.showError(
-        'ERROR DE CONEXIÓN ',
+        'Error de conexión',
         maskType: EasyLoadingMaskType.custom,
       );
     }
@@ -580,14 +611,14 @@ class _FondosView extends State<Fondos> {
 
   _saveValue(String token) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    print(token);
     await prefs.setString('token', token);
   }
 
   Future<String> _returnValue(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    // ignore: await_only_futures
     final token = await prefs.getString("token");
-    print(token);
+
     return token;
   }
 }

@@ -1,6 +1,7 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/Vistas/counter.dart';
 import 'package:flutter_app/Vistas/principal.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -47,10 +48,11 @@ class _LoginFormState extends State<LoginForm> {
   String url;
   final formkey = GlobalKey<FormState>();
   String tokenT;
-  final counter = Counter();
+  // ignore: unused_field
   String _debugLabelString = "";
   String _emailAddress = 'tirado1294@gmail.com';
-  String _externalUserId;
+  
+  // ignore: unused_field
   bool _enableConsentButton = false;
   bool _requireConsent = true;
   String _idOneSignal = "";
@@ -65,6 +67,7 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
+    _saveValue("");
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -205,7 +208,6 @@ class _LoginFormState extends State<LoginForm> {
                     //metodo para cambiar de pantalla
                     //Navigator.pushNamed(context, '/inicio');
                     idCliente = 0;
-                    counter.increment();
                     _showSecondPage(context);
                   },
                   child: const Text(
@@ -225,10 +227,33 @@ class _LoginFormState extends State<LoginForm> {
                     elevation: 9.0,
                   ),
                 ),
+                SizedBox(height: 25.0),
+                Container(
+                  child: Center(
+                    child: new RichText(
+                      textAlign: TextAlign.center,
+                      text: new TextSpan(
+                        text:
+                            'Clic aquí para solicitar acceso a la versión de prueba',
+                        style: new TextStyle(
+                          color: Color.fromRGBO(9, 46, 116, 1.0),
+                          decorationThickness: 2,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        recognizer: new TapGestureRecognizer()
+                          ..onTap = () {
+                            launch(
+                                'https://api.whatsapp.com/send/?phone=529511911121&text=Hola%21%21+quiero+obtener+acceso+a+la+versi%C3%B3n+de+prueba+de+la+aplicaci%C3%B3n.&app_absent=0');
+                          },
+                      ),
+                    ),
+                  ),
+                ),
                 Container(
                   height: visibility
-                      ? MediaQuery.of(context).size.height - 510
-                      : MediaQuery.of(context).size.height - 560,
+                      ? MediaQuery.of(context).size.height - 580
+                      : MediaQuery.of(context).size.height - 630,
                   child: Center(
                     child: Text(
                       'CREAMOS GESTIONES EXITOSAS',
@@ -288,11 +313,7 @@ class _LoginFormState extends State<LoginForm> {
 
   //metodo para cambiar pantalla
   void _showSecondPage(BuildContext context) {
-    MediaQueryData _mediaQueryData;
-    double screenWidth;
-    _mediaQueryData = MediaQuery.of(context);
-    screenWidth = _mediaQueryData.size.width;
-    print(screenWidth);
+    
     EasyLoading.instance
       ..displayDuration = const Duration(milliseconds: 2000)
       ..indicatorType = EasyLoadingIndicatorType.fadingCircle
@@ -301,6 +322,7 @@ class _LoginFormState extends State<LoginForm> {
       ..radius = 10.0
       ..progressColor = Colors.white
       ..backgroundColor = Colors.transparent
+      ..boxShadow = [BoxShadow(color: Colors.transparent)]
       ..indicatorColor = Colors.white
       ..textColor = Colors.white
       ..maskColor = Colors.black.withOpacity(0.88)
@@ -310,7 +332,7 @@ class _LoginFormState extends State<LoginForm> {
     if (formkey.currentState.validate()) {
       formkey.currentState.save();
       url =
-          "https://sistema.mrcorporativo.com/api/getUsuario/$_usuario,$_password,$_idOneSignal";
+          "http://sistema.mrcorporativo.com/api/getUsuario/$_usuario,$_password,$_idOneSignal";
       EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
       EasyLoading.show(
         indicator: Container(
@@ -342,7 +364,6 @@ class _LoginFormState extends State<LoginForm> {
     List<Widget> lista = [];
     info.forEach((elemento) {
       int elementoCliente = elemento['id_cliente'];
-      print("elemento $elementoCliente");
       lista.add(Text("$elementoCliente"));
     });
     return lista;
@@ -350,13 +371,12 @@ class _LoginFormState extends State<LoginForm> {
 
   Future<dynamic> _getListado() async {
     try {
-      print("url");
-      print(url);
       final respuesta = await http.get(Uri.parse(url));
 
       if (respuesta.statusCode == 200) {
         if (respuesta.body != "") {
           final data = json.decode(respuesta.body);
+
           data.forEach((e) {
             idCliente = e['id_cliente'];
             tokenT = e['remember_token'];
@@ -372,45 +392,76 @@ class _LoginFormState extends State<LoginForm> {
             ..indicatorSize = 45.0
             ..radius = 10.0
             ..progressColor = Colors.white
-            ..backgroundColor = Colors.red[900]
-            ..indicatorColor = Colors.white
-            ..textColor = Colors.white
+            ..backgroundColor = Colors.transparent
+            ..boxShadow = [BoxShadow(color: Colors.transparent)]
+            ..indicatorColor = Colors.blue[700]
+            ..indicatorSize = 70
+            ..textStyle = TextStyle(
+                color: Colors.grey[500],
+                fontSize: 20,
+                fontWeight: FontWeight.bold)
             ..maskColor = Colors.black.withOpacity(0.88)
             ..userInteractions = false
             ..dismissOnTap = true;
           EasyLoading.dismiss();
           EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
           EasyLoading.showError(
-            'DATOS ERRONEOS',
+            'Error de conexión',
             maskType: EasyLoadingMaskType.custom,
           );
           return null;
         }
       } else {
-        print("Error con la respusta");
+        EasyLoading.instance
+          ..displayDuration = const Duration(milliseconds: 2000)
+          ..indicatorType = EasyLoadingIndicatorType.fadingCircle
+          ..loadingStyle = EasyLoadingStyle.dark
+          ..indicatorSize = 45.0
+          ..radius = 10.0
+          ..progressColor = Colors.white
+          ..backgroundColor = Colors.transparent
+          ..boxShadow = [BoxShadow(color: Colors.transparent)]
+          ..indicatorColor = Colors.blue[700]
+          ..indicatorSize = 70
+          ..textStyle = TextStyle(
+              color: Colors.grey[500],
+              fontSize: 20,
+              fontWeight: FontWeight.bold)
+          ..maskColor = Colors.black.withOpacity(0.88)
+          ..userInteractions = false
+          ..dismissOnTap = true;
+        EasyLoading.dismiss();
+        EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
+        EasyLoading.showError(
+          'Error de conexión',
+          maskType: EasyLoadingMaskType.custom,
+        );
       }
     } catch (e) {
-      print("ERROR");
-      print(e);
       EasyLoading.instance
-        ..displayDuration = const Duration(milliseconds: 2000)
-        ..indicatorType = EasyLoadingIndicatorType.fadingCircle
-        ..loadingStyle = EasyLoadingStyle.dark
-        ..indicatorSize = 45.0
-        ..radius = 10.0
-        ..progressColor = Colors.white
-        ..backgroundColor = Colors.red[900]
-        ..indicatorColor = Colors.white
-        ..textColor = Colors.white
-        ..maskColor = Colors.black.withOpacity(0.88)
-        ..userInteractions = false
-        ..dismissOnTap = true;
-      EasyLoading.dismiss();
-      EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
-      EasyLoading.showError(
-        'ERROR DE CONEXIÓN',
-        maskType: EasyLoadingMaskType.custom,
-      );
+          ..displayDuration = const Duration(milliseconds: 2000)
+          ..indicatorType = EasyLoadingIndicatorType.fadingCircle
+          ..loadingStyle = EasyLoadingStyle.dark
+          ..indicatorSize = 45.0
+          ..radius = 10.0
+          ..progressColor = Colors.white
+          ..backgroundColor = Colors.transparent
+          ..boxShadow = [BoxShadow(color: Colors.transparent)]
+          ..indicatorColor = Colors.blue[700]
+          ..indicatorSize = 70
+          ..textStyle = TextStyle(
+              color: Colors.grey[500],
+              fontSize: 20,
+              fontWeight: FontWeight.bold)
+          ..maskColor = Colors.black.withOpacity(0.88)
+          ..userInteractions = false
+          ..dismissOnTap = true;
+        EasyLoading.dismiss();
+        EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
+        EasyLoading.showError(
+          'Error de conexión',
+          maskType: EasyLoadingMaskType.custom,
+        );
       return null;
     }
   }
@@ -435,7 +486,6 @@ class _LoginFormState extends State<LoginForm> {
 
   _saveValue(String token) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    print(token);
     await prefs.setString('token', token);
   }
 
@@ -450,8 +500,6 @@ class _LoginFormState extends State<LoginForm> {
       OSiOSSettings.autoPrompt: false,
       OSiOSSettings.promptBeforeOpeningPushUrl: true
     };
-
-    print("object");
 
     OneSignal.shared
         .setNotificationReceivedHandler((OSNotification notification) {
@@ -479,16 +527,16 @@ class _LoginFormState extends State<LoginForm> {
 
     OneSignal.shared
         .setSubscriptionObserver((OSSubscriptionStateChanges changes) {
-      print("SUBSCRIPTION STATE CHANGED: ${changes.jsonRepresentation()}");
+      //print("SUBSCRIPTION STATE CHANGED: ${changes.jsonRepresentation()}");
     });
 
     OneSignal.shared.setPermissionObserver((OSPermissionStateChanges changes) {
-      print("PERMISSION STATE CHANGED: ${changes.jsonRepresentation()}");
+      //print("PERMISSION STATE CHANGED: ${changes.jsonRepresentation()}");
     });
 
     OneSignal.shared.setEmailSubscriptionObserver(
         (OSEmailSubscriptionStateChanges changes) {
-      print("EMAIL SUBSCRIPTION STATE CHANGED ${changes.jsonRepresentation()}");
+      //print("EMAIL SUBSCRIPTION STATE CHANGED ${changes.jsonRepresentation()}");
     });
 
     // NOTE: Replace with your own app ID from https://www.onesignal.com
@@ -517,10 +565,10 @@ class _LoginFormState extends State<LoginForm> {
     if (_emailAddress == null) return;
 
     OneSignal.shared.setEmail(email: _emailAddress).whenComplete(() {
-      print("Successfully set email");
+      //print("Successfully set email");
       initPlatformState1();
     }).catchError((error) {
-      print("Failed to set email with error: $error");
+      //print("Failed to set email with error: $error");
     });
   }
 
@@ -538,6 +586,7 @@ class _LoginFormState extends State<LoginForm> {
     if (status.subscriptionStatus.subscribed) {}
 
     // the user's APNS or FCM/GCM push token
+    
     String token = status.subscriptionStatus.pushToken;
 
     String emailPlayerId = status.emailSubscriptionStatus.emailUserId;
@@ -545,10 +594,10 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   void _handleConsent() {
-    print("Setting consent to true");
+    //print("Setting consent to true");
     OneSignal.shared.consentGranted(true);
 
-    print("Setting state");
+    //print("Setting state");
     this.setState(() {
       _enableConsentButton = false;
     });
@@ -575,7 +624,7 @@ class _LoginFormState extends State<LoginForm> {
     // Get the value for a trigger by its key
     Object triggerValue =
         await OneSignal.shared.getTriggerValueForKey("trigger_3");
-    print("'trigger_3' key trigger value: " + triggerValue.toString());
+    //print("'trigger_3' key trigger value: " + triggerValue.toString());
 
     // Create a list and bulk remove triggers based on keys supplied
     List<String> keys = ["trigger_1", "trigger_3"];
@@ -592,65 +641,24 @@ class _LoginFormState extends State<LoginForm> {
     // Send a normal outcome and get a reply with the name of the outcome
     OneSignal.shared.sendOutcome("normal_1");
     OneSignal.shared.sendOutcome("normal_2").then((outcomeEvent) {
-      print(outcomeEvent.jsonRepresentation());
+      //print(outcomeEvent.jsonRepresentation());
     });
 
     // Send a unique outcome and get a reply with the name of the outcome
     OneSignal.shared.sendUniqueOutcome("unique_1");
     OneSignal.shared.sendUniqueOutcome("unique_2").then((outcomeEvent) {
-      print(outcomeEvent.jsonRepresentation());
+      //print(outcomeEvent.jsonRepresentation());
     });
 
     // Send an outcome with a value and get a reply with the name of the outcome
     OneSignal.shared.sendOutcomeWithValue("value_1", 3.2);
     OneSignal.shared.sendOutcomeWithValue("value_2", 3.9).then((outcomeEvent) {
-      print(outcomeEvent.jsonRepresentation());
+      //print(outcomeEvent.jsonRepresentation());
     });
   }
 
   Future<void> outcomeAwaitExample() async {
     var outcomeEvent = await OneSignal.shared.sendOutcome("await_normal_1");
-    print(outcomeEvent.jsonRepresentation());
+    //print(outcomeEvent.jsonRepresentation());
   }
 }
-
-/*class HomePage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  bool _loadingInProgress;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadingInProgress = true;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text("Custom Loading Animation example"),
-      ),
-      body: _buildBody(),
-    );
-  }
-
-  Widget _buildBody() {
-    if (_loadingInProgress) {
-      return new Center(
-        child: new CircularProgressIndicator(),
-      );
-    } else {
-      return new Center(
-        child: new Text('Data loaded'),
-      );
-    }
-  }
-}*/
-
-//=============================CODIGO DE EJEMPLO================================
-
-/**/

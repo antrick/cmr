@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -9,6 +11,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'package:page_transition/page_transition.dart';
+import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import 'dart:ui';
 import 'dart:async';
@@ -51,6 +54,8 @@ class _WelcomeView extends State<Welcome> {
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
+  String _localPath;
+
   void _onRefresh() async {
     // monitor network fetch
     await Future.delayed(Duration(milliseconds: 1000));
@@ -65,6 +70,12 @@ class _WelcomeView extends State<Welcome> {
     if (mounted) setState(() {});
     _refreshController.loadComplete();
     EasyLoading.dismiss();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getDirectoryPath();
   }
 
   @override
@@ -170,17 +181,27 @@ class _WelcomeView extends State<Welcome> {
       onTap: (index) {
         setState(() {
           currentIndex = 0;
-          print(currentIndex);
         });
       },
       letIndexChange: (index) {
         if (index == 1) {
           _showAlertDialog();
+
           return false;
         }
         return true;
       },
     );
+  }
+
+  Future<String> getDirectoryPath() async {
+    final appDocDirectory = await getExternalStorageDirectory();
+
+    Directory directory = await new Directory(
+            (appDocDirectory?.path).toString() + Platform.pathSeparator + 'Downloads')
+        .create(recursive: true);
+    _localPath = directory.path;
+    return directory.path;
   }
 
   void _showAlertDialog() {
@@ -217,13 +238,9 @@ class _WelcomeView extends State<Welcome> {
                   primary: Colors.transparent,
                   elevation: 0,
                 ),
-                /*color: Colors.transparent,
-                elevation: 0,
-                highlightColor: Colors.transparent,
-                highlightElevation: 0,*/
                 onPressed: () {
                   Navigator.of(context).pop();
-                  _saveValue(null);
+                  _saveValue("");
                   Navigator.pushAndRemoveUntil(
                     context,
                     PageTransition(
@@ -414,6 +431,7 @@ class _WelcomeView extends State<Welcome> {
                         anio: i,
                         cliente: idCliente,
                         clave: claveMunicipio,
+                        path: _localPath,
                       ),
                     );
                   },
@@ -489,6 +507,7 @@ class _WelcomeView extends State<Welcome> {
       ..radius = 10.0
       ..progressColor = Colors.white
       ..backgroundColor = Colors.transparent
+      ..boxShadow = [BoxShadow(color: Colors.transparent)]
       ..indicatorColor = Colors.white
       ..textColor = Colors.white
       ..maskColor = Colors.black.withOpacity(0.88)
@@ -518,12 +537,12 @@ class _WelcomeView extends State<Welcome> {
       ),
       maskType: EasyLoadingMaskType.custom,
     );
+
     url = "http://sistema.mrcorporativo.com/api/getCliente/$idCliente";
     try {
       final respuesta = await http.get(Uri.parse(url));
       if (respuesta.statusCode == 200) {
         if (respuesta.body != "") {
-          print(respuesta.body);
           final data = json.decode(respuesta.body);
           data.forEach((e) {
             idCliente = e['id_cliente'];
@@ -544,39 +563,67 @@ class _WelcomeView extends State<Welcome> {
           return null;
         }
       } else {
-        print("Error con la respusta");
+        EasyLoading.instance
+          ..displayDuration = const Duration(milliseconds: 2000)
+          ..indicatorType = EasyLoadingIndicatorType.fadingCircle
+          ..loadingStyle = EasyLoadingStyle.dark
+          ..indicatorSize = 45.0
+          ..radius = 10.0
+          ..progressColor = Colors.white
+          ..backgroundColor = Colors.transparent
+          ..boxShadow = [BoxShadow(color: Colors.transparent)]
+          ..indicatorColor = Colors.blue[700]
+          ..indicatorSize = 70
+          ..textStyle = TextStyle(
+              color: Colors.grey[500],
+              fontSize: 20,
+              fontWeight: FontWeight.bold)
+          ..maskColor = Colors.black.withOpacity(0.88)
+          ..userInteractions = false
+          ..dismissOnTap = true;
+        EasyLoading.dismiss();
+        EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
+        EasyLoading.showError(
+          'Error de conexión',
+          maskType: EasyLoadingMaskType.custom,
+        );
       }
     } catch (e) {
       EasyLoading.instance
-        ..displayDuration = const Duration(milliseconds: 2000)
-        ..indicatorType = EasyLoadingIndicatorType.fadingCircle
-        ..loadingStyle = EasyLoadingStyle.dark
-        ..indicatorSize = 45.0
-        ..radius = 10.0
-        ..progressColor = Colors.white
-        ..backgroundColor = Colors.red[900]
-        ..indicatorColor = Colors.white
-        ..textColor = Colors.white
-        ..maskColor = Colors.black.withOpacity(0.88)
-        ..userInteractions = false
-        ..dismissOnTap = true;
-      EasyLoading.dismiss();
-      EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
-      EasyLoading.showError(
-        'ERROR DE CONEXIÓN ',
-        maskType: EasyLoadingMaskType.custom,
-      );
+          ..displayDuration = const Duration(milliseconds: 2000)
+          ..indicatorType = EasyLoadingIndicatorType.fadingCircle
+          ..loadingStyle = EasyLoadingStyle.dark
+          ..indicatorSize = 45.0
+          ..radius = 10.0
+          ..progressColor = Colors.white
+          ..backgroundColor = Colors.transparent
+          ..boxShadow = [BoxShadow(color: Colors.transparent)]
+          ..indicatorColor = Colors.blue[700]
+          ..indicatorSize = 70
+          ..textStyle = TextStyle(
+              color: Colors.grey[500],
+              fontSize: 20,
+              fontWeight: FontWeight.bold)
+          ..maskColor = Colors.black.withOpacity(0.88)
+          ..userInteractions = false
+          ..dismissOnTap = true;
+        EasyLoading.dismiss();
+        EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
+        EasyLoading.showError(
+          'Error de conexión',
+          maskType: EasyLoadingMaskType.custom,
+        );
     }
   }
 
   _saveValue(String token) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    print(token);
     await prefs.setString('token', token);
   }
 
   Future<String> _returnValue(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    // ignore: await_only_futures
     final token = await prefs.getString("token");
     return token;
   }
